@@ -18,6 +18,7 @@
     "nuxt": "^3.14.159",
     "nuxt-app": "file:",
     "pinia": "^2.2.6",
+    "redis": "^4.7.0",
     "vue": "latest",
     "vue-router": "latest"
   },
