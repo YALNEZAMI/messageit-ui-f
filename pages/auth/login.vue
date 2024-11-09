@@ -1,9 +1,74 @@
 <template>
-  <main class="w-screen h-screen flex items-center justify-center">
-    <AuthLogin></AuthLogin>
+  <main
+    style="background: linear-gradient(40deg, white, brown)"
+    class="w-3/4 md:w-1/2 p-2 rounded flex flex-col space-y-2 shadow-md"
+  >
+    <h3 class="text-center">Connexion à votre compte</h3>
+    <div class="flex justify-center">
+      <div id="inputs" class="flex flex-col space-y-1">
+        <div>
+          <div>Email</div>
+          <input type="text" v-model="auth.email" />
+        </div>
+        <div>
+          <div>Mot de passe</div>
+          <input type="text" v-model="auth.password" />
+        </div>
+      </div>
+    </div>
+    <div v-if="alert.bool" class="bg-red-400 p-2 my-1 text-white text-center">
+      {{ alert.message }}
+    </div>
+    <div class="flex justify-center mt-1">
+      <button
+        type="button"
+        @click="login"
+        class="min-w-20 bg-blue-500 hover:bg-blue-600 transition-all duration-500 rounded p-1 px-2 text-white cursor-pointer"
+      >
+        <span v-if="!loading">Connexion</span>
+        <span v-else>...</span>
+      </button>
+    </div>
+    <div class="text-center">
+      <NuxtLink to="/auth/register" class="underline"
+        >Vous n'avez pas de compte ?</NuxtLink
+      >
+    </div>
   </main>
 </template>
 <script lang="ts" setup>
-console.log("login");
-definePageMeta({ layout: "authLayout" });
+const auth = ref({
+  email: "yaser@gmail.com",
+  password: "1234",
+});
+const loading = ref(false);
+const authStore = useAuthStore();
+const alert = ref({
+  bool: false,
+  message: "",
+});
+const lanceAlert = (msg: string) => {
+  alert.value.bool = true;
+  alert.value.message = msg;
+  setTimeout(() => {
+    alert.value.bool = false;
+    alert.value.message = "";
+  }, 3000);
+};
+definePageMeta({ layout: "auth" });
+const login = async () => {
+  loading.value = true;
+  const correctLogin = await authStore.login(auth.value);
+  if (!correctLogin) {
+    lanceAlert("Email ou mot de passe incorrect");
+    loading.value = false;
+  }
+};
 </script>
+<style scoped>
+input {
+  width: 15rem;
+  padding: 5px;
+  border-radius: 5px;
+}
+</style>
