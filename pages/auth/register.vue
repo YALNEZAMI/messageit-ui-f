@@ -15,6 +15,7 @@
             id="name"
             type="text"
             v-model="auth.name"
+            placeholder="jack"
           />
         </div>
         <div>
@@ -26,6 +27,7 @@
             id="email"
             type="text"
             v-model="auth.email"
+            placeholder="jack@gmail.com"
           />
         </div>
         <div>
@@ -37,6 +39,7 @@
             id="password"
             type="text"
             v-model="auth.password"
+            placeholder="******"
           />
         </div>
         <div>
@@ -48,6 +51,7 @@
             id="password2"
             type="text"
             v-model="auth.password2"
+            placeholder="******"
           />
         </div>
       </div>
@@ -101,6 +105,7 @@ onMounted(async () => {
   });
 });
 const lanceAlert = (msg: string) => {
+  loading.value = false;
   alert.value.bool = true;
   alert.value.message = msg;
   setTimeout(() => {
@@ -108,6 +113,7 @@ const lanceAlert = (msg: string) => {
   }, 3000);
 };
 const authStore = useAuthStore();
+//register function
 const register = async () => {
   loading.value = true;
   let allFilled = true;
@@ -130,7 +136,15 @@ const register = async () => {
   ) {
     lanceAlert("Format invalide de votre adresse mail");
   }
-  authStore.register(auth.value);
+  const res = await authStore.register(auth.value);
+  if (res._id) {
+    authStore.login({
+      email: auth.value.email,
+      password: auth.value.password,
+    });
+  } else if (res.status == 500) {
+    lanceAlert(res.message);
+  }
 };
 const checkInput = (id: string) => {
   const input = document.getElementById(id) as HTMLInputElement;

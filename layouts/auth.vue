@@ -13,6 +13,4 @@
     </div>
   </main>
 </template>
-<script lang="ts" setup>
-console.log("authlayout");
-</script>
+<script lang="ts" setup></script>

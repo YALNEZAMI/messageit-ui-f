@@ -1,14 +1,16 @@
 <template>
   <main
     class="flex items-center p-2 rounded"
-    :class="store.getThemeTailwindClasses(500)"
+    :class="authStore.getThemeTailwindClasses(500)"
   >
-    <NuxtImg
-      class="w-1/4 h-16"
-      src="https://cdn.pixabay.com/photo/2012/04/13/21/07/user-33638_640.png"
-    />
-    <div class="text-xl md:text-2xl mx-2 w-1/2 truncate">
-      Bienvenue {{ store.user.name.toUpperCase() }}
+    <div class="flex h-1/6">
+      <NuxtImg
+        class="w-full md:w-20 h-16"
+        :src="authStore.defaultUserImg"
+      ></NuxtImg>
+    </div>
+    <div class="text-xl md:text-2xl mx-2 w-3/4 truncate">
+      Bienvenue {{ authStore.user.name.toUpperCase() }}
     </div>
     <div class="flex justify-end w-1/4">
       <svg
@@ -29,5 +31,5 @@
   </main>
 </template>
 <script lang="ts" setup>
-const store = useAuthStore();
+const authStore = useAuthStore();
 </script>

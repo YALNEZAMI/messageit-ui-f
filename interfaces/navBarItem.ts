@@ -3,4 +3,5 @@ export interface NavBarItem {
   path: string;
   svg: string;
   shortName: string;
+  notificationsNumber?: number;
 }

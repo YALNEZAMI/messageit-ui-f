@@ -8,11 +8,15 @@
       <div id="inputs" class="flex flex-col space-y-1">
         <div>
           <div>Email</div>
-          <input type="text" v-model="auth.email" />
+          <input
+            type="text"
+            v-model="auth.email"
+            placeholder="jack@gmail.com"
+          />
         </div>
         <div>
           <div>Mot de passe</div>
-          <input type="text" v-model="auth.password" />
+          <input type="text" v-model="auth.password" placeholder="******" />
         </div>
       </div>
     </div>

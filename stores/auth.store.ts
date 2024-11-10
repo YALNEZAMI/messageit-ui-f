@@ -1,10 +1,14 @@
 import { defineStore } from "pinia";
 import type { User } from "~/interfaces/user";
+
 export const useAuthStore = defineStore("authStore", {
   state: () => {
     return {
+      defaultUserImg:
+        "https://cdn.pixabay.com/photo/2012/04/13/21/07/user-33638_640.png",
       user: JSON.parse(localStorage.getItem("user") || "{}"),
       accessToken: localStorage.getItem("accessToken"),
+      //   accessToken: "",
       authentication: JSON.parse(
         localStorage.getItem("authentication") || "{}"
       ),
@@ -36,7 +40,9 @@ export const useAuthStore = defineStore("authStore", {
     },
     getTailwindAppClasses() {
       return {
-        "bg-gray-700 text-white": true,
+        "bg-gray-500": true,
+        "hover:bg-gray-500": true,
+        "text-white": true,
       };
     },
 
@@ -57,29 +63,45 @@ export const useAuthStore = defineStore("authStore", {
     },
     async register(auth: User) {
       try {
-        const body = auth;
+        const body: User = {
+          email: auth.email,
+          password: auth.password,
+        };
+        const query = {
+          name: auth.name,
+          email: auth.email,
+          theme: "basic",
+        };
 
-        delete body.password2;
-        body.theme = "basic";
         const feathers = useNuxtApp().$feathers; // Access the Feathers client
-
-        await feathers.service("users").create(body);
-        this.login({
-          email: body.email,
-          password: body.password,
-        });
+        const registering = await feathers
+          .service("users")
+          .create(body, { query });
+        return registering;
       } catch (error: any) {
         console.log("error", error);
       }
+    },
+    async logout() {
+      localStorage.clear();
+      this.setAccessToken("");
+      this.setAuthentication({});
+      this.setUser({} as User);
+      useRouter().push("/auth/login");
     },
     async login(auth: User) {
       try {
         auth.strategy = "local";
         const feathers = useNuxtApp().$feathers; // Access the Feathers client
-        const response = await feathers.service("authentication").create(auth);
-        console.log("response", response);
+
+        const response: any = await feathers
+          .service("authentication")
+          .create(auth);
         this.setAccessToken(response.accessToken);
-        this.setUser(response.user);
+        const completeUser = await feathers
+          .service("my-users")
+          .get(response.user._id);
+        this.setUser(completeUser);
         this.setAuthentication(response.authentication);
         this.redirectTo("/admin");
         return response;
@@ -89,6 +111,9 @@ export const useAuthStore = defineStore("authStore", {
       }
     },
     isTokenExpired() {
+      if (!this.authentication.payload) {
+        return true;
+      }
       const now = Math.floor(Date.now() / 1000); // current time in seconds
       return now >= this.authentication.payload.exp;
     },

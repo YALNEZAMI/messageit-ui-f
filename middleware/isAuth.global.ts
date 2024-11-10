@@ -7,8 +7,8 @@ export default defineNuxtRouteMiddleware((to, from) => {
   if (
     to.fullPath != "/auth/login" &&
     to.fullPath != "/auth/register" &&
-    authStore.isAuthenticated()
+    !authStore.isAuthenticated()
   ) {
-    navigateTo("/auth/login");
+    useRouter().push("/auth/login");
   }
 });
