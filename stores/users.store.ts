@@ -16,11 +16,16 @@ export const useUsersStore = defineStore("usersStore", {
     },
     async getUser(id: string) {
       const feathers = useNuxtApp().$feathers;
-      return await feathers.service("my-users").get(id, {});
+      return await feathers.service("my-users").get(id, {
+        headers: {
+          Authorization: `Bearer ${useAuthStore().accessToken}`,
+        },
+      });
     },
     async search(req: any) {
       try {
         const feathers = useNuxtApp().$feathers; // Access Feathers client
+
         let response = await feathers.service("my-users").find({
           query: {
             $and: [
