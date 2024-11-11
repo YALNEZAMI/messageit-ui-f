@@ -1,5 +1,8 @@
 <template>
-  <main>
+  <main
+    class="overflow-y-auto flex flex-wrap justify-center"
+    style="height: 36rem"
+  >
     <User
       v-for="friend in friendsStore.friends"
       :key="friend._id"
