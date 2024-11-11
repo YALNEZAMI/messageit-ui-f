@@ -1,11 +1,13 @@
 <template>
   <main
     :id="user._id"
-    :class="authStore.getThemeTailwindClasses(200)"
-    class="flex items-center w-full sm:w-1/2 rounded p-2 m-1 shadow-md"
+    :class="authStore.getThemeTailwindClasses(500)"
+    class="flex items-center w-11/12 sm:w-1/2 rounded p-2 m-1 shadow-md"
   >
     <NuxtImg class="w-14" :src="authStore.defaultUserImg" />
-    <div class="w-1/3 mx-2 truncate">{{ user.name.toUpperCase() }}</div>
+    <div class="w-1/3 mx-2 truncate">
+      {{ user ? user.name.toUpperCase() : "Deconnecté" }}
+    </div>
     <div id="btngroupe">
       <!--delete-->
 
@@ -162,9 +164,9 @@ const setUserFriendShipStatus = async () => {
     user._id
   );
 
-  console.log(isMyFriend.value);
-  console.log(isISentFriendRequest.value);
-  console.log(isHeSentFriendRequest.value);
+  //   console.log(isMyFriend.value);
+  //   console.log(isISentFriendRequest.value);
+  //   console.log(isHeSentFriendRequest.value);
 };
 const accept = async () => {
   await friendsStore.accept(user._id);
