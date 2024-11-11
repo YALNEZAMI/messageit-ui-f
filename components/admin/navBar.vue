@@ -4,7 +4,6 @@
       v-for="nbi of navBarItems"
       :key="nbi.name"
       :navBarItem="nbi"
-      :classes="authStore.getTailwindAppClasses()"
     ></NavBarItem>
   </ContainersMain>
 </template>

@@ -1,8 +1,7 @@
 <template>
   <main
     :id="user._id"
-    :class="authStore.getThemeTailwindClasses(500)"
-    class="flex items-center w-11/12 sm:w-1/2 rounded p-2 m-1 shadow-md"
+    class="flex items-center w-11/12 md:w-1/3 rounded p-2 m-1 shadow-md"
   >
     <NuxtImg class="w-14" :src="authStore.defaultUserImg" />
     <div class="w-1/3 mx-2 truncate">
