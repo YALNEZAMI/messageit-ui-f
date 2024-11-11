@@ -2,10 +2,10 @@
   <main v-if="getNumber() != 0">
     <span class="relative flex h-3 w-3">
       <span
-        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-90"
+        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-90"
       ></span>
       <span
-        class="relative inline-flex rounded-full h-4 w-5 px-1 text-xs text-center bg-white opacity-80 text-black"
+        class="relative inline-flex rounded-full h-4 w-5 px-1 text-xs text-center bg-red-500 text-white opacity-80"
       >
         {{ getNumber() }}
       </span>
