@@ -7,3 +7,8 @@
     <div><slot /></div>
   </main>
 </template>
+<script lang="ts" setup>
+definePageMeta({
+  middleware: "admin",
+});
+</script>
