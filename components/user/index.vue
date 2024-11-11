@@ -163,10 +163,6 @@ const setUserFriendShipStatus = async () => {
   isHeSentFriendRequest.value = await friendsStore.IsHeSentFriendRequest(
     user._id
   );
-
-  //   console.log(isMyFriend.value);
-  //   console.log(isISentFriendRequest.value);
-  //   console.log(isHeSentFriendRequest.value);
 };
 const accept = async () => {
   await friendsStore.accept(user._id);

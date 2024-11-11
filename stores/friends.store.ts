@@ -18,8 +18,6 @@ export const useFriendsStore = defineStore("friendsStore", {
       this.friends = friends;
     },
     addFriend(friend: User) {
-      console.log("friends to add ", friend);
-      console.log("friends", this.friends);
       this.friends = [friend, ...this.friends];
     },
     removeFriend(id: string) {
@@ -63,7 +61,6 @@ export const useFriendsStore = defineStore("friendsStore", {
       for (let fr of friendRequests) {
         fr.sender = await useUsersStore().getUser(fr.sender as string);
       }
-      console.log("initaial fr", friendRequests);
       this.setFriendRequests(friendRequests);
       return friendRequests;
     },
@@ -85,7 +82,6 @@ export const useFriendsStore = defineStore("friendsStore", {
       this.setAcceptatons(acceptations);
     },
     async clearAcceptations() {
-      console.log("clear acceptatons");
       const currentUserId = useAuthStore().user._id;
       const query = {
         id: currentUserId,
@@ -221,7 +217,6 @@ export const useFriendsStore = defineStore("friendsStore", {
 
       // Listen for the custom event
       service.on("created", async (friendReq: Notification) => {
-        console.log("fr created");
         const friendRequestExist = this.friendRequests.filter(
           (fr: Notification) => fr._id === friendReq._id
         );
@@ -234,7 +229,6 @@ export const useFriendsStore = defineStore("friendsStore", {
             friendReq.sender as string
           );
           this.setFriendRequests([friendReq, ...this.friendRequests]);
-          console.log("fr stor created", this.friendRequests);
         }
       });
       // Listen for the custom event
@@ -243,7 +237,6 @@ export const useFriendsStore = defineStore("friendsStore", {
           this.setFriendRequests(
             this.friendRequests.filter((fr: any) => fr._id != friendReq._id)
           );
-          console.log("fr stor removed", this.friendRequests);
         }
       });
     },
@@ -253,7 +246,6 @@ export const useFriendsStore = defineStore("friendsStore", {
 
       // Listen for the custom event
       service.on("created", async (accepation: Notification) => {
-        console.log("acc created", accepation);
         //adding friend
         let recipient;
 
@@ -277,8 +269,6 @@ export const useFriendsStore = defineStore("friendsStore", {
           );
           this.addFriend(sender);
         }
-        console.log("friends", this.friends);
-        console.log("acceptation", this.acceptations);
       });
     },
   },
