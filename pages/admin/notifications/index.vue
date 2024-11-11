@@ -29,13 +29,21 @@
     </div>
 
     <!--friendrequests data-->
-    <div v-if="categorie == 'FriendRequests'">
+    <div
+      v-if="categorie == 'FriendRequests'"
+      class="overflow-y-auto"
+      style="height: 27rem"
+    >
       <div v-for="fr of useFriendsStore().friendRequests" :key="fr._id">
         <User :user="fr.sender"></User>
       </div>
     </div>
     <!--acceptations-->
-    <div v-if="categorie == 'Acceptations'">
+    <div
+      v-if="categorie == 'Acceptations'"
+      class="overflow-y-auto"
+      style="height: 27rem"
+    >
       <div v-for="acc of useFriendsStore().acceptations" :key="acc._id">
         <User :user="acc.recipient"></User>
       </div>
