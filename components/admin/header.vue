@@ -9,8 +9,15 @@
         :src="authStore.defaultUserImg"
       ></NuxtImg>
     </div>
-    <div class="text-xl md:text-2xl mx-2 w-3/4 truncate">
-      Bienvenue {{ authStore.user.name.toUpperCase() }}
+    <div
+      v-if="authStore.user.name"
+      class="text-xl md:text-2xl mx-2 w-3/4 truncate"
+    >
+      {{
+        authStore.user
+          ? "Bienvenue " + authStore.user.name.toUpperCase()
+          : "Deconnecté"
+      }}
     </div>
     <div class="flex justify-end w-1/4">
       <svg
@@ -32,4 +39,11 @@
 </template>
 <script lang="ts" setup>
 const authStore = useAuthStore();
+definePageMeta({
+  middleware: "admin",
+});
+onMounted(async () => {
+  await useFriendsStore().onFriendRequestCreated();
+  await useFriendsStore().onAcceptationCreated();
+});
 </script>
