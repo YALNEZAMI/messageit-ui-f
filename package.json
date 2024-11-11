@@ -12,6 +12,7 @@
   "dependencies": {
     "@feathersjs/feathers": "^5.0.31",
     "@feathersjs/rest-client": "^5.0.31",
+    "@feathersjs/socketio-client": "^5.0.31",
     "@nuxt/image": "^1.8.1",
     "@pinia/nuxt": "^0.7.0",
     "axios": "^1.7.7",
@@ -19,6 +20,7 @@
     "nuxt-app": "file:",
     "pinia": "^2.2.6",
     "redis": "^4.7.0",
+    "socket.io-client": "^4.8.1",
     "vue": "latest",
     "vue-router": "latest"
   },
