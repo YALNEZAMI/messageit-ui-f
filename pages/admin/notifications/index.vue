@@ -1,8 +1,54 @@
 <template>
-  <main>notifications</main>
+  <main class="flex flex-col">
+    <!--categories-->
+    <div
+      class="flex flex-wrap justify-center w-full my-2 bg-gray-100 p-2"
+      :class="useAuthStore().getTailwindAppClasses()"
+    >
+      <button
+        type="button"
+        @click="categorie = 'FriendRequests'"
+        :class="{
+          'border-4 border-red-500':
+            useFriendsStore().friendRequests.length > 0,
+        }"
+        class="w-full sm:w-1/3 m-2 my-1 p-2 rounded bg-yellow-600 text-white border-0 cursor-pointer hover:bg-yellow-500 transition-all duration-500"
+      >
+        {{ useFriendsStore().friendRequests.length }} demandes d'amitié reçues
+      </button>
+      <button
+        type="button"
+        @click="categorie = 'Acceptations'"
+        class="w-full sm:w-1/3 m-2 my-1 p-2 rounded bg-green-600 text-white border-0 cursor-pointer hover:bg-green-500 transition-all duration-500"
+        :class="{
+          'border-4 border-red-500': useFriendsStore().acceptations.length > 0,
+        }"
+      >
+        {{ useFriendsStore().acceptations.length }} demandes d'amitié acceptées
+      </button>
+    </div>
+
+    <!--friendrequests data-->
+    <div v-if="categorie == 'FriendRequests'">
+      <div v-for="fr of useFriendsStore().friendRequests" :key="fr._id">
+        <User :user="fr.sender"></User>
+      </div>
+    </div>
+    <!--acceptations-->
+    <div v-if="categorie == 'Acceptations'">
+      <div v-for="acc of useFriendsStore().acceptations" :key="acc._id">
+        <User :user="acc.recipient"></User>
+      </div>
+    </div>
+  </main>
 </template>
 <script lang="ts" setup>
+//Ref<"FriendRequests" | "Acceptations">
+const categorie = ref("FriendRequests");
 definePageMeta({
   layout: "admin",
+});
+onUnmounted(async () => {
+  await useFriendsStore().clearAcceptations();
 });
 </script>
