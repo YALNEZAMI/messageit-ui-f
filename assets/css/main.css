@@ -1,5 +1,6 @@
 @tailwind components;
 @tailwind utilities;
 html{
-    overflow-x: hidden;
+    overflow: hidden;
+    height: 100vh;
 }
