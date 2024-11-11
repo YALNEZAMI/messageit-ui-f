@@ -1,7 +1,6 @@
 export interface NavBarItem {
-  name: string;
+  _id: "Conversations" | "Profile" | "Notifications" | "Search" | "Friends";
   path: string;
   svg: string;
-  shortName: string;
-  notificationsNumber?: number;
+  name: string;
 }
