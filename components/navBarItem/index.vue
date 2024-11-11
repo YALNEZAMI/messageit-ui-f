@@ -1,8 +1,7 @@
 <template>
-  <main
+  <ContainersTheme
     @click="goTo()"
-    :class="classes"
-    class="hover:opacity-70 cursor-pointer flex sm:min-w-28 items-center justify-center sm:space-x-2 p-1 px-3 pr-5 sm:px-1 sm:mx-2 rounded transition-all duration-500"
+    class="hover:opacity-70 cursor-pointer flex sm:min-w-28 items-center justify-center sm:space-x-2 p-1 px-3 sm:px-1 sm:pr-3 mx-1 sm:mx-2 rounded transition-all duration-500"
   >
     <div class="hidden sm:block">
       {{ navBarItem.name }}
@@ -30,7 +29,7 @@
         hidden: !isCurrentRoute(),
       }"
     ></div>
-  </main>
+  </ContainersTheme>
 </template>
 <script setup>
 // import { NavBarItem } from "../../interfaces/navBarItem";
@@ -41,10 +40,8 @@ const isCurrentRoute = () => {
 };
 const props = defineProps({
   navBarItem: Object,
-  classes: Object,
 });
 const navBarItem = props.navBarItem;
-const classes = props.classes;
 
 const goTo = () => {
   useRouter().push(navBarItem.path);

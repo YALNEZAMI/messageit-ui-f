@@ -1,11 +1,10 @@
 <template>
-  <main
+  <ContainersTheme
     :id="user._id"
-    :class="authStore.getThemeTailwindClasses(500)"
-    class="flex items-center w-11/12 sm:w-1/2 rounded p-2 m-1 shadow-md"
+    class="flex items-center w-11/12 sm:w-96 h-16 rounded p-2 m-1 shadow-md"
   >
     <NuxtImg class="w-14" :src="authStore.defaultUserImg" />
-    <div class="w-1/3 mx-2 truncate">
+    <div class="mx-2 w-1/2 md:3/4 truncate">
       {{ user ? user.name.toUpperCase() : "Deconnecté" }}
     </div>
     <div id="btngroupe">
@@ -75,7 +74,7 @@
       </button>
       <div
         v-else-if="isHeSentFriendRequest"
-        class="flex justify-center space-x-1"
+        class="flex flex-col sm:flex-row space-y-1"
       >
         <!--accept-->
 
@@ -130,7 +129,7 @@
         </button>
       </div>
     </div>
-  </main>
+  </ContainersTheme>
 </template>
 <script setup>
 const props = defineProps({

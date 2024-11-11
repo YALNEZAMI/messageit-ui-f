@@ -1,7 +1,7 @@
 <template>
   <main>
     <!--input-->
-    <div class="flex justify-center">
+    <div class="flex justify-center bg-gray-200 p-2">
       <input
         @input="search"
         type="text"
@@ -18,12 +18,18 @@
       </button>
     </div>
     <!--result container-->
-    <div>
+    <div
+      v-if="usersStore.searchedUsers.length > 0"
+      class="flex flex-wrap justify-center"
+    >
       <User
         v-for="user of usersStore.searchedUsers"
         :key="user._id"
         :user="user"
       ></User>
+    </div>
+    <div class="text-center bg-red-400 text-white p-2" v-else>
+      Pas de resultat pour ce nom "{{ req.text }}"
     </div>
   </main>
 </template>

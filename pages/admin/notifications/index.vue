@@ -1,10 +1,7 @@
 <template>
   <main class="flex flex-col">
     <!--categories-->
-    <div
-      class="flex flex-wrap justify-center w-full my-2 bg-gray-100 p-2"
-      :class="useAuthStore().getTailwindAppClasses()"
-    >
+    <div class="flex flex-wrap justify-center w-full my-2 bg-gray-100 p-2">
       <button
         type="button"
         @click="categorie = 'FriendRequests'"
