@@ -1,8 +1,5 @@
 <template>
-  <main
-    class="flex items-center p-2 rounded"
-    :class="authStore.getThemeTailwindClasses(500)"
-  >
+  <ContainersTheme class="flex items-center p-2 rounded">
     <div class="flex h-1/6">
       <NuxtImg
         class="w-full md:w-20 h-16"
@@ -35,10 +32,24 @@
         />
       </svg>
     </div>
-  </main>
+  </ContainersTheme>
 </template>
 <script lang="ts" setup>
 const authStore = useAuthStore();
+// const { $getThemeClasses } = useNuxtApp();
+const getThemeClasses = (level: number) => {
+  switch (useAuthStore().user.theme) {
+    case "basic":
+      return {
+        [`bg-blue-${level} text-white`]: true,
+      };
+    default:
+      return {
+        [`bg-blue-${level}`]: true,
+      };
+  }
+};
+// console.log("authStore.getThemeTailwindClasses(500)", $getThemeClasses(500));
 definePageMeta({
   middleware: "admin",
 });

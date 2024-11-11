@@ -1,15 +1,12 @@
 <template>
-  <main
-    :class="authStore.getThemeTailwindClasses(500)"
-    class="flex flex-wrap p-2 justify-center my-1"
-  >
+  <ContainersMain class="flex flex-wrap p-2 justify-center my-1">
     <NavBarItem
       v-for="nbi of navBarItems"
       :key="nbi.name"
       :navBarItem="nbi"
       :classes="authStore.getTailwindAppClasses()"
     ></NavBarItem>
-  </main>
+  </ContainersMain>
 </template>
 <script lang="ts" setup>
 import type { NavBarItem } from "../../interfaces/navBarItem";
