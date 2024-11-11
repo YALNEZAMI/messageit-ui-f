@@ -6,12 +6,10 @@ export const useAuthStore = defineStore("authStore", {
     return {
       defaultUserImg:
         "https://cdn.pixabay.com/photo/2012/04/13/21/07/user-33638_640.png",
-      user: JSON.parse(localStorage.getItem("user") || "{}"),
-      accessToken: localStorage.getItem("accessToken"),
+      user: {} as User,
+      accessToken: "",
       //   accessToken: "",
-      authentication: JSON.parse(
-        localStorage.getItem("authentication") || "{}"
-      ),
+      authentication: { payload: { exp: 1 } },
       themes: [
         {
           name: "basic",
@@ -93,16 +91,19 @@ export const useAuthStore = defineStore("authStore", {
       try {
         auth.strategy = "local";
         const feathers = useNuxtApp().$feathers; // Access the Feathers client
-
-        const response: any = await feathers
-          .service("authentication")
-          .create(auth);
+        const authenticationService = feathers.service("authentication");
+        const response: any = await authenticationService.create(auth);
         this.setAccessToken(response.accessToken);
         const completeUser = await feathers
           .service("my-users")
-          .get(response.user._id);
+          .get(response.user._id, {
+            headers: {
+              Authorization: `Bearer ${useAuthStore().accessToken}`,
+            },
+          });
         this.setUser(completeUser);
         this.setAuthentication(response.authentication);
+        await useFriendsStore().getFriendRequestsSentToMe();
         this.redirectTo("/admin");
         return response;
       } catch (error: any) {
@@ -116,6 +117,23 @@ export const useAuthStore = defineStore("authStore", {
       }
       const now = Math.floor(Date.now() / 1000); // current time in seconds
       return now >= this.authentication.payload.exp;
+    },
+    initializeAuth() {
+      // Retrieve token and user from localStorage
+      const storedToken = localStorage.getItem("accessToken");
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      const storedAuthentication = JSON.parse(
+        localStorage.getItem("authentication") || "{}"
+      );
+      if (storedToken) {
+        this.setAccessToken(storedToken);
+      }
+      if (storedUser) {
+        this.setUser(storedUser);
+      }
+      if (storedAuthentication) {
+        this.setAuthentication(storedAuthentication);
+      }
     },
   },
 });
