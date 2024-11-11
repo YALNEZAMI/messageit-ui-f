@@ -24,25 +24,6 @@ export const useAuthStore = defineStore("authStore", {
     redirectTo(path: string) {
       useRouter().push(path);
     },
-    getThemeTailwindClasses(level: number) {
-      switch (this.user.theme) {
-        case "basic":
-          return {
-            [`bg-blue-${level} text-white`]: true,
-          };
-        default:
-          return {
-            [`bg-blue-${level}`]: true,
-          };
-      }
-    },
-    getTailwindAppClasses() {
-      return {
-        "bg-gray-500": true,
-        "hover:bg-gray-500": true,
-        "text-white": true,
-      };
-    },
 
     isAuthenticated() {
       return this.accessToken != "" && !this.isTokenExpired();
