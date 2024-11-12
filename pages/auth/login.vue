@@ -10,13 +10,17 @@
           <div>Email</div>
           <input
             type="text"
-            v-model="auth.email"
+            v-model.trim="auth.email"
             placeholder="jack@gmail.com"
           />
         </div>
         <div>
           <div>Mot de passe</div>
-          <input type="text" v-model="auth.password" placeholder="******" />
+          <input
+            type="password"
+            v-model.trim="auth.password"
+            placeholder="monChien3MeSuitTil?"
+          />
         </div>
       </div>
     </div>

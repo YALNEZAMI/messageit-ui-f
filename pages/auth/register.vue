@@ -10,11 +10,11 @@
           <div>Nom d'utilisateur*</div>
           <input
             :class="{
-              'border-2 border-red-500': notFilledYet.includes('name'),
+              inputError: inputInError.includes('name'),
             }"
             id="name"
             type="text"
-            v-model="auth.name"
+            v-model.trim="auth.name"
             placeholder="jack"
           />
         </div>
@@ -22,11 +22,11 @@
           <div>Email*</div>
           <input
             :class="{
-              'border-2 border-red-500': notFilledYet.includes('email'),
+              inputError: inputInError.includes('email'),
             }"
             id="email"
             type="text"
-            v-model="auth.email"
+            v-model.trim="auth.email"
             placeholder="jack@gmail.com"
           />
         </div>
@@ -34,24 +34,24 @@
           <div>Mot de passe*</div>
           <input
             :class="{
-              'border-2 border-red-500': notFilledYet.includes('password'),
+              inputError: inputInError.includes('password'),
             }"
             id="password"
-            type="text"
-            v-model="auth.password"
-            placeholder="******"
+            type="password"
+            v-model.trim="auth.password"
+            placeholder="monChien3MeSuitTil?"
           />
         </div>
         <div>
           <div>Confirmer le mot de passe*</div>
           <input
             :class="{
-              'border-2 border-red-500': notFilledYet.includes('password2'),
+              inputError: inputInError.includes('password2'),
             }"
             id="password2"
-            type="text"
-            v-model="auth.password2"
-            placeholder="******"
+            type="password"
+            v-model.trim="auth.password2"
+            placeholder="monChien3MeSuitTil?"
           />
         </div>
       </div>
@@ -114,13 +114,13 @@ const alert = ref({
 });
 const loading = ref(false);
 const requiredInputs = ["name", "email", "password", "password2"];
-const notFilledYet = ref([]);
+const inputInError = ref([]);
 
 onMounted(async () => {
   requiredInputs.map((ri) => {
     const input = document.getElementById(ri) as HTMLInputElement;
     input.addEventListener("focus", () => {
-      notFilledYet.value = notFilledYet.value.filter((nfy: string) => {
+      inputInError.value = inputInError.value.filter((nfy: string) => {
         return nfy != ri;
       });
     });
@@ -138,15 +138,9 @@ const authStore = useAuthStore();
 //register function
 const register = async () => {
   loading.value = true;
-  let allFilled = true;
-  requiredInputs.map((ri) => {
-    const isFilled = checkInput(ri);
-    if (!isFilled) {
-      allFilled = false;
-      lanceAlert("Veuillez remplir tous les champs obligatoires !");
-    }
-  });
-  if (!allFilled) {
+  if (!allRequiredInputsFilled()) {
+    lanceAlert("Veuillez remplir tous les champs obligatoires !");
+
     return;
   }
   if (auth.value.password != auth.value.password2) {
@@ -157,7 +151,9 @@ const register = async () => {
     !auth.value.email.includes(".")
   ) {
     lanceAlert("Format invalide de votre adresse mail");
+    return;
   }
+  auth.value.email = auth.value.email.toLowerCase();
   const res = await authStore.register(auth.value);
 
   if (res._id) {
@@ -166,19 +162,23 @@ const register = async () => {
       password: auth.value.password,
     });
   } else if (res.status == 500) {
+    inputInError.value.push(res.inputId);
     lanceAlert(res.message);
   }
 };
-const checkInput = (id: string) => {
-  const input = document.getElementById(id) as HTMLInputElement;
-  if (input.value == "") {
-    //input.style.border = "3px solid red";
-    notFilledYet.value.push(id);
-    return false;
-  } else {
-    return true;
-  }
+const allRequiredInputsFilled = (): boolean => {
+  let res = true;
+  requiredInputs.map((id) => {
+    const input = document.getElementById(id) as HTMLInputElement;
+    if (input.value == "") {
+      res = false;
+      //input.style.border = "3px solid red";
+      inputInError.value.push(id);
+    }
+  });
+  return res;
 };
+
 definePageMeta({ layout: "auth" });
 </script>
 <style scoped>
