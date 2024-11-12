@@ -4,3 +4,6 @@ html{
     overflow: hidden;
     height: 100vh;
 }
+.inputError{
+    @apply border-2 text-red-400 border-red-500
+}
