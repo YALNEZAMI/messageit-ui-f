@@ -36,20 +36,6 @@
 </template>
 <script lang="ts" setup>
 const authStore = useAuthStore();
-// const { $getThemeClasses } = useNuxtApp();
-const getThemeClasses = (level: number) => {
-  switch (useAuthStore().user.theme) {
-    case "basic":
-      return {
-        [`bg-blue-${level} text-white`]: true,
-      };
-    default:
-      return {
-        [`bg-blue-${level}`]: true,
-      };
-  }
-};
-// console.log("authStore.getThemeTailwindClasses(500)", $getThemeClasses(500));
 definePageMeta({
   middleware: "admin",
 });
