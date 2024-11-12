@@ -8,6 +8,9 @@ export const useUsersStore = defineStore("usersStore", {
     };
   },
   actions: {
+    getService(name: string) {
+      return useNuxtApp().$feathers.service(name);
+    },
     setUsers(users: any) {
       this.users = users;
     },
@@ -15,12 +18,26 @@ export const useUsersStore = defineStore("usersStore", {
       this.searchedUsers = users;
     },
     async getUser(id: string) {
-      const feathers = useNuxtApp().$feathers;
-      return await feathers.service("my-users").get(id, {
+      return await this.getService("my-users").get(id, {
         headers: {
           Authorization: `Bearer ${useAuthStore().accessToken}`,
         },
       });
+    },
+    async updateCurrentUser() {
+      const user = useAuthStore().user;
+      return await this.getService("my-users").patch(user._id as string, user, {
+        headers: {
+          Authorization: `Bearer ${useAuthStore().accessToken}`,
+        },
+      });
+    },
+    async updateCurrentAuthUser(auth: any) {
+      delete auth.password2;
+      return await this.getService("users").patch(
+        useAuthStore().user._id as string,
+        auth
+      );
     },
     async search(req: any) {
       try {
