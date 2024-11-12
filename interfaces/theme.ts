@@ -1,5 +1,4 @@
-export interface Theme {
+export type Theme = {
   name: string;
-  color: string;
-  emoji: string;
-}
+  _id: "basic" | "love" | "spring" | "panda";
+};
