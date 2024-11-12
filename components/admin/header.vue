@@ -40,7 +40,7 @@ definePageMeta({
   middleware: "admin",
 });
 onMounted(async () => {
-  await useFriendsStore().onFriendRequestCreated();
-  await useFriendsStore().onAcceptationCreated();
+  await useFriendsStore().onFriendRequests();
+  await useFriendsStore().onFriends();
 });
 </script>
