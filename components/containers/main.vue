@@ -2,7 +2,7 @@
 <template>
   <div
     :class="{
-      'bg-gray-700': useAuthStore().user.theme == 'basic',
+      'bg-gray-700': true,
     }"
     v-bind="attrs"
   >
