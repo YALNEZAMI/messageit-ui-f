@@ -18,7 +18,13 @@ export const useFriendsStore = defineStore("friendsStore", {
       this.friends = friends;
     },
     addFriend(friend: User) {
-      this.friends = [friend, ...this.friends];
+      const exist =
+        this.friends.filter((f) => {
+          return friend._id === f._id;
+        }).length > 0;
+      if (!exist) {
+        this.friends = [friend, ...this.friends];
+      }
     },
     removeFriend(id: string) {
       this.friends = this.friends.filter((fr) => {
@@ -211,20 +217,20 @@ export const useFriendsStore = defineStore("friendsStore", {
       });
       return deleting;
     },
-    async onFriendRequestCreated() {
+    async onFriendRequests() {
       const { $feathers } = useNuxtApp();
       const service = $feathers.service("friend-requests");
 
       // Listen for the custom event
       service.on("created", async (friendReq: Notification) => {
+        console.log("created ", friendReq);
         const friendRequestExist = this.friendRequests.filter(
-          (fr: Notification) => fr._id === friendReq._id
+          (fr: Notification) => {
+            return fr._id === friendReq._id;
+          }
         );
 
-        if (
-          friendReq.recipient == useAuthStore().user._id &&
-          friendRequestExist.length == 0
-        ) {
+        if (friendRequestExist.length == 0) {
           friendReq.sender = await useUsersStore().getUser(
             friendReq.sender as string
           );
@@ -233,41 +239,39 @@ export const useFriendsStore = defineStore("friendsStore", {
       });
       // Listen for the custom event
       service.on("removed", (friendReq: any) => {
-        if (friendReq.recipient == useAuthStore().user._id) {
-          this.setFriendRequests(
-            this.friendRequests.filter((fr: any) => fr._id != friendReq._id)
-          );
-        }
+        this.setFriendRequests(
+          this.friendRequests.filter((fr: Notification) => {
+            return fr._id != friendReq._id;
+          })
+        );
       });
     },
-    async onAcceptationCreated() {
+    async onFriends() {
       const { $feathers } = useNuxtApp();
       const service = $feathers.service("friends");
 
       // Listen for the custom event
       service.on("created", async (accepation: Notification) => {
         //adding friend
-        let recipient;
-
+        let newFriend: User;
         if (accepation.sender == useAuthStore().user._id) {
-          recipient = await useUsersStore().getUser(
+          newFriend = await useUsersStore().getUser(
             accepation.recipient as string
           );
-          this.addFriend(recipient);
-          //acceptation handling
-          const accepationExist = this.acceptations.filter(
-            (acc: Notification) => acc._id === accepation._id
-          );
-          if (accepationExist.length == 0) {
-            accepation.recipient = recipient;
-            this.setAcceptatons([accepation, ...this.acceptations]);
-          }
-        }
-        if (accepation.recipient == useAuthStore().user._id) {
-          const sender = await useUsersStore().getUser(
+        } else {
+          newFriend = await useUsersStore().getUser(
             accepation.sender as string
           );
-          this.addFriend(sender);
+        }
+        this.addFriend(newFriend);
+        //acceptation handling
+        const accepationExist =
+          this.acceptations.filter((acc: Notification) => {
+            return acc._id === accepation._id;
+          }).length > 0;
+        if (!accepationExist) {
+          accepation.recipient = newFriend;
+          this.setAcceptatons([accepation, ...this.acceptations]);
         }
       });
     },
