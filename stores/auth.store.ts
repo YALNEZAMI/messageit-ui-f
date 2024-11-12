@@ -12,10 +12,8 @@ export const useAuthStore = defineStore("authStore", {
       authentication: { payload: { exp: 1 } },
       themes: [
         {
-          name: "basic",
-          color: "text-black",
-          bg: "bg-white",
-          emoji: "👍",
+          name: "Basique",
+          _id: "basic",
         },
       ],
     };
@@ -49,7 +47,6 @@ export const useAuthStore = defineStore("authStore", {
         const query = {
           name: auth.name,
           email: auth.email,
-          theme: "basic",
         };
 
         const feathers = useNuxtApp().$feathers; // Access the Feathers client
@@ -67,6 +64,7 @@ export const useAuthStore = defineStore("authStore", {
       this.setAuthentication({});
       this.setUser({} as User);
       useRouter().push("/auth/login");
+      window.location.reload();
     },
     async login(auth: User) {
       try {
