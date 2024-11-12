@@ -1,6 +1,6 @@
 <template>
   <main v-if="getNumber() != 0">
-    <span class="relative flex h-3 w-3">
+    <span class="relative flex h-4 w-3 justify-center">
       <span
         class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-90"
       ></span>
