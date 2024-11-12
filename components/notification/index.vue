@@ -6,5 +6,4 @@ const props = defineProps({
   notification: Object,
 });
 const notification = props.notification;
-console.log("notifications", notification);
 </script>
