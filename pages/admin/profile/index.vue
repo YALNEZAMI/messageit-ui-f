@@ -190,7 +190,6 @@ const updateUser = async () => {
   if (updating._id) {
     authStore.setUser(updating);
   } else {
-    console.log("error", updating);
     success = false;
     if (updating.inputId == "email") {
       emailIssu = true;
