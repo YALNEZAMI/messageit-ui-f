@@ -1,6 +1,8 @@
+import type { Theme } from "./theme";
+
 export interface User {
   _id?: string;
-  theme?: string;
+  theme?: Theme;
   email: string;
   password: string;
   password2?: string;
