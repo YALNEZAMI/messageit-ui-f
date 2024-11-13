@@ -31,7 +31,7 @@
       class="overflow-y-auto"
       style="height: 27rem"
     >
-      <div v-for="fr of useFriendsStore().friendRequests" :key="fr._id">
+      <div v-for="fr of getFriendRequests()" :key="fr._id">
         <User :user="fr.sender"></User>
       </div>
     </div>
@@ -41,7 +41,7 @@
       class="overflow-y-auto"
       style="height: 27rem"
     >
-      <div v-for="acc of useFriendsStore().acceptations" :key="acc._id">
+      <div v-for="acc of getAcceptations()" :key="acc._id">
         <User :user="acc.recipient"></User>
       </div>
     </div>
@@ -50,6 +50,12 @@
 <script lang="ts" setup>
 //Ref<"FriendRequests" | "Acceptations">
 const categorie = ref("FriendRequests");
+const getFriendRequests = (): any[] => {
+  return useFriendsStore().friendRequests;
+};
+const getAcceptations = (): any[] => {
+  return useFriendsStore().acceptations;
+};
 definePageMeta({
   layout: "admin",
 });

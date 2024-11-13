@@ -19,11 +19,11 @@
     </div>
     <!--result container-->
     <div
-      v-if="usersStore.searchedUsers.length > 0"
+      v-if="getSearchedUsers().length > 0"
       class="flex flex-wrap justify-center"
     >
       <User
-        v-for="user of usersStore.searchedUsers"
+        v-for="user of getSearchedUsers()"
         :key="user._id"
         :user="user"
       ></User>
@@ -34,16 +34,23 @@
   </main>
 </template>
 <script lang="ts" setup>
+import type { User } from "~/interfaces/user";
+
 const usersStore = useUsersStore();
 const req = ref({ text: "" });
 const search = async () => {
   await usersStore.search(req.value);
 };
+const getSearchedUsers = (): User[] => {
+  return usersStore.searchedUsers;
+};
 const searchButton = async () => {
   usersStore.setsearchedUsers([]);
-
   await search();
 };
+onMounted(async () => {
+  await search();
+});
 definePageMeta({
   layout: "admin",
 });
