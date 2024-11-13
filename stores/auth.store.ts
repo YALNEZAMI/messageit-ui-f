@@ -113,10 +113,6 @@ export const useAuthStore = defineStore("authStore", {
       if (storedAuthentication) {
         this.setAuthentication(storedAuthentication);
       }
-      console.log("init auth");
-      console.log("auth ", this.authentication);
-      console.log("token", this.accessToken);
-      console.log("user", this.user);
     },
   },
 });
