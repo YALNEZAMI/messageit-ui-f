@@ -16,18 +16,7 @@
 const props = defineProps({
   name: String,
 });
-const number = ref(0);
 
-// const feathers = useNuxtApp().$feathers;
-// const friendRequestService = feathers.service("friend-requests");
-// friendRequestService.on("created", (data) => {
-//   if (
-//     data.recipient == useAuthStore().user._id &&
-//     props.name == "Notifications"
-//   ) {
-//     number.value++;
-//   }
-// });
 const getNumber = () => {
   if (props.name == "Notifications") {
     return (
