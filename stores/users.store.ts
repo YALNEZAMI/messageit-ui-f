@@ -18,19 +18,15 @@ export const useUsersStore = defineStore("usersStore", {
       this.searchedUsers = users;
     },
     async getUser(id: string) {
-      return await this.getService("my-users").get(id, {
-        headers: {
-          Authorization: `Bearer ${useAuthStore().accessToken}`,
-        },
-      });
+      return await this.getService("my-users").get(id, {});
     },
     async updateCurrentUser() {
       const user = useAuthStore().user;
-      return await this.getService("my-users").patch(user._id as string, user, {
-        headers: {
-          Authorization: `Bearer ${useAuthStore().accessToken}`,
-        },
-      });
+      return await this.getService("my-users").patch(
+        user._id as string,
+        user,
+        {}
+      );
     },
     async updateCurrentAuthUser(auth: any) {
       delete auth.password2;

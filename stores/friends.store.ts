@@ -49,15 +49,11 @@ export const useFriendsStore = defineStore("friendsStore", {
       return useNuxtApp().$feathers.service(name);
     },
     async getFriendRequestsSentToMe(): Promise<Notification[]> {
-      const feathers = useNuxtApp().$feathers;
       const query = {
         recipient: useAuthStore().user._id,
       };
-      const response: any = await feathers.service("friend-requests").find({
+      const response: any = await this.getService("friend-requests").find({
         query,
-        headers: {
-          Authorization: `Bearer ${useAuthStore().accessToken}`,
-        },
       });
       let friendRequests = await response.data;
       // friendRequests = friendRequests.map(async (fr: Notification) => {
@@ -77,9 +73,6 @@ export const useFriendsStore = defineStore("friendsStore", {
       };
       const response = await this.getService("friend-acceptations").find({
         query: query,
-        headers: {
-          Authorization: `Bearer ${useAuthStore().accessToken}`,
-        },
       });
       const acceptations = response.data as Notification[];
       for (let acc of acceptations) {
@@ -96,9 +89,6 @@ export const useFriendsStore = defineStore("friendsStore", {
         null,
         {
           query: query,
-          headers: {
-            Authorization: `Bearer ${useAuthStore().accessToken}`,
-          },
         }
       );
       this.setAcceptatons([]);
@@ -114,16 +104,13 @@ export const useFriendsStore = defineStore("friendsStore", {
       return res;
     },
     async IsISentFriendRequest(id: string): Promise<boolean> {
-      const feathers = useNuxtApp().$feathers; // Access Feathers client
+      // Access Feathers client
       const query = {
         sender: useAuthStore().user._id,
         recipient: id,
       };
-      const response: any = await feathers.service("friend-requests").find({
+      const response: any = await this.getService("friend-requests").find({
         query,
-        headers: {
-          Authorization: `Bearer ${useAuthStore().accessToken}`,
-        },
       });
       if (response.total == 0) {
         return false;
@@ -132,16 +119,12 @@ export const useFriendsStore = defineStore("friendsStore", {
       }
     },
     async IsHeSentFriendRequest(id: string): Promise<boolean> {
-      const feathers = useNuxtApp().$feathers;
       const query = {
         sender: id,
         recipient: useAuthStore().user._id,
       };
-      const response: any = await feathers.service("friend-requests").find({
+      const response: any = await this.getService("friend-requests").find({
         query,
-        headers: {
-          Authorization: `Bearer ${useAuthStore().accessToken}`,
-        },
       });
       if (response.total == 0) {
         return false;
@@ -150,41 +133,24 @@ export const useFriendsStore = defineStore("friendsStore", {
       }
     },
     async sendFriendRequest(id: string) {
-      const feathers = useNuxtApp().$feathers;
-      const service = feathers.service("friend-requests");
+      const service = this.getService("friend-requests");
 
-      const friendReq = await service.create(
-        { sender: useAuthStore().user._id, recipient: id },
-        {
-          headers: {
-            Authorization: `Bearer ${useAuthStore().accessToken}`,
-          },
-        }
-      );
+      const friendReq = await service.create({
+        sender: useAuthStore().user._id,
+        recipient: id,
+      });
       return friendReq;
     },
     async cancelFriendRequest(query: any) {
-      const feathers = useNuxtApp().$feathers;
-      const cancelReq = await feathers.service("friend-requests").remove(null, {
+      const cancelReq = await this.getService("friend-requests").remove(null, {
         query,
-        headers: {
-          Authorization: `Bearer ${useAuthStore().accessToken}`,
-        },
       });
     },
     async accept(id: string) {
-      const feathers = useNuxtApp().$feathers;
-      const accepting = await feathers.service("friends").create(
-        {
-          sender: id,
-          recipient: useAuthStore().user._id,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${useAuthStore().accessToken}`,
-          },
-        }
-      );
+      const accepting = await this.getService("friends").create({
+        sender: id,
+        recipient: useAuthStore().user._id,
+      });
       if (accepting) {
         //remove friend request from store
         this.setFriendRequests(
@@ -196,30 +162,21 @@ export const useFriendsStore = defineStore("friendsStore", {
       }
     },
     async getMyFriends(): Promise<User[]> {
-      const feathers = useNuxtApp().$feathers;
       const id = useAuthStore().user._id;
-      const myFriends: any = await feathers.service("friends").find({
+      const myFriends: any = await this.getService("friends").find({
         query: { id },
-        headers: {
-          Authorization: `Bearer ${useAuthStore().accessToken}`,
-        },
       });
       this.setFriends(myFriends as User[]);
       return myFriends;
     },
     async remove(id: string) {
-      const feathers = useNuxtApp().$feathers;
-      const deleting: any = await feathers.service("friends").remove(null, {
+      const deleting: any = await this.getService("friends").remove(null, {
         query: { sender: useAuthStore().user._id, recipient: id },
-        headers: {
-          Authorization: `Bearer ${useAuthStore().accessToken}`,
-        },
       });
       return deleting;
     },
     async onFriendRequests() {
-      const { $feathers } = useNuxtApp();
-      const service = $feathers.service("friend-requests");
+      const service = this.getService("friend-requests");
 
       // Listen for the custom event
       service.on("created", async (friendReq: Notification) => {
@@ -247,8 +204,7 @@ export const useFriendsStore = defineStore("friendsStore", {
       });
     },
     async onFriends() {
-      const { $feathers } = useNuxtApp();
-      const service = $feathers.service("friends");
+      const service = this.getService("friends");
 
       // Listen for the custom event
       service.on("created", async (accepation: Notification) => {
