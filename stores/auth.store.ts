@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import type { Theme } from "~/interfaces/theme";
 import type { User } from "~/interfaces/user";
 
 export const useAuthStore = defineStore("authStore", {
@@ -8,14 +9,13 @@ export const useAuthStore = defineStore("authStore", {
         "https://cdn.pixabay.com/photo/2012/04/13/21/07/user-33638_640.png",
       user: {} as User,
       accessToken: "",
-      //   accessToken: "",
       authentication: { payload: { exp: 1 } },
       themes: [
-        {
-          name: "Basique",
-          _id: "basic",
-        },
-      ],
+        { name: "Basique", _id: "basic" },
+        { name: "Printemps", _id: "spring" },
+        { name: "Amour", _id: "love" },
+        { name: "Panda", _id: "panda" },
+      ] as Theme[],
     };
   },
   actions: {
@@ -113,6 +113,10 @@ export const useAuthStore = defineStore("authStore", {
       if (storedAuthentication) {
         this.setAuthentication(storedAuthentication);
       }
+      console.log("init auth");
+      console.log("auth ", this.authentication);
+      console.log("token", this.accessToken);
+      console.log("user", this.user);
     },
   },
 });

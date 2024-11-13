@@ -29,7 +29,11 @@
       />
       <label for="theme">Theme:</label>
       <select v-model="user.theme" name="theme" class="p-1 mx-2 rounded">
-        <option v-for="theme of themes" :key="theme._id" :value="theme">
+        <option
+          v-for="theme of useAuthStore().themes"
+          :key="theme._id"
+          :value="theme"
+        >
           {{ theme.name }}
         </option>
       </select>
@@ -139,12 +143,7 @@ const auth = ref({
 const logout = () => {
   authStore.logout();
 };
-const themes: Theme[] = [
-  { name: "Basique", _id: "basic" },
-  { name: "Printemps", _id: "spring" },
-  { name: "Amour", _id: "love" },
-  { name: "Panda", _id: "panda" },
-];
+
 const alert = ref({
   bool: false,
   message: "",
@@ -185,7 +184,7 @@ const updateUser = async () => {
   }
   auth.value.email = auth.value.email.toLowerCase();
   user.value.email = auth.value.email;
-  const updating = await useUsersStore().updateCurrentUser(user.value);
+  const updating = await useUsersStore().updateCurrentUser();
   let emailIssu = false;
   if (updating._id) {
     authStore.setUser(updating);
@@ -222,7 +221,7 @@ const updateUser = async () => {
 const success = ref(false);
 const requiredInputs = ["name", "email"];
 
-const inputInError = ref([]);
+const inputInError = ref([] as any[]);
 
 onMounted(async () => {
   requiredInputs.map((ri) => {
