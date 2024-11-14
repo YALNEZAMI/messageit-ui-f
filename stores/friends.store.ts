@@ -206,29 +206,31 @@ export const useFriendsStore = defineStore("friendsStore", {
     },
     async onFriends() {
       const service = this.getService("friends");
-
+      //TODO remove friend ws
       // Listen for the custom event
-      service.on("created", async (accepation: Notification) => {
+      service.on("created", async (acceptation: Notification) => {
         //adding friend
         let newFriend: User;
-        if (accepation.sender == useAuthStore().user._id) {
+        if (acceptation.sender == useAuthStore().user._id) {
           newFriend = await useUsersStore().getUser(
-            accepation.recipient as string
+            acceptation.recipient as string
           );
         } else {
           newFriend = await useUsersStore().getUser(
-            accepation.sender as string
+            acceptation.sender as string
           );
         }
         this.addFriend(newFriend);
         //acceptation handling
-        const accepationExist =
-          this.acceptations.filter((acc: Notification) => {
-            return acc._id === accepation._id;
-          }).length > 0;
-        if (!accepationExist) {
-          accepation.recipient = newFriend;
-          this.setAcceptatons([accepation, ...this.acceptations]);
+        if (acceptation.sender == useAuthStore().user._id) {
+          const acceptationExist =
+            this.acceptations.filter((acc: Notification) => {
+              return acc._id === acceptation._id;
+            }).length > 0;
+          if (!acceptationExist) {
+            acceptation.recipient = newFriend;
+            this.setAcceptatons([acceptation, ...this.acceptations]);
+          }
         }
       });
     },
