@@ -18,12 +18,13 @@
     </div>
     <div class="flex justify-end w-1/4">
       <svg
+        @click="useSideBarStore().setIsDisplayed(true)"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
         stroke-width="1.5"
         stroke="currentColor"
-        class="size-6"
+        class="size-6 cursor-pointer"
       >
         <path
           stroke-linecap="round"
