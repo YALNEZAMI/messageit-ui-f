@@ -220,6 +220,6 @@ const allRequiredInputsFilled = (): boolean => {
   return res;
 };
 definePageMeta({
-  layout: "admin",
+  layout: "private-space",
 });
 </script>

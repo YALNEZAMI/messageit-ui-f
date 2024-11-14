@@ -21,7 +21,7 @@ onMounted(async () => {
 const navBarItems = ref([
   {
     _id: "Conversations",
-    path: "/admin/conversations",
+    path: "/private-space/conversations",
     name: "Conversations",
     notificationsNumber: 0,
     svg: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -31,7 +31,7 @@ const navBarItems = ref([
   },
   {
     _id: "Profile",
-    path: "/admin/profile",
+    path: "/private-space/profile",
     name: "Profile",
     notificationsNumber: 0,
 
@@ -43,7 +43,7 @@ const navBarItems = ref([
   },
   {
     _id: "Notifications",
-    path: "/admin/notifications",
+    path: "/private-space/notifications",
     name: "Notifications",
     notificationsNumber: 0,
     svg: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -55,7 +55,7 @@ const navBarItems = ref([
   },
   {
     _id: "Search",
-    path: "/admin/search",
+    path: "/private-space/search",
     name: "Recherche",
     notificationsNumber: 0,
 
@@ -67,7 +67,7 @@ const navBarItems = ref([
   },
   {
     _id: "Amis",
-    path: "/admin/friends",
+    path: "/private-space/friends",
     name: "Friends",
     notificationsNumber: 0,
 

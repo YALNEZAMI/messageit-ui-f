@@ -38,7 +38,7 @@
 <script lang="ts" setup>
 const authStore = useAuthStore();
 definePageMeta({
-  middleware: "admin",
+  middleware: "private-space",
 });
 onMounted(async () => {
   await useFriendsStore().onFriendRequests();

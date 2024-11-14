@@ -20,6 +20,6 @@ onMounted(async () => {
   await friendsStore.getMyFriends();
 });
 definePageMeta({
-  layout: "admin",
+  layout: "private-space",
 });
 </script>

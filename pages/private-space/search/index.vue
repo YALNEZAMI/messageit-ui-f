@@ -56,6 +56,6 @@ onMounted(async () => {
   await search();
 });
 definePageMeta({
-  layout: "admin",
+  layout: "private-space",
 });
 </script>

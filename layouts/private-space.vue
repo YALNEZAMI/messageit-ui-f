@@ -1,8 +1,8 @@
 <template>
   <main>
     <div>
-      <AdminHeader></AdminHeader>
-      <AdminNavBar></AdminNavBar>
+      <PrivateSpaceHeader></PrivateSpaceHeader>
+      <PrivateSpaceNavBar></PrivateSpaceNavBar>
     </div>
     <!--side bar-->
     <div>
@@ -13,6 +13,6 @@
 </template>
 <script lang="ts" setup>
 definePageMeta({
-  middleware: "admin",
+  middleware: "private-space",
 });
 </script>

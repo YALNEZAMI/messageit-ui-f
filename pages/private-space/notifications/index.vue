@@ -72,7 +72,7 @@ const getNoResultMessage = (): string => {
   }
 };
 definePageMeta({
-  layout: "admin",
+  layout: "private-space",
 });
 onUnmounted(async () => {
   for (let friendRes of getFriendRequests()) {
