@@ -66,7 +66,7 @@ const navBarItems = ref([
 `,
   },
   {
-    _id: "Friends",
+    _id: "Amis",
     path: "/admin/friends",
     name: "Friends",
     notificationsNumber: 0,
