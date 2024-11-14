@@ -19,10 +19,14 @@ const props = defineProps({
 
 const getNumber = () => {
   if (props.name == "Notifications") {
-    return (
-      useFriendsStore().friendRequests.length +
-      useFriendsStore().acceptations.length
-    );
+    let numberOfFriendReqsNotSeen = 0;
+    useFriendsStore().friendRequests.map((fr) => {
+      if (!fr.seen) {
+        numberOfFriendReqsNotSeen++;
+      }
+    });
+
+    return numberOfFriendReqsNotSeen + useFriendsStore().acceptations.length;
   } else {
     return 0;
   }

@@ -6,7 +6,7 @@
         type="button"
         @click="categorie = 'FriendRequests'"
         :class="{
-          'border-4 border-red-500':
+          'border-2 border-red-500':
             useFriendsStore().friendRequests.length > 0,
         }"
         class="w-full sm:w-1/3 m-2 my-1 p-2 rounded bg-yellow-600 text-white border-0 cursor-pointer hover:bg-yellow-500 transition-all duration-500"
@@ -18,14 +18,21 @@
         @click="categorie = 'Acceptations'"
         class="w-full sm:w-1/3 m-2 my-1 p-2 rounded bg-green-600 text-white border-0 cursor-pointer hover:bg-green-500 transition-all duration-500"
         :class="{
-          'border-4 border-red-500': useFriendsStore().acceptations.length > 0,
+          'border-2 border-red-500': useFriendsStore().acceptations.length > 0,
         }"
       >
         {{ useFriendsStore().acceptations.length }} demandes d'amitié acceptées
       </button>
     </div>
     <!--no result-->
-    <NoResult class="mt-3" :message="getNoResultMessage()"></NoResult>
+    <NoResult
+      v-if="
+        (getFriendRequests().length == 0 && categorie == 'FriendRequests') ||
+        (getAcceptations().length == 0 && categorie == 'Acceptations')
+      "
+      class="mt-3"
+      :message="getNoResultMessage()"
+    ></NoResult>
     <!--friendrequests data-->
     <div
       v-if="categorie == 'FriendRequests'"
@@ -50,7 +57,7 @@
 </template>
 <script lang="ts" setup>
 //Ref<"FriendRequests" | "Acceptations">
-const categorie = ref("FriendRequests");
+const categorie = ref("Acceptations");
 const getFriendRequests = (): any[] => {
   return useFriendsStore().friendRequests;
 };
@@ -68,6 +75,12 @@ definePageMeta({
   layout: "admin",
 });
 onUnmounted(async () => {
-  await useFriendsStore().clearAcceptations();
+  for (let friendRes of getFriendRequests()) {
+    await useFriendsStore().setFriendRequestAsSeen(friendRes._id);
+  }
+  await clearAcceptations();
 });
+const clearAcceptations = async () => {
+  await useFriendsStore().clearAcceptations();
+};
 </script>

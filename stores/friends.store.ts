@@ -138,6 +138,7 @@ export const useFriendsStore = defineStore("friendsStore", {
       const friendReq = await service.create({
         sender: useAuthStore().user._id,
         recipient: id,
+        seen: false,
       });
       return friendReq;
     },
@@ -229,6 +230,14 @@ export const useFriendsStore = defineStore("friendsStore", {
           accepation.recipient = newFriend;
           this.setAcceptatons([accepation, ...this.acceptations]);
         }
+      });
+    },
+    async setFriendRequestAsSeen(id: string) {
+      for (let fReq of this.friendRequests) {
+        fReq.seen = true;
+      }
+      return await this.getService("friend-requests").patch(id, {
+        seen: true,
       });
     },
   },
