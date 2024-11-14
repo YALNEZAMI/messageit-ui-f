@@ -39,6 +39,7 @@ export const useAuthStore = defineStore("authStore", {
       localStorage.setItem("accessToken", token);
     },
     async register(auth: User) {
+      localStorage.clear();
       try {
         const body: User = {
           email: auth.email,
@@ -83,7 +84,7 @@ export const useAuthStore = defineStore("authStore", {
         this.setUser(completeUser);
         this.setAuthentication(response.authentication);
         await useFriendsStore().getFriendRequestsSentToMe();
-        this.redirectTo("/admin");
+        this.redirectTo("/private-space");
         return response;
       } catch (error: any) {
         console.log("error", error);
@@ -100,18 +101,20 @@ export const useAuthStore = defineStore("authStore", {
     initializeAuth() {
       // Retrieve token and user from localStorage
       const storedToken = localStorage.getItem("accessToken");
-      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-      const storedAuthentication = JSON.parse(
-        localStorage.getItem("authentication") || "{}"
-      );
-      if (storedToken) {
+      const storedUser = localStorage.getItem("user");
+      const storedAuthentication = localStorage.getItem("authentication");
+      if (storedToken != null) {
         this.setAccessToken(storedToken);
+      } else {
+        this.setAccessToken("");
       }
-      if (storedUser) {
-        this.setUser(storedUser);
+      if (storedUser != null) {
+        this.setUser(JSON.parse(storedUser));
+      } else {
+        this.setUser({} as User);
       }
-      if (storedAuthentication) {
-        this.setAuthentication(storedAuthentication);
+      if (storedAuthentication != null) {
+        this.setAuthentication(JSON.parse(storedAuthentication));
       }
     },
   },
