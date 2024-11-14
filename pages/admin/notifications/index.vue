@@ -24,7 +24,8 @@
         {{ useFriendsStore().acceptations.length }} demandes d'amitié acceptées
       </button>
     </div>
-
+    <!--no result-->
+    <NoResult class="mt-3" :message="getNoResultMessage()"></NoResult>
     <!--friendrequests data-->
     <div
       v-if="categorie == 'FriendRequests'"
@@ -55,6 +56,13 @@ const getFriendRequests = (): any[] => {
 };
 const getAcceptations = (): any[] => {
   return useFriendsStore().acceptations;
+};
+const getNoResultMessage = (): string => {
+  if (categorie.value == "FriendRequests") {
+    return "Aucune demande d'amitié trouvée.";
+  } else {
+    return "Aucune notification d'acceptation trouvée.";
+  }
 };
 definePageMeta({
   layout: "admin",

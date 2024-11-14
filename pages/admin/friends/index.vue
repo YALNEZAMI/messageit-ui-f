@@ -8,6 +8,7 @@
       :key="friend._id"
       :user="friend"
     ></User>
+    <NoResult message="Pas d'amis pour l'instant"></NoResult>
   </main>
 </template>
 <script lang="ts" setup>

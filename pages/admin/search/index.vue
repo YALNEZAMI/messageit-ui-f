@@ -11,7 +11,7 @@
       />
       <button
         type="button"
-        class="cursor-pointer bg-green-500 hover:bg-green-600 rounded text-white border-white p-2 mx-2 transition-all duration-500"
+        class="cursor-pointer bg-green-500 hover:bg-green-600 rounded text-white border-0 p-2 mx-2 transition-all duration-500"
         @click="searchButton"
       >
         Rechercher
@@ -28,9 +28,12 @@
         :user="user"
       ></User>
     </div>
-    <div class="text-center bg-red-400 text-white p-2" v-else>
-      Pas de resultat pour ce nom "{{ req.text }}"
-    </div>
+    <NoResult
+      class="mt-3"
+      :message="
+        req.text ? `Aucun resultat pour << ${req.text} >>` : 'Aucun resultat'
+      "
+    ></NoResult>
   </main>
 </template>
 <script lang="ts" setup>
