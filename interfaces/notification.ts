@@ -5,4 +5,5 @@ export interface Notification {
   sender: User | string;
   recipient: User | string;
   type: "friendRequest" | "friendAcceptation";
+  seen?: boolean;
 }
