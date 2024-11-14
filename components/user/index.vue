@@ -33,7 +33,7 @@
         </button>
         <button
           type="button"
-          @click="remove"
+          @click="chatWithUser()"
           class="userButton bg-gray-400 hover:bg-gray-300 hover:text-black"
         >
           <div>Discuter</div>
@@ -203,5 +203,8 @@ const accept = async () => {
 const remove = async () => {
   await friendsStore.remove(user._id);
   await setUserFriendShipStatus();
+};
+const chatWithUser = async () => {
+  await useConversationsStore().chatWithUser(user._id);
 };
 </script>
