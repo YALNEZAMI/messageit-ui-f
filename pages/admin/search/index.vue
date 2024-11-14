@@ -29,6 +29,7 @@
       ></User>
     </div>
     <NoResult
+      v-if="getSearchedUsers().length == 0"
       class="mt-3"
       :message="
         req.text ? `Aucun resultat pour << ${req.text} >>` : 'Aucun resultat'

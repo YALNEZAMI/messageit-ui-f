@@ -8,7 +8,10 @@
       :key="friend._id"
       :user="friend"
     ></User>
-    <NoResult message="Pas d'amis pour l'instant"></NoResult>
+    <NoResult
+      v-if="friendsStore.friends.length == 0"
+      message="Pas d'amis pour l'instant"
+    ></NoResult>
   </main>
 </template>
 <script lang="ts" setup>
