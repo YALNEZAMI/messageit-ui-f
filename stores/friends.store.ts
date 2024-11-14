@@ -206,7 +206,6 @@ export const useFriendsStore = defineStore("friendsStore", {
     },
     async onFriends() {
       const service = this.getService("friends");
-      //TODO remove friend ws
       // Listen for the custom event
       service.on("created", async (acceptation: Notification) => {
         //adding friend
@@ -231,6 +230,22 @@ export const useFriendsStore = defineStore("friendsStore", {
             acceptation.recipient = newFriend;
             this.setAcceptatons([acceptation, ...this.acceptations]);
           }
+        }
+      });
+      //removing friends
+      service.on("removed", (notif: Notification) => {
+        if (notif.sender == useAuthStore().user._id) {
+          this.setFriends(
+            this.friends.filter((fr) => {
+              return fr != notif.recipient;
+            })
+          );
+        } else {
+          this.setFriends(
+            this.friends.filter((fr) => {
+              return fr != notif.sender;
+            })
+          );
         }
       });
     },
