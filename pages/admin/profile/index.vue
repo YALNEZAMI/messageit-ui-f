@@ -107,31 +107,9 @@
         />
       </svg>
     </button>
-    <button
-      @click="logout"
-      type="button"
-      class="bg-red-500 cursor-pointer hover:bg-red-400 text-white p-1 border-0 flex justify-center space-x-2 items-center"
-    >
-      <div class="font-bold text-lg">Se déconnecter</div>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="size-6"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
-        />
-      </svg>
-    </button>
   </main>
 </template>
 <script lang="ts" setup>
-import type { Theme } from "~/interfaces/theme";
 const authStore = useAuthStore();
 const user = ref(authStore.user);
 const auth = ref({
@@ -139,10 +117,6 @@ const auth = ref({
   password: "",
   password2: "",
 });
-
-const logout = () => {
-  authStore.logout();
-};
 
 const alert = ref({
   bool: false,
