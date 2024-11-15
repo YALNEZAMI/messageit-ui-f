@@ -1,7 +1,11 @@
 <template>
   <main>
     <div>
-      <Conversation v-for="conv of getConvs()" :key="conv._id"></Conversation>
+      <Conversation
+        v-for="conv of getConvs()"
+        :key="conv._id"
+        :conversation="conv"
+      ></Conversation>
     </div>
   </main>
 </template>
@@ -11,5 +15,9 @@ const getConvs = (): any[] => {
 };
 definePageMeta({
   layout: "private-space",
+  middleware: "conversations",
+});
+onBeforeMount(async () => {
+  await useConversationsStore().getInitalConversations();
 });
 </script>
