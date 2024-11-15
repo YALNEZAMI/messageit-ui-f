@@ -55,6 +55,7 @@
     </div>
   </main>
 </template>
+
 <script lang="ts" setup>
 //Ref<"FriendRequests" | "Acceptations">
 const categorie = ref("Acceptations");
@@ -71,9 +72,7 @@ const getNoResultMessage = (): string => {
     return "Aucune notification d'acceptation trouvée.";
   }
 };
-definePageMeta({
-  layout: "private-space",
-});
+
 onUnmounted(async () => {
   for (let friendRes of getFriendRequests()) {
     await useFriendsStore().setFriendRequestAsSeen(friendRes._id);
@@ -83,4 +82,8 @@ onUnmounted(async () => {
 const clearAcceptations = async () => {
   await useFriendsStore().clearAcceptations();
 };
+definePageMeta({
+  layout: "private-space",
+  middleware: "private-space",
+});
 </script>

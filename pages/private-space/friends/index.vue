@@ -21,5 +21,6 @@ onMounted(async () => {
 });
 definePageMeta({
   layout: "private-space",
+  middleware: "private-space",
 });
 </script>

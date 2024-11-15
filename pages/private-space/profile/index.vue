@@ -221,5 +221,6 @@ const allRequiredInputsFilled = (): boolean => {
 };
 definePageMeta({
   layout: "private-space",
+  middleware: "private-space",
 });
 </script>
