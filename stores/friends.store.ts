@@ -15,7 +15,7 @@ export const useFriendsStore = defineStore("friendsStore", {
       this.searchKey = key;
     },
     setFriends(friends: User[]) {
-      this.friends = friends;
+      this.friends = useNuxtApp().$removeDuplicateById(friends);
     },
     addFriend(friend: User) {
       const exist =
@@ -32,7 +32,7 @@ export const useFriendsStore = defineStore("friendsStore", {
       });
     },
     setFriendRequests(newVal: any) {
-      this.friendRequests = newVal;
+      this.friendRequests = useNuxtApp().$removeDuplicateById(newVal);
     },
     setAcceptatons(newVal: any) {
       this.acceptations = newVal;
@@ -181,19 +181,15 @@ export const useFriendsStore = defineStore("friendsStore", {
 
       // Listen for the custom event
       service.on("created", async (friendReq: Notification) => {
-        console.log("created ", friendReq);
-        const friendRequestExist = this.friendRequests.filter(
-          (fr: Notification) => {
-            return fr._id === friendReq._id;
-          }
+        this.setFriendRequests(
+          this.friendRequests.filter((fr: Notification) => {
+            return fr._id != friendReq._id;
+          })
         );
-
-        if (friendRequestExist.length == 0) {
-          friendReq.sender = await useUsersStore().getUser(
-            friendReq.sender as string
-          );
-          this.setFriendRequests([friendReq, ...this.friendRequests]);
-        }
+        friendReq.sender = await useUsersStore().getUser(
+          friendReq.sender.toString()
+        );
+        this.setFriendRequests([friendReq, ...this.friendRequests]);
       });
       // Listen for the custom event
       service.on("removed", (friendReq: any) => {
