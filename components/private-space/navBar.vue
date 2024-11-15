@@ -8,10 +8,6 @@
   </ContainersMain>
 </template>
 <script lang="ts" setup>
-import type { NavBarItem } from "../../interfaces/navBarItem";
-
-const authStore = useAuthStore();
-
 const friendStore = useFriendsStore();
 onMounted(async () => {
   await friendStore.getFriendRequestsSentToMe();
