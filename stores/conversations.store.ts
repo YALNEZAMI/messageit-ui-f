@@ -7,49 +7,54 @@ export const useConversationsStore = defineStore("conversationsStore", {
     };
   },
   actions: {
-    setAtt(newVal: Conversation[]) {
+    setConversations(newVal: Conversation[]) {
       this.conversations = newVal;
     },
     getService(name: string) {
       return useNuxtApp().$feathers.service(name);
     },
-    async chatWithUser(idUser: string) {
-      const conv = await this.getService("conversations").get("", {
+    async getInitalConversations() {
+      const conversations = await this.getService("conversations").find({
         query: {
-          user1: idUser,
-          user2: useAuthStore().user._id,
+          currentUserId: useAuthStore().user._id,
         },
       });
-
-      useRouter().push(`/private-space/conversations/${conv._id}`);
+      this.conversations = conversations.data;
     },
-    //if bool is true id is set as Conversation _id, null otherwise
-    // async conversationExistWith(
-    //   idUser: string
-    // ): Promise<any> // : Promise<{ bool: boolean; _id: string }>
-    // {
-    //   const myId = useAuthStore().user._id;
-    //   const response = await this.getService("conversations").get("", {
-    //     query: {
-    //       user1: myId,
-    //       user2: idUser,
-    //     },
-    //   });
-    //   console.log("response", response);
-
-    //   // response1.concact(response2);
-    //   // console.log("response", merge);
-    //   // if (merge.length == 0) {
-    //   //   return {
-    //   //     bool: false,
-    //   //     _id: "",
-    //   //   };
-    //   // } else {
-    //   //   return {
-    //   //     bool: true,
-    //   //     _id: merge[0]._id,
-    //   //   };
-    //   // }
-    // },
+    async chatWithUser(idUser: string) {
+      const conv = await this.getService("conversations").create({
+        user1: idUser,
+        user2: useAuthStore().user._id,
+      });
+      this.conversations.push(conv);
+      useRouter().push(`/conversations/${conv._id}`);
+    },
+    async deleteConversation(id: string) {
+      const response = await this.getService("conversations").remove(id);
+      this.setConversations(
+        this.conversations.filter((conv: Conversation) => {
+          return response._id != conv._id;
+        })
+      );
+    },
+    onConversation() {
+      this.getService("conversations").on(
+        "removed",
+        (conversation: Conversation) => {
+          this.setConversations(
+            this.conversations.filter((conv) => {
+              return conv._id != conversation._id;
+            })
+          );
+        }
+      );
+      this.getService("conversations").on(
+        "created",
+        (conversation: Conversation) => {
+          console.log("created", conversation);
+          this.conversations.push(conversation);
+        }
+      );
+    },
   },
 });
