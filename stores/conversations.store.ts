@@ -1,14 +1,42 @@
 import { defineStore } from "pinia";
 import type { Conversation } from "~/interfaces/conversation";
+import type { User } from "~/interfaces/user";
 export const useConversationsStore = defineStore("conversationsStore", {
   state: () => {
     return {
       conversations: [] as Conversation[],
+      currentConversation: {} as Conversation,
     };
   },
   actions: {
     setConversations(newVal: Conversation[]) {
       this.conversations = newVal;
+    },
+    setCurrentConversation(newConv: Conversation) {
+      this.currentConversation = newConv;
+    },
+    async getConversation(id: string) {
+      return await this.getService("conversations").get(id);
+    },
+    getOtherUser(conv: Conversation): User {
+      const user1 = conv.user1 as User;
+      const user2 = conv.user2 as User;
+      if (user1._id == useAuthStore().user._id) {
+        return user2;
+      } else {
+        return user1;
+      }
+    },
+    getNamePrivateConversation(conv: Conversation): string {
+      return this.getOtherUser(conv).name as string;
+    },
+    updateConversation(newConv: Conversation) {
+      this.conversations = this.conversations.map((conv: Conversation) => {
+        if (newConv._id == conv._id) {
+          return newConv;
+        }
+        return conv;
+      });
     },
     getService(name: string) {
       return useNuxtApp().$feathers.service(name);
@@ -19,11 +47,21 @@ export const useConversationsStore = defineStore("conversationsStore", {
           currentUserId: useAuthStore().user._id,
         },
       });
-      this.conversations = conversations.data;
+      for (let conv of conversations.data) {
+        conv = await this.fillConversation(conv);
+      }
+      this.setConversations(conversations.data);
     },
-    async chatWithUser(idUser: string) {
+    async fillConversation(conv: Conversation): Promise<Conversation> {
+      const user1 = await useUsersStore().getUser(conv.user1 as string);
+      const user2 = await useUsersStore().getUser(conv.user2 as string);
+      conv.user1 = user1;
+      conv.user2 = user2;
+      return conv;
+    },
+    async chatWithUser(user: User) {
       const conv = await this.getService("conversations").create({
-        user1: idUser,
+        user1: user._id,
         user2: useAuthStore().user._id,
       });
       this.conversations.push(conv);
