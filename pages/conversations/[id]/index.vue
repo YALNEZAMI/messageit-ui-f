@@ -3,7 +3,7 @@
 </template>
 <script lang="ts" setup>
 definePageMeta({
-  layout: "private-space",
+  layout: "conversations",
   middleware: "conversations",
 });
 </script>
