@@ -3,7 +3,11 @@
     :id="user._id"
     class="flex items-center w-11/12 sm:w-96 h-16 rounded p-2 m-1 shadow-md"
   >
-    <NuxtImg class="w-14" :src="authStore.defaultUserImg" />
+    <div class="relative">
+      <NuxtImg class="w-14" :src="authStore.defaultUserImg" />
+
+      <Status class="absolute top-0 right-0" :user="user"></Status>
+    </div>
     <div class="mx-2 w-1/2 md:3/4 truncate">
       {{ user ? user.name.toUpperCase() : "Deconnecté" }}
     </div>
@@ -205,6 +209,6 @@ const remove = async () => {
   await setUserFriendShipStatus();
 };
 const chatWithUser = async () => {
-  await useConversationsStore().chatWithUser(user._id);
+  await useConversationsStore().chatWithUser(user);
 };
 </script>
