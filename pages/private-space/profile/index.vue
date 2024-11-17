@@ -158,7 +158,7 @@ const updateUser = async () => {
   }
   auth.value.email = auth.value.email.toLowerCase();
   user.value.email = auth.value.email;
-  const updating = await useUsersStore().updateCurrentUser();
+  const updating = await useUsersStore().updateUser(user.value);
   let emailIssu = false;
   if (updating._id) {
     authStore.setUser(updating);
