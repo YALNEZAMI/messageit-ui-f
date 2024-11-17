@@ -19,6 +19,10 @@ export const useConversationsStore = defineStore("conversationsStore", {
       return await this.getService("conversations").get(id);
     },
     getOtherUser(conv: Conversation): User {
+      if (!conv.members) {
+        console.log("currentconv from 22 ", this.currentConversation);
+        return useAuthStore().user;
+      }
       return conv.members.find((member: any) => {
         return member._id != useAuthStore().user._id;
       }) as User;
