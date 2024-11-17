@@ -5,7 +5,7 @@
       'bg-black opacity-0 w-0': !useSideBarStore().isTranslated,
       'bg-black bg-opacity-50 w-screen': useSideBarStore().isTranslated,
     }"
-    class="fixed right-0 top-0 h-full flex flex-row-reverse transition-all duration-500 ease-in-out"
+    class="fixed z-30 right-0 top-0 h-full flex flex-row-reverse transition-all duration-500 ease-in-out"
   >
     <!--main side bar-->
     <div

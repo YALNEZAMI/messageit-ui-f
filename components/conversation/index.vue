@@ -3,7 +3,7 @@
     class="flex items-center space-x-2 cursor-pointer p-2 rounded"
     @click="setConversation()"
   >
-    <div class="relative">
+    <div class="relative z-0">
       <NuxtImg class="w-14" :src="useAuthStore().defaultUserImg" />
 
       <Status
