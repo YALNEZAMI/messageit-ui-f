@@ -1,8 +1,11 @@
 import { defineStore } from "pinia";
+import type { Conversation } from "~/interfaces/conversation";
 import type { User } from "~/interfaces/user";
 export const useUsersStore = defineStore("usersStore", {
   state: () => {
     return {
+      statusCheckingIntervalle: {} as NodeJS.Timeout,
+      statusCheckingIntervalleTime: 1000 * 60, //one minute
       users: [],
       searchedUsers: [],
     };
@@ -20,13 +23,8 @@ export const useUsersStore = defineStore("usersStore", {
     async getUser(id: string) {
       return await this.getService("my-users").get(id, {});
     },
-    async updateCurrentUser() {
-      const user = useAuthStore().user;
-      return await this.getService("my-users").patch(
-        user._id as string,
-        user,
-        {}
-      );
+    async updateUser(user: any) {
+      return await this.getService("my-users").patch(user._id as string, user);
     },
     async updateCurrentAuthUser(auth: any) {
       delete auth.password2;
@@ -35,41 +33,81 @@ export const useUsersStore = defineStore("usersStore", {
         auth
       );
     },
-    async search(req: any) {
-      try {
-        const feathers = useNuxtApp().$feathers; // Access Feathers client
-
-        let response = await feathers.service("my-users").find({
+    async setCurrentUserStatus(isOnLine: boolean) {
+      await this.getService("my-users").patch(
+        useAuthStore().user._id as string,
+        {
+          onLine: isOnLine,
+        },
+        {
           query: {
-            $and: [
-              { name: req.text },
-              { _id: { $ne: useAuthStore().user._id } },
-            ],
+            statusChecking: true,
           },
-          headers: {
-            Authorization: `Bearer ${useAuthStore().accessToken}`,
-          },
-        });
-        if (response.data.length == 0) {
-          response = await feathers.service("my-users").find({
-            query: {
-              _id: { $ne: useAuthStore().user._id },
-            },
-            headers: {
-              Authorization: `Bearer ${useAuthStore().accessToken}`,
-            },
-          });
         }
-        response.data = response.data.filter((user: User) => {
-          return (
-            user.name?.includes(req.text) && user._id != useAuthStore().user._id
-          );
+      );
+    },
+    async search(name: string) {
+      try {
+        let response = await this.getService("my-users").find({
+          query: {
+            name,
+            currentUserId: useAuthStore().user._id,
+          },
         });
-        this.setsearchedUsers(response.data);
+
+        this.setsearchedUsers(response);
         return response.data;
       } catch (error) {
         console.error("Error retrieving users:", error);
       }
+    },
+    setStatusCheckingIntervalle() {
+      clearInterval(this.statusCheckingIntervalle);
+      const newIntervall = setInterval(async () => {
+        await useUsersStore().setCurrentUserStatus(true);
+      }, this.statusCheckingIntervalleTime);
+      this.statusCheckingIntervalle = newIntervall;
+    },
+    onUser() {
+      this.getService("my-users").on("patched", (user: User) => {
+        //update friends
+        useFriendsStore().setFriends(
+          useFriendsStore().friends.map((fr: User) => {
+            if (fr._id == user._id) {
+              return user;
+            }
+            return fr;
+          })
+        );
+        //update members of all conversations
+        useConversationsStore().setConversations(
+          useConversationsStore().conversations.map((conv: Conversation) => {
+            conv.members = conv.members.map((mem: any) => {
+              if (mem._id == user._id) {
+                return user;
+              }
+              return mem;
+            });
+            return conv;
+          })
+        );
+        //update members of currentConversation
+        const newCurrentConversation =
+          useConversationsStore().currentConversation;
+        if (newCurrentConversation._id) {
+          newCurrentConversation.members = newCurrentConversation.members.map(
+            (mem: any) => {
+              if (mem._id == user._id) {
+                return user;
+              }
+              return mem;
+            }
+          );
+          useConversationsStore().setCurrentConversation(
+            newCurrentConversation
+          );
+        }
+      });
     },
   },
 });
