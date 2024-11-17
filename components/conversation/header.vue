@@ -7,7 +7,11 @@
       ></NuxtImg>
       <Status
         class="absolute top-0 right-0"
-        :user="useConversationsStore().getOtherUser(conversation)"
+        :user="
+          useConversationsStore().getOtherUser(
+            useConversationsStore().currentConversation
+          )
+        "
       ></Status>
     </div>
     <div class="w-2/3">
@@ -22,8 +26,9 @@
   </ContainersConversationTheme>
 </template>
 <script lang="ts" setup>
-const conversation = ref(useConversationsStore().currentConversation);
 const getName = () => {
-  return useConversationsStore().getNamePrivateConversation(conversation.value);
+  return useConversationsStore().getNamePrivateConversation(
+    useConversationsStore().currentConversation
+  );
 };
 </script>
