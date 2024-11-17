@@ -5,7 +5,7 @@
       <input
         @input="search"
         type="text"
-        v-model="req.text"
+        v-model="req"
         class="p-2 rounded w-1/2 md:w-1/4"
         placeholder="Jack"
       />
@@ -31,9 +31,7 @@
     <NoResult
       v-if="getSearchedUsers().length == 0"
       class="mt-3"
-      :message="
-        req.text ? `Aucun resultat pour << ${req.text} >>` : 'Aucun resultat'
-      "
+      :message="req ? `Aucun resultat pour << ${req} >>` : 'Aucun resultat'"
     ></NoResult>
   </main>
 </template>
@@ -41,7 +39,7 @@
 import type { User } from "~/interfaces/user";
 
 const usersStore = useUsersStore();
-const req = ref({ text: "" });
+const req = ref("");
 const search = async () => {
   await usersStore.search(req.value);
 };
