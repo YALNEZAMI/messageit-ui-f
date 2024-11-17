@@ -19,13 +19,9 @@ export const useConversationsStore = defineStore("conversationsStore", {
       return await this.getService("conversations").get(id);
     },
     getOtherUser(conv: Conversation): User {
-      const user1 = conv.user1 as User;
-      const user2 = conv.user2 as User;
-      if (user1._id == useAuthStore().user._id) {
-        return user2;
-      } else {
-        return user1;
-      }
+      return conv.members.find((member: any) => {
+        return member._id != useAuthStore().user._id;
+      }) as User;
     },
     getNamePrivateConversation(conv: Conversation): string {
       return this.getOtherUser(conv).name as string;
@@ -47,18 +43,10 @@ export const useConversationsStore = defineStore("conversationsStore", {
           currentUserId: useAuthStore().user._id,
         },
       });
-      for (let conv of conversations.data) {
-        conv = await this.fillConversation(conv);
-      }
-      this.setConversations(conversations.data);
+
+      this.setConversations(conversations);
     },
-    async fillConversation(conv: Conversation): Promise<Conversation> {
-      const user1 = await useUsersStore().getUser(conv.user1 as string);
-      const user2 = await useUsersStore().getUser(conv.user2 as string);
-      conv.user1 = user1;
-      conv.user2 = user2;
-      return conv;
-    },
+
     async chatWithUser(user: User) {
       const conv = await this.getService("conversations").create({
         user1: user._id,
@@ -89,7 +77,6 @@ export const useConversationsStore = defineStore("conversationsStore", {
       this.getService("conversations").on(
         "created",
         (conversation: Conversation) => {
-          console.log("created", conversation);
           this.conversations.push(conversation);
         }
       );
