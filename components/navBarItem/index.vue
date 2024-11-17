@@ -49,7 +49,6 @@ const goTo = () => {
 onMounted(async () => {
   const svgDiv = document.getElementById(navBarItem.name + "svg");
   svgDiv.innerHTML = navBarItem.svg;
-  setInterval(() => {}, 1000);
 });
 // const getClasses = () => {
 //   return {
