@@ -5,6 +5,5 @@ export interface Conversation {
   _id?: string;
   name?: string;
   theme: Theme;
-  user1: string | User;
-  user2: string | User;
+  members: string[] | User[];
 }
