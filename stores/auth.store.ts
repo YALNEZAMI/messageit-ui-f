@@ -19,6 +19,10 @@ export const useAuthStore = defineStore("authStore", {
     };
   },
   actions: {
+    getService(name: string) {
+      return useNuxtApp().$feathers.service(name);
+    },
+
     redirectTo(path: string) {
       useRouter().push(path);
     },
@@ -50,16 +54,18 @@ export const useAuthStore = defineStore("authStore", {
           email: auth.email,
         };
 
-        const feathers = useNuxtApp().$feathers; // Access the Feathers client
-        const registering = await feathers
-          .service("users")
-          .create(body, { query });
+        const registering = await this.getService("users").create(body, {
+          query,
+        });
         return registering;
       } catch (error: any) {
         console.log("error", error);
       }
     },
     async logout() {
+      //set as offline
+      await useUsersStore().setCurrentUserStatus(false);
+
       localStorage.clear();
       this.setAccessToken("");
       this.setAuthentication({});
@@ -70,20 +76,23 @@ export const useAuthStore = defineStore("authStore", {
     async login(auth: User) {
       try {
         auth.strategy = "local";
-        const feathers = useNuxtApp().$feathers; // Access the Feathers client
-        const authenticationService = feathers.service("authentication");
-        const response: any = await authenticationService.create(auth);
+        const response: any = await this.getService("authentication").create(
+          auth
+        );
+        //set access token
         this.setAccessToken(response.accessToken);
-        const completeUser = await feathers
-          .service("my-users")
-          .get(response.user._id, {
-            headers: {
-              Authorization: `Bearer ${useAuthStore().accessToken}`,
-            },
-          });
-        this.setUser(completeUser);
+        //set auth object
         this.setAuthentication(response.authentication);
+        const completeUser = await this.getService("my-users").get(
+          response.user._id
+        );
+        this.setUser(completeUser);
+
+        //init friends requests
         await useFriendsStore().getFriendRequestsSentToMe();
+        //set onLine as true
+        await useUsersStore().setCurrentUserStatus(true);
+
         this.redirectTo("/private-space");
         return response;
       } catch (error: any) {
