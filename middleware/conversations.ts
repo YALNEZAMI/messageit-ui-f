@@ -7,9 +7,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     const conv = await useConversationsStore().getConversation(idConv);
     useConversationsStore().setCurrentConversation(conv);
   }
-  //websocket channels subscription
-  useConversationsStore().onConversation();
-  useUsersStore().onUser();
+
   //set status checking interval
   useUsersStore().setStatusCheckingIntervalle();
 });
