@@ -1,9 +1,71 @@
 <template>
-  <main>messages</main>
+  <main class="flex w-screen" style="height: 35.5rem">
+    <!--side conversations-->
+    <ContainersMain class="w-1/4 rounded h-full overflow-y-auto">
+      <Conversation
+        class="mb-1"
+        v-for="conv of getConvs()"
+        :key="conv._id"
+        :conversation="conv"
+        :isSideBar="true"
+      ></Conversation>
+    </ContainersMain>
+    <!--messages container and input-->
+    <div class="flex w-3/4 mr-4 flex-col h-full">
+      <div
+        class="p-2 flex flex-col overflow-y-auto bg-blue-200"
+        style="height: 32rem"
+      >
+        <!--messages-->
+        <Message
+          @click="setClickedId(message._id)"
+          v-for="message of getMessages()"
+          :key="message._id"
+          :message="message"
+          :nextMessage="getNextMessage(message._id)"
+          :previousMessage="getPreviousMessage(message._id)"
+          :clickedId="clickedId"
+        ></Message>
+      </div>
+      <!-- input -->
+      <MessageInput></MessageInput>
+    </div>
+  </main>
 </template>
 <script lang="ts" setup>
+import type { Message } from "~/interfaces/message";
+const clickedId = ref("");
+const setClickedId = (val: any) => {
+  clickedId.value = val;
+};
+const getConvs = (): any[] => {
+  return useConversationsStore().conversations;
+};
+const getMessages = () => {
+  return useMessagesStore().messages;
+};
+const getNextMessage = (id: any) => {
+  let i = 0;
+  console.log("getMessages", getMessages());
+  getMessages().find((msg: Message, index: number) => {
+    i = index;
+    return msg._id == id;
+  });
+  return getMessages()[i + 1];
+};
+const getPreviousMessage = (id: any) => {
+  let i = 0;
+  getMessages().find((msg: Message, index: number) => {
+    i = index;
+    return msg._id == id;
+  });
+  return getMessages()[i - 1];
+};
 definePageMeta({
   layout: "conversations",
   middleware: "conversations",
+});
+onBeforeMount(async () => {
+  await useMessagesStore().getInitialMessages();
 });
 </script>
