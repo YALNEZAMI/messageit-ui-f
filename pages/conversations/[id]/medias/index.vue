@@ -1,0 +1,9 @@
+<template>
+  <main>medias</main>
+</template>
+<script lang="ts" setup>
+definePageMeta({
+  middleware: "conversations",
+  layout: "conversations",
+});
+</script>
