@@ -18,14 +18,23 @@ onMounted(async () => {
   await friendStore.getFriendRequestsSentToMe();
   await friendStore.getAcceptedFriendRequests();
 });
-const idConv = useRoute().params.id;
+
+console.log("useRouteparams", useRoute().params.id);
 const isSamePath = (nbi: any): boolean => {
   return useRoute().path == nbi.path;
+};
+
+const getConvId = () => {
+  let idConv = useRoute().params.id as string;
+  if (!idConv) {
+    idConv = useConversationsStore().currentConversation._id as string;
+  }
+  return idConv;
 };
 const navBarItems = ref([
   {
     _id: "messages",
-    path: "/conversations/" + idConv,
+    path: "/conversations/" + getConvId(),
     name: "Messages",
     notificationsNumber: 0,
     svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
@@ -37,7 +46,7 @@ const navBarItems = ref([
   },
   {
     _id: "settings",
-    path: "/conversations/" + idConv + "/settings",
+    path: "/conversations/" + getConvId() + "/settings",
     name: "Paramètres",
     notificationsNumber: 0,
 
@@ -51,7 +60,7 @@ const navBarItems = ref([
   },
   {
     _id: "medias",
-    path: "/conversations/" + idConv + "/medias",
+    path: "/conversations/" + getConvId() + "/medias",
     name: "Medias",
     notificationsNumber: 0,
     svg: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -64,7 +73,7 @@ const navBarItems = ref([
   },
   {
     _id: "search",
-    path: "/conversations/" + idConv + "/search",
+    path: "/conversations/" + getConvId() + "/search",
     name: "Recherche",
     notificationsNumber: 0,
 
@@ -77,7 +86,7 @@ const navBarItems = ref([
   },
   {
     _id: "members",
-    path: "/conversations/" + idConv + "/members",
+    path: "/conversations/" + getConvId() + "/members",
     name: "Membres",
     notificationsNumber: 0,
 
