@@ -1,11 +1,16 @@
 <template>
   <main>
-    <div>
+    <div class="flex flex-wrap justify-center">
       <Conversation
         v-for="conv of getConvs()"
         :key="conv._id"
         :conversation="conv"
-      ></Conversation>
+        :isSideBar="false"
+      />
+      <NoResult
+        v-if="getConvs().length == 0"
+        :message="'Aucune conversations pour le moment.'"
+      />
     </div>
   </main>
 </template>
