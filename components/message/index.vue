@@ -27,7 +27,7 @@
         >
       </div>
     </div>
-    <div v-if="props.clickedId == message._id" class="text-center">
+    <div class="text-center" v-if="props.clickedId == message._id">
       {{ getDate() }}
     </div>
   </div>
@@ -42,7 +42,6 @@ const props = defineProps({
 
 const message = props.message;
 const nextMessage = props.nextMessage;
-console.log("next msg", nextMessage);
 const thereIsImage = () => {
   return (
     nextMessage == undefined || message.sender._id != nextMessage.sender._id

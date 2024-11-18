@@ -36,6 +36,10 @@
 import type { Message } from "~/interfaces/message";
 const clickedId = ref("");
 const setClickedId = (val: any) => {
+  if (clickedId.value == val) {
+    clickedId.value = "";
+    return;
+  }
   clickedId.value = val;
 };
 const getConvs = (): any[] => {
@@ -46,7 +50,6 @@ const getMessages = () => {
 };
 const getNextMessage = (id: any) => {
   let i = 0;
-  console.log("getMessages", getMessages());
   getMessages().find((msg: Message, index: number) => {
     i = index;
     return msg._id == id;
