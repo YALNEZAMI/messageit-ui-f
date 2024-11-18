@@ -1,13 +1,15 @@
 <template>
   <ContainersConversationTheme>
     <div class="p-2 flex justify-end space-x-1">
-      <input
+      <textarea
         id="textInput"
         type="text"
         v-model.trim="message.text"
-        class="w-3/4 md:w-1/2 px-2 rounded border-transparent focus:border-black focus:border-2"
+        class="scroll w-3/4 h-7 md:w-1/2 px-2 rounded border-transparent focus:border-black focus:border-2"
         placeholder="écrir..."
-      />
+        rows="3"
+        style="resize: none"
+      ></textarea>
       <button
         :disabled="message.text == ''"
         @click="send"
@@ -33,3 +35,8 @@ onMounted(async () => {
   input.focus();
 });
 </script>
+<style scoped>
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+</style>
