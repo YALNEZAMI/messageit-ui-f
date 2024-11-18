@@ -1,9 +1,9 @@
 <template>
   <div
     @click="goTo()"
-    class="hover:opacity-70 cursor-pointer flex sm:min-w-28 items-center justify-center sm:space-x-2 px-2 sm:px-1 sm:pr-3 m-1 sm:mx-2 rounded transition-all duration-500"
+    class="hover:opacity-70 cursor-pointer flex md:min-w-20 lg:min-w-24 items-center justify-center sm:space-x-2 px-2 sm:px-1 sm:pr-3 m-1 sm:mx-2 rounded transition-all duration-500"
   >
-    <div class="hidden sm:block">
+    <div class="hidden md:block">
       {{ navBarItem.name }}
     </div>
     <!--svg and notifsnumber-->
