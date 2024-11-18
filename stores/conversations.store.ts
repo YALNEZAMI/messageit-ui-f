@@ -20,7 +20,6 @@ export const useConversationsStore = defineStore("conversationsStore", {
     },
     getOtherUser(conv: Conversation): User {
       if (!conv.members) {
-        console.log("currentconv from 22 ", this.currentConversation);
         return useAuthStore().user;
       }
       return conv.members.find((member: any) => {
@@ -53,8 +52,8 @@ export const useConversationsStore = defineStore("conversationsStore", {
 
     async chatWithUser(user: User) {
       const conv = await this.getService("conversations").create({
-        user1: user._id,
-        user2: useAuthStore().user._id,
+        members: [user._id, useAuthStore().user._id],
+        type: "private",
       });
       this.conversations.push(conv);
       useRouter().push(`/conversations/${conv._id}`);
@@ -67,7 +66,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
         })
       );
     },
-    onConversation() {
+    async onConversation() {
       this.getService("conversations").on(
         "removed",
         (conversation: Conversation) => {
@@ -80,7 +79,15 @@ export const useConversationsStore = defineStore("conversationsStore", {
       );
       this.getService("conversations").on(
         "created",
-        (conversation: Conversation) => {
+        async (conversation: Conversation) => {
+          //filling members
+          const membersAsUsers: User[] = [];
+          for (let member of conversation.members) {
+            const user = await useUsersStore().getUser(member as string);
+            membersAsUsers.push(user);
+          }
+          conversation.members = membersAsUsers;
+          //push to conversations
           this.conversations.push(conversation);
         }
       );
