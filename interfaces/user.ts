@@ -8,4 +8,5 @@ export interface User {
   password2?: string;
   name?: string;
   strategy?: string;
+  image: string;
 }

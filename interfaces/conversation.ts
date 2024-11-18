@@ -6,4 +6,5 @@ export interface Conversation {
   name?: string;
   theme: Theme;
   members: string[] | User[];
+  image: string;
 }
