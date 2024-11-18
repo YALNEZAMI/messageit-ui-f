@@ -1,7 +1,10 @@
 <template>
   <ContainersMain class="flex flex-wrap p-2 justify-center my-1">
     <ContainersTheme
-      class="m-1 rounded"
+      class="m-1 rounded hover:opacity-70"
+      :style="{
+        'background-color': isSamePath(nbi) ? 'gray' : '',
+      }"
       v-for="nbi of navBarItems"
       :key="nbi.name"
       ><NavBarItem :navBarItem="nbi"></NavBarItem
@@ -10,6 +13,9 @@
 </template>
 <script lang="ts" setup>
 const friendStore = useFriendsStore();
+const isSamePath = (nbi: any): boolean => {
+  return useRoute().path == nbi.path;
+};
 onMounted(async () => {
   await friendStore.getFriendRequestsSentToMe();
   await friendStore.getAcceptedFriendRequests();

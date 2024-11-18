@@ -4,6 +4,9 @@
       class="m-1 rounded mx-2"
       v-for="nbi of navBarItems"
       :key="nbi.name"
+      :style="{
+        'background-color': isSamePath(nbi) ? 'gray' : '',
+      }"
     >
       <NavBarItem :navBarItem="nbi"></NavBarItem
     ></ContainersConversationTheme>
@@ -16,6 +19,9 @@ onMounted(async () => {
   await friendStore.getAcceptedFriendRequests();
 });
 const idConv = useRoute().params.id;
+const isSamePath = (nbi: any): boolean => {
+  return useRoute().path == nbi.path;
+};
 const navBarItems = ref([
   {
     _id: "messages",
