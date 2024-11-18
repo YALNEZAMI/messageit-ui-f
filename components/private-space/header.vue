@@ -1,14 +1,11 @@
 <template>
   <ContainersTheme class="flex items-center p-2 rounded">
-    <div class="flex h-1/6">
-      <NuxtImg
-        class="w-full md:w-20 h-16"
-        :src="authStore.defaultUserImg"
-      ></NuxtImg>
+    <div class="flex w-20 h-16">
+      <ImagesUserImage :src="authStore.user.image"></ImagesUserImage>
     </div>
     <div
       v-if="authStore.user.name"
-      class="text-xl md:text-2xl mx-2 w-3/4 truncate"
+      class="text-2xl md:text-3xl mx-2 w-3/4 truncate font-bold"
     >
       {{
         authStore.user
