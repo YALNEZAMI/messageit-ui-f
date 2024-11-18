@@ -45,7 +45,7 @@ export const useAuthStore = defineStore("authStore", {
     async register(auth: User) {
       localStorage.clear();
       try {
-        const body: User = {
+        const body: any = {
           email: auth.email,
           password: auth.password,
         };
@@ -73,7 +73,7 @@ export const useAuthStore = defineStore("authStore", {
       useRouter().push("/auth/login");
       window.location.reload();
     },
-    async login(auth: User) {
+    async login(auth: any) {
       try {
         auth.strategy = "local";
         const response: any = await this.getService("authentication").create(
