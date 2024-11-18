@@ -15,7 +15,12 @@ export const useMessagesStore = defineStore("messagesStore", {
       this.messages = newVal;
     },
     addMessage(msg: Message) {
-      this.messages.push(msg);
+      const exist = this.messages.find((message: Message) => {
+        return message._id == msg._id;
+      });
+      if (exist == undefined) {
+        this.messages.push(msg);
+      }
     },
     async send(message: Message) {
       message.sender = useAuthStore().user._id as string;
