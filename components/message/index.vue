@@ -6,9 +6,8 @@
         'flex-row-reverse': isMyMessage(),
       }"
     >
-      <div class="flex items-end">
+      <div class="flex items-end" v-if="thereIsImage()">
         <ImagesUserImage
-          v-if="thereIsImage()"
           class="rounded-full w-8 h-8 border-2 border-solid p-1"
           :title="message.sender.name"
           :src="message.sender.image"
@@ -35,16 +34,14 @@
 <script setup>
 const props = defineProps({
   message: "Object",
-  nextMessage: "Object",
-  previousMessage: "Object",
   clickedId: "Boolean",
 });
 
 const message = props.message;
-const nextMessage = props.nextMessage;
 const thereIsImage = () => {
   return (
-    nextMessage == undefined || message.sender._id != nextMessage.sender._id
+    getNextMessage() == undefined ||
+    message.sender._id != getNextMessage().sender._id
   );
 };
 const isMyMessage = () => {
@@ -61,5 +58,24 @@ const getDate = () => {
   const minutes = String(date.getMinutes()).padStart(2, "0");
 
   return `${day}/${month}/${year} at ${hours}:${minutes}`;
+};
+const getMessages = () => {
+  return useMessagesStore().messages;
+};
+const getNextMessage = () => {
+  let i = 0;
+  getMessages().find((msg, index) => {
+    i = index;
+    return msg._id == message._id;
+  });
+  return getMessages()[i + 1];
+};
+const getPreviousMessage = () => {
+  let i = 0;
+  getMessages().find((msg, index) => {
+    i = index;
+    return msg._id == message.id;
+  });
+  return getMessages()[i - 1];
 };
 </script>

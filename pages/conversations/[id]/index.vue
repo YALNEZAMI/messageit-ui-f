@@ -22,8 +22,6 @@
           v-for="message of getMessages()"
           :key="message._id"
           :message="message"
-          :nextMessage="getNextMessage(message._id)"
-          :previousMessage="getPreviousMessage(message._id)"
           :clickedId="clickedId"
         ></Message>
       </div>
@@ -48,22 +46,7 @@ const getConvs = (): any[] => {
 const getMessages = () => {
   return useMessagesStore().messages;
 };
-const getNextMessage = (id: any) => {
-  let i = 0;
-  getMessages().find((msg: Message, index: number) => {
-    i = index;
-    return msg._id == id;
-  });
-  return getMessages()[i + 1];
-};
-const getPreviousMessage = (id: any) => {
-  let i = 0;
-  getMessages().find((msg: Message, index: number) => {
-    i = index;
-    return msg._id == id;
-  });
-  return getMessages()[i - 1];
-};
+
 definePageMeta({
   layout: "conversations",
   middleware: "conversations",
