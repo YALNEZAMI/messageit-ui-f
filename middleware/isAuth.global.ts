@@ -12,7 +12,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     useRouter().push("/auth/login");
   }
   if (authStore.isAuthenticated()) {
-    console.log("auth global mmiddleware");
     //init data
     await useFriendsStore().getMyFriends();
     await useConversationsStore().getInitalConversations();
