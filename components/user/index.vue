@@ -3,8 +3,8 @@
     :id="user._id"
     class="flex items-center w-11/12 sm:w-96 h-16 rounded p-2 m-1 shadow-md"
   >
-    <div class="relative">
-      <NuxtImg class="w-14" :src="authStore.defaultUserImg" />
+    <div class="relative w-16">
+      <ImagesUserImage :src="user.image" />
       <Status
         v-if="isMyFriend"
         class="absolute top-0 right-0"
@@ -179,7 +179,6 @@ const user = props.user;
 const getUser = () => {
   return props.user;
 };
-const authStore = useAuthStore();
 const friendsStore = useFriendsStore();
 
 const isMyFriend = ref(false);
