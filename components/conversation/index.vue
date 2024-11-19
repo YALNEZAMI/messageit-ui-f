@@ -3,7 +3,7 @@
     :class="{
       'flex items-center shadow-md space-x-2 cursor-pointer p-2 rounded ': true,
       'justify-center md:justify-normal': props.isSideBar,
-      'w-full md:w-1/3': !props.isSideBar,
+      'w-11/12 sm:w-1/2 md:1/3': !props.isSideBar,
     }"
   >
     <div
@@ -18,16 +18,16 @@
       <Status class="absolute top-0 right-0" :user="getUser()"></Status>
     </div>
     <div
-      class="w-full flex"
+      class="w-3/4 flex"
       :class="{
         ' hidden md:block': props.isSideBar,
       }"
     >
-      <div
-        @click="setConversation()"
-        class="w-3/4 truncate font-bold text-lg px-3"
-      >
-        {{ getName() }}
+      <div class="w-3/4 truncate px-3" @click="setConversation()">
+        <div class="font-bold text-lg">
+          {{ getName() }}
+        </div>
+        <div class="text-sm truncate 1/2">{{ getSecondaryText() }}</div>
       </div>
       <div>
         <svg
@@ -62,12 +62,22 @@ const props = defineProps({
   isSideBar: "Boolean",
 });
 const conversation = props.conversation;
-
 const setConversation = async () => {
   useRouter().push("/conversations/" + conversation._id);
 };
 const getName = () => {
   return useConversationsStore().getNamePrivateConversation(conversation);
+};
+const getSecondaryText = () => {
+  const lastMessage = useConversationsStore().getLastMessage(conversation._id);
+  const res =
+    (lastMessage
+      ? lastMessage.sender.name + ": " + lastMessage.text
+      : "Dites bonjour ") +
+    (conversation.type == "private" && !lastMessage
+      ? "à " + useConversationsStore().getOtherUser(conversation).name
+      : "");
+  return res;
 };
 const getUser = () => {
   return useConversationsStore().getOtherUser(conversation);
