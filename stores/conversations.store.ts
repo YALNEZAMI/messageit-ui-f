@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import type { Conversation } from "~/interfaces/conversation";
+import type { Message } from "~/interfaces/message";
 import type { User } from "~/interfaces/user";
 export const useConversationsStore = defineStore("conversationsStore", {
   state: () => {
@@ -9,8 +10,24 @@ export const useConversationsStore = defineStore("conversationsStore", {
     };
   },
   actions: {
-    setConversations(newVal: Conversation[]) {
-      this.conversations = newVal;
+    setConversations(convs: Conversation[]) {
+      this.conversations = convs;
+    },
+    setLastMessage(message: any) {
+      const conv = this.conversations.find((conv: Conversation) => {
+        return conv._id == message.conversation._id;
+      });
+
+      if (conv != undefined) {
+        conv.lastMessage = message;
+        this.updateConversation(conv);
+      }
+    },
+    getLastMessage(idConv: string): Message {
+      const res: any = this.conversations.find((conv: Conversation) => {
+        return conv._id == idConv;
+      })?.lastMessage;
+      return res;
     },
     setCurrentConversation(newConv: Conversation) {
       this.currentConversation = newConv;
@@ -46,7 +63,12 @@ export const useConversationsStore = defineStore("conversationsStore", {
           currentUserId: useAuthStore().user._id,
         },
       });
-
+      //set last Message
+      for (const conv of conversations) {
+        conv.lastMessage = await useMessagesStore().getLastMessage(
+          conv._id as string
+        );
+      }
       this.setConversations(conversations);
     },
 
