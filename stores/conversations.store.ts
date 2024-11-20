@@ -43,6 +43,21 @@ export const useConversationsStore = defineStore("conversationsStore", {
         return member._id != useAuthStore().user._id;
       }) as User;
     },
+    getConnectedFriend(conv: Conversation): User {
+      if (!conv.members) {
+        return useAuthStore().user;
+      }
+
+      const connectedFriend = conv.members.find((member: any) => {
+        return member._id != useAuthStore().user._id && member.onLine;
+      }) as User;
+
+      if (connectedFriend) {
+        return connectedFriend;
+      } else {
+        return this.getOtherUser(conv);
+      }
+    },
     getNamePrivateConversation(conv: Conversation): string {
       return this.getOtherUser(conv).name as string;
     },
@@ -80,6 +95,13 @@ export const useConversationsStore = defineStore("conversationsStore", {
       this.conversations.push(conv);
       useRouter().push(`/conversations/${conv._id}`);
     },
+    async createGroup(group: Conversation) {
+      //add current User
+      group.members.push(useAuthStore().user._id as any);
+      const conv = await this.getService("conversations").create(group);
+      this.conversations.push(conv);
+      useRouter().push(`/conversations/${conv._id}`);
+    },
     async deleteConversation(id: string) {
       const response = await this.getService("conversations").remove(id);
       this.setConversations(
@@ -110,7 +132,13 @@ export const useConversationsStore = defineStore("conversationsStore", {
           }
           conversation.members = membersAsUsers;
           //push to conversations
-          this.conversations.push(conversation);
+          const existConversation =
+            this.conversations.filter((conv: Conversation) => {
+              return conv._id == conversation._id;
+            }).length != 0;
+          if (!existConversation) {
+            this.conversations.push(conversation);
+          }
         }
       );
     },
