@@ -8,7 +8,7 @@ export const useSideBarStore = defineStore("sideBarStore", {
     };
   },
   actions: {
-    setIsDisplayed(newVal: boolean) {
+    toogleSideBar(newVal: boolean) {
       const to = setTimeout(() => {
         this.isTranslated = newVal;
         clearTimeout(to);
