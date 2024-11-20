@@ -5,9 +5,9 @@ import type { User } from "./user";
 export interface Conversation {
   _id?: string;
   name?: string;
-  theme: Theme;
+  theme?: Theme;
   type: "private" | "group" | "ai";
   members: string[] | User[];
-  image: string;
+  image?: string;
   lastMessage?: Message;
 }
