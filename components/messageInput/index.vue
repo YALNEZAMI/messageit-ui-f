@@ -1,6 +1,6 @@
 <template>
-  <ContainersConversationTheme>
-    <div class="p-2 flex justify-end space-x-1">
+  <ContainersConversationTheme class="w-full flex justify-center">
+    <div class="p-2 flex justify-center space-x-1 w-full md:w1/2">
       <textarea
         id="textInput"
         type="text"
@@ -11,11 +11,18 @@
         style="resize: none"
       ></textarea>
       <button
-        :disabled="message.text == ''"
+        v-if="message.text != ''"
         @click="send"
         class="bg-white text-black rounded border-0 p-2 cursor-pointer hover:bg-gray-200 transition-all duration-500 ease-in-out"
       >
         envoyer
+      </button>
+      <button
+        v-else
+        @click="sendEmoji"
+        class="bg-white text-lg text-black rounded border-0 p-1 px-2 cursor-pointer hover:bg-gray-200 transition-all duration-500 ease-in-out"
+      >
+        {{ getEmoji() }}
       </button>
     </div>
   </ContainersConversationTheme>
@@ -26,6 +33,13 @@ const message = ref({
   sender: "",
   conversation: "",
 });
+const getEmoji = (): string => {
+  return useConversationsStore().getEmojiOfTheme();
+};
+const sendEmoji = async () => {
+  message.value.text = getEmoji();
+  await send();
+};
 const send = async () => {
   await useMessagesStore().send(message.value);
   message.value.text = "";

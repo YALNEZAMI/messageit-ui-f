@@ -29,6 +29,20 @@ export const useConversationsStore = defineStore("conversationsStore", {
       })?.lastMessage;
       return res;
     },
+    getEmojiOfTheme(): string {
+      switch (this.currentConversation.theme?._id) {
+        case "basic":
+          return "👍";
+        case "love":
+          return "❤️";
+        case "spring":
+          return "🌳";
+        case "panda":
+          return "🐼";
+        default:
+          return "👍";
+      }
+    },
     setCurrentConversation(newConv: Conversation) {
       this.currentConversation = newConv;
     },
