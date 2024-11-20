@@ -15,9 +15,10 @@
       }"
       class="flex p-2 flex-col bg-white transition-all duration-500 ease-in-out"
     >
+      <!--toogle button-->
       <div>
         <svg
-          @click="sideBarStor.setIsDisplayed(false)"
+          @click="sideBarStor.toogleSideBar(false)"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -32,8 +33,10 @@
           />
         </svg>
       </div>
+      <!--create groupe button-->
       <div>
         <button
+          @click="redirectToCreateGroup()"
           type="button"
           class="bg-indigo-500 cursor-pointer w-11/12 m-1 rounded p-1 hover:bg-indigo-400 text-white border-0 flex justify-center space-x-2 items-center"
         >
@@ -54,6 +57,7 @@
           </svg>
         </button>
       </div>
+      <!--logout button-->
       <div>
         <button
           @click="useAuthStore().logout()"
@@ -81,10 +85,14 @@
     <!--other side of screen-->
     <div
       class="w-2/3 bg-black opacity-50 h-full"
-      @click="useSideBarStore().setIsDisplayed(false)"
+      @click="useSideBarStore().toogleSideBar(false)"
     ></div>
   </main>
 </template>
 <script lang="ts" setup>
 const sideBarStor = useSideBarStore();
+const redirectToCreateGroup = () => {
+  sideBarStor.toogleSideBar(false);
+  useRouter().push("/private-space/createGroup");
+};
 </script>

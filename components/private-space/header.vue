@@ -15,7 +15,7 @@
     </div>
     <div class="flex justify-end w-1/4">
       <svg
-        @click="useSideBarStore().setIsDisplayed(true)"
+        @click="useSideBarStore().toogleSideBar(true)"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
