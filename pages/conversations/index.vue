@@ -1,6 +1,6 @@
 <template>
   <main>
-    <div class="flex flex-wrap justify-center">
+    <div class="flex flex-col md:flex-row justify-center">
       <Conversation
         v-for="conv of getConvs()"
         :key="conv._id"

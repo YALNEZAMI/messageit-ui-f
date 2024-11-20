@@ -1,9 +1,9 @@
 <template>
   <ContainersTheme
-    class="flex items-center shadow-md space-x-2 cursor-pointer p-2 rounded m-1"
+    class="flex items-center shadow-md cursor-pointer p-2 rounded m-1"
     :class="{
-      'justify-center md:justify-normal': isSideBar,
-      'w-11/12 sm:w-1/2 md:1/3': isSideBar,
+      'justify-center md:justify-normal ': isSideBar,
+      'w-11/12  md:1/3': !isSideBar,
     }"
   >
     <div
@@ -74,14 +74,19 @@ const getName = () => {
 };
 const getSecondaryText = () => {
   const lastMessage = useConversationsStore().getLastMessage(conversation._id);
-  const res =
-    (lastMessage
-      ? lastMessage.sender.name + ": " + lastMessage.text
-      : "Dites bonjour ") +
-    (conversation.type == "private" && !lastMessage
-      ? "à " + useConversationsStore().getOtherUser(conversation).name
-      : "");
-  return res;
+  if (lastMessage == undefined) {
+    if (conversation.type == "private") {
+      console.log("conv", conversation, "priavete");
+      return (
+        "Dites bonjour à " +
+        useConversationsStore().getOtherUser(conversation).name
+      );
+    } else if (conversation.type == "group") {
+      return "Nouveau Groupe.";
+    }
+  } else {
+    return lastMessage.sender.name + ": " + lastMessage.text;
+  }
 };
 const getConnectedFriend = () => {
   return useConversationsStore().getConnectedFriend(conversation);
