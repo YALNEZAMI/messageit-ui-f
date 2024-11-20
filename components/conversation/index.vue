@@ -3,7 +3,6 @@
     class="flex items-center shadow-md cursor-pointer p-2 rounded m-1"
     :class="{
       'justify-center md:justify-normal ': isSideBar,
-      'w-11/12  md:1/3': !isSideBar,
     }"
   >
     <div
@@ -32,7 +31,8 @@
         </div>
         <div class="text-sm truncate 1/2">{{ getSecondaryText() }}</div>
       </div>
-      <div>
+      <!--settings-->
+      <div v-if="!isSideBar">
         <svg
           @click="
             $router.push('/conversations/' + conversation._id + '/settings')
