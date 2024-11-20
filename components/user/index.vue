@@ -14,7 +14,10 @@
     <div class="mx-2 w-1/2 md:3/4 truncate">
       {{ user ? user.name.toUpperCase() : "Deconnecté" }}
     </div>
-    <div id="btngroupe" v-if="user._id != useAuthStore().user._id">
+    <div
+      id="btngroupe"
+      v-if="user._id != useAuthStore().user._id && !noButtons"
+    >
       <!--delete and chat-->
       <div v-if="isMyFriend" class="flex flex-col sm:flex-row">
         <button
@@ -174,6 +177,7 @@
 <script setup>
 const props = defineProps({
   user: Object,
+  noButtons: Boolean,
 });
 const user = props.user;
 const getUser = () => {
