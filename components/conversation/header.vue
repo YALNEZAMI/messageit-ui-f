@@ -5,7 +5,10 @@
         class="w-20 md:w-20 h-16"
         :src="getImgSrc()"
       ></ImagesUserImage>
-      <Status class="absolute top-0 right-0" :user="getUser()"></Status>
+      <Status
+        class="absolute top-0 right-0"
+        :user="getConnectedFriend()"
+      ></Status>
     </div>
     <div class="w-3/4 text-2xl md:text-3xl px-3 font-bold">
       {{ getName() }}
@@ -21,8 +24,8 @@
   </ContainersConversationTheme>
 </template>
 <script lang="ts" setup>
-const getUser = () => {
-  return useConversationsStore().getOtherUser(
+const getConnectedFriend = () => {
+  return useConversationsStore().getConnectedFriend(
     useConversationsStore().currentConversation
   );
 };

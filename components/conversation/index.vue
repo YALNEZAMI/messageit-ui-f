@@ -1,9 +1,9 @@
 <template>
   <ContainersTheme
+    class="flex items-center shadow-md space-x-2 cursor-pointer p-2 rounded m-1"
     :class="{
-      'flex items-center shadow-md space-x-2 cursor-pointer p-2 rounded ': true,
-      'justify-center md:justify-normal': props.isSideBar,
-      'w-11/12 sm:w-1/2 md:1/3': !props.isSideBar,
+      'justify-center md:justify-normal': isSideBar,
+      'w-11/12 sm:w-1/2 md:1/3': isSideBar,
     }"
   >
     <div
@@ -15,7 +15,10 @@
     >
       <ImagesUserImage :src="conversation.image" />
 
-      <Status class="absolute top-0 right-0" :user="getUser()"></Status>
+      <Status
+        class="absolute top-0 right-0"
+        :user="getConnectedFriend()"
+      ></Status>
     </div>
     <div
       class="w-3/4 flex"
@@ -25,7 +28,7 @@
     >
       <div class="w-3/4 truncate px-3" @click="setConversation()">
         <div class="font-bold text-lg">
-          {{ getName() }}
+          {{ conversation.type == "private" ? getName() : conversation.name }}
         </div>
         <div class="text-sm truncate 1/2">{{ getSecondaryText() }}</div>
       </div>
@@ -62,6 +65,7 @@ const props = defineProps({
   isSideBar: "Boolean",
 });
 const conversation = props.conversation;
+const isSideBar = props.isSideBar;
 const setConversation = async () => {
   useRouter().push("/conversations/" + conversation._id);
 };
@@ -79,8 +83,8 @@ const getSecondaryText = () => {
       : "");
   return res;
 };
-const getUser = () => {
-  return useConversationsStore().getOtherUser(conversation);
+const getConnectedFriend = () => {
+  return useConversationsStore().getConnectedFriend(conversation);
 };
 const getPhoto = () => {
   return useAuthStore().defaultUserImg;
