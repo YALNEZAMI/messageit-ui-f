@@ -5,6 +5,8 @@ import type { User } from "~/interfaces/user";
 export const useConversationsStore = defineStore("conversationsStore", {
   state: () => {
     return {
+      robotImage:
+        "https://cdn.pixabay.com/photo/2016/12/13/21/20/alien-1905155_640.png",
       conversations: [] as Conversation[],
       currentConversation: {} as Conversation,
     };
@@ -50,7 +52,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
       return await this.getService("conversations").get(id);
     },
     getOtherUser(conv: Conversation): User {
-      if (!conv.members) {
+      if (!conv.members || conv.type == "ai") {
         return useAuthStore().user;
       }
       return conv.members.find((member: any) => {
@@ -58,7 +60,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
       }) as User;
     },
     getConnectedFriend(conv: Conversation): User {
-      if (!conv.members) {
+      if (!conv.members || conv.type == "ai") {
         return useAuthStore().user;
       }
 
@@ -105,6 +107,15 @@ export const useConversationsStore = defineStore("conversationsStore", {
       const conv = await this.getService("conversations").create({
         members: [user._id, useAuthStore().user._id],
         type: "private",
+      });
+      this.conversations.push(conv);
+      useRouter().push(`/conversations/${conv._id}`);
+    },
+    async createAIConversation() {
+      const conv = await this.getService("conversations").create({
+        members: [useAuthStore().user._id],
+        type: "ai",
+        name: useAuthStore().user._id,
       });
       this.conversations.push(conv);
       useRouter().push(`/conversations/${conv._id}`);
