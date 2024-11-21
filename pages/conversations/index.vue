@@ -1,6 +1,6 @@
 <template>
   <main>
-    <div class="flex flex-wrap justify-center">
+    <div class="flex flex-wrap justify-center p-3">
       <Conversation
         class="w-full md:w-1/3"
         v-for="conv of getConvs()"
