@@ -4,6 +4,7 @@ import type { Message } from "~/interfaces/message";
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
     return {
+      paginationValue: 20,
       skip: 0,
       isAppendingMessages: false,
       messages: [] as Message[],
@@ -46,11 +47,11 @@ export const useMessagesStore = defineStore("messagesStore", {
         },
       });
       console.log("messagesTot", messagesCounting.total);
-      this.setSkip(Math.max(0, messagesCounting.total - 20));
+      this.setSkip(Math.max(0, messagesCounting.total - this.paginationValue));
       const messages = await this.getService("messages").find({
         query: {
           $skip: this.skip,
-          $limit: 20,
+          $limit: this.paginationValue,
           $sort: { createdAt: 1 },
           conversation: useRoute().params.id,
         },
@@ -64,9 +65,9 @@ export const useMessagesStore = defineStore("messagesStore", {
       this.isAppendingMessages = true;
 
       let limit = this.skip;
-      this.setSkip(Math.max(0, this.skip - 20));
-      if (this.skip > 20) {
-        limit = 20;
+      this.setSkip(Math.max(0, this.skip - this.paginationValue));
+      if (this.skip > this.paginationValue) {
+        limit = this.paginationValue;
       }
       const messages = await this.getService("messages").find({
         query: {
