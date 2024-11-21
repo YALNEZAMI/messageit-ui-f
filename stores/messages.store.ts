@@ -24,14 +24,18 @@ export const useMessagesStore = defineStore("messagesStore", {
         this.messages.push(msg);
       }
     },
-    async send(message: Message) {
-      message.sender = useAuthStore().user._id as string;
-      message.conversation = useConversationsStore().currentConversation
+    async send(msg: Message) {
+      msg.sender = useAuthStore().user._id as string;
+      msg.conversation = useConversationsStore().currentConversation
         ._id as string;
-      return await this.getService("messages").create(message);
+      const message = await this.getService("messages").create(msg);
+      if (useConversationsStore().currentConversation.type == "ai") {
+        this.messages.push(message.myMessage);
+        this.messages.push(message.aiMessage);
+      }
+      return message;
     },
     async getInitialMessages() {
-      console.log("useRoute().params.id", useRoute().params.id);
       const messages = await this.getService("messages").find({
         query: {
           $sort: { createdAt: 1 },
