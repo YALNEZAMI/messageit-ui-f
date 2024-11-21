@@ -1,8 +1,8 @@
 <template>
   <main>
-    <div class="flex flex-wrap justify-center p-3">
+    <div class="flex flex-wrap justify-center p-2">
       <Conversation
-        class="w-full md:w-1/3"
+        class="w-11/12 md:w-1/3"
         v-for="conv of getConvs()"
         :key="conv._id"
         :conversation="conv"
