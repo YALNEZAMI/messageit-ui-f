@@ -17,6 +17,11 @@
         class="p-2 flex flex-col overflow-y-auto bg-blue-200"
         style="height: 32rem"
       >
+        <div class="flex justify-center" v-if="getIsAppendingMessages()">
+          <div
+            class="w-6 h-6 mb-10 border-4 border-solid border-white border-t-transparent rounded-full animate-spin"
+          ></div>
+        </div>
         <!--messages-->
         <Message
           @click="setClickedId(message._id)"
@@ -37,7 +42,9 @@ import type { Conversation } from "~/interfaces/conversation";
 import type { Message } from "~/interfaces/message";
 const clickedId = ref("");
 const isAtBottom = ref(true);
-
+const getIsAppendingMessages = () => {
+  return useMessagesStore().isAppendingMessages;
+};
 const setClickedId = (val: any) => {
   if (clickedId.value == val) {
     clickedId.value = "";
