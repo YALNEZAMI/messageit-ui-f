@@ -1,7 +1,7 @@
 <template>
   <main>
     <div
-      class="overflow-y-auto bg-black flex justify-center flex-wrap"
+      class="overflow-y-auto flex sm:justify-center flex-col sm:flex-row"
       style="height: 35.9rem"
     >
       <User v-for="user of getMembers()" :key="user._id" :user="user"></User>

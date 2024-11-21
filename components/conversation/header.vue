@@ -1,10 +1,10 @@
 <template>
   <ContainersConversationTheme class="flex items-center space-x-2 rounded p-2">
     <div class="relative">
-      <ImagesUserImage
+      <ImagesConversationHeader
         class="w-20 md:w-20 h-16"
         :src="getType() != 'ai' ? getImgSrc() : getRobotImage()"
-      ></ImagesUserImage>
+      ></ImagesConversationHeader>
 
       <Status
         v-if="getType() != 'ai'"

@@ -15,7 +15,7 @@
           'flex justify-center': props.isSideBar,
         }"
       >
-        <ImagesUserImage
+        <ImagesConversation
           :src="
             conversation.type != 'ai' ? conversation.image : getRobotImage()
           "

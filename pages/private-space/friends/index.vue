@@ -1,6 +1,6 @@
 <template>
   <main
-    class="overflow-y-auto flex flex-wrap justify-center"
+    class="overflow-y-auto flex flex-col sm:justify-center sm:flex-row"
     style="height: 36rem"
   >
     <User
