@@ -115,7 +115,6 @@ const createGroupe = async () => {
     lanceAlert("Veillez sélectionner au moin deux amis.");
     return;
   } else {
-    console.log("group", group.value);
     await useConversationsStore().createGroup(group.value);
   }
 };
