@@ -10,7 +10,11 @@
         <ImagesUserImage
           class="rounded-full w-8 h-8 border-2 border-solid p-1"
           :title="message.sender.name"
-          :src="message.sender.image"
+          :src="
+            getConversationType() == 'ai' && !isMyMessage()
+              ? getRobotImage()
+              : message.sender.image
+          "
         ></ImagesUserImage>
       </div>
       <div class="flex items-center">
@@ -26,7 +30,7 @@
         >
       </div>
     </div>
-    <div class="text-center" v-if="props.clickedId == message._id">
+    <div class="text-center text-sm" v-if="props.clickedId == message._id">
       {{ getDate() }}
     </div>
   </div>
@@ -38,6 +42,9 @@ const props = defineProps({
 });
 
 const message = props.message;
+const getRobotImage = () => {
+  return useConversationsStore().robotImage;
+};
 const thereIsImage = () => {
   return (
     getNextMessage() == undefined ||
@@ -58,6 +65,9 @@ const getDate = () => {
   const minutes = String(date.getMinutes()).padStart(2, "0");
 
   return `${day}/${month}/${year} at ${hours}:${minutes}`;
+};
+const getConversationType = () => {
+  return useConversationsStore().currentConversation.type;
 };
 const getMessages = () => {
   return useMessagesStore().messages;
