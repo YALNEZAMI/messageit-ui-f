@@ -1,18 +1,25 @@
 <template>
   <ContainersTheme
     class="flex items-center shadow-md cursor-pointer p-2 py-1 rounded m-1"
-    :class="{
-      'justify-center md:justify-normal ': isSideBar,
-    }"
   >
-    <div class="flex w-11/12 items-center" @click="setConversation()">
+    <div
+      class="flex w-11/12 items-center"
+      :class="{
+        'justify-center md:justify-normal ': isSideBar,
+      }"
+      @click="setConversation()"
+    >
       <div
         :class="{
           'relative z-0 w-16': true,
           'flex justify-center': props.isSideBar,
         }"
       >
-        <ImagesUserImage :src="conversation.image" />
+        <ImagesUserImage
+          :src="
+            conversation.type != 'ai' ? conversation.image : getRobotImage()
+          "
+        />
 
         <Status
           class="absolute top-0 right-0"
@@ -27,7 +34,7 @@
       >
         <div class="w-3/4 truncate px-3">
           <div class="font-bold text-lg">
-            {{ conversation.type == "private" ? getName() : conversation.name }}
+            {{ getName() }}
           </div>
           <div class="text-sm truncate 1/2">{{ getSecondaryText() }}</div>
         </div>
@@ -70,14 +77,26 @@ const isSideBar = props.isSideBar;
 const setConversation = async () => {
   useRouter().push("/conversations/" + conversation._id);
 };
+const getRobotImage = () => {
+  return useConversationsStore().robotImage;
+};
 const getName = () => {
-  return useConversationsStore().getNamePrivateConversation(conversation);
+  switch (useConversationsStore().currentConversation.type) {
+    case "private":
+      return useConversationsStore().getNamePrivateConversation(conversation);
+    case "group":
+      return conversation.name;
+    case "ai":
+      return "Assistant Boby 🤖";
+    default:
+      return "conversation";
+  }
 };
 const getSecondaryText = () => {
   const lastMessage = useConversationsStore().getLastMessage(conversation._id);
+
   if (lastMessage == undefined) {
     if (conversation.type == "private") {
-      console.log("conv", conversation, "priavete");
       return (
         "Dites bonjour à " +
         useConversationsStore().getOtherUser(conversation).name
@@ -86,7 +105,13 @@ const getSecondaryText = () => {
       return "Nouveau Groupe.";
     }
   } else {
-    return lastMessage.sender.name + ": " + lastMessage.text;
+    if (conversation.type == "ai") {
+      if (lastMessage.sender._id == useAuthStore().user._id) {
+        return "Moi: " + lastMessage.text;
+      } else {
+        return "Boby: " + lastMessage.text;
+      }
+    }
   }
 };
 const getConnectedFriend = () => {
