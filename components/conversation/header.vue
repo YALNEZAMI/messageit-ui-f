@@ -3,19 +3,21 @@
     <div class="relative">
       <ImagesUserImage
         class="w-20 md:w-20 h-16"
-        :src="getImgSrc()"
+        :src="getType() != 'ai' ? getImgSrc() : getRobotImage()"
       ></ImagesUserImage>
+
       <Status
+        v-if="getType() != 'ai'"
         class="absolute top-0 right-0"
         :user="getConnectedFriend()"
       ></Status>
     </div>
     <div class="w-3/4 text-2xl md:text-3xl px-3 font-bold">
-      {{ getName() }}
+      {{ getType() != "ai" ? getName() : "Boby 🤖" }}
     </div>
     <div class="flex justify-center">
       <button
-        @click="$router.push('/conversations')"
+        @click="goToConversations"
         class="bg-red-400 cursor-pointer text-white py-1 px-2 rounded"
       >
         X
@@ -34,7 +36,17 @@ const getName = () => {
     useConversationsStore().currentConversation
   );
 };
+const getType = () => {
+  return useConversationsStore().currentConversation.type;
+};
+const getRobotImage = () => {
+  return useConversationsStore().robotImage;
+};
 const getImgSrc = () => {
   return useConversationsStore().currentConversation.image;
+};
+
+const goToConversations = () => {
+  useRouter().push("/conversations");
 };
 </script>
