@@ -1,15 +1,18 @@
 import { defineStore } from "pinia";
-import type { Conversation } from "~/interfaces/conversation";
+import { eventBus } from "@/utils/eventBus";
 import type { Message } from "~/interfaces/message";
-import type { User } from "~/interfaces/user";
-import conversations from "~/middleware/conversations";
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
     return {
+      skip: 0,
+      isAppendingMessages: false,
       messages: [] as Message[],
     };
   },
   actions: {
+    setSkip(newskip: number) {
+      this.skip = newskip;
+    },
     getService(name: string) {
       return useNuxtApp().$feathers.service(name);
     },
@@ -36,13 +39,45 @@ export const useMessagesStore = defineStore("messagesStore", {
       return message;
     },
     async getInitialMessages() {
+      const messagesCounting = await this.getService("messages").find({
+        query: {
+          $limit: 0,
+          conversation: useRoute().params.id,
+        },
+      });
+      console.log("messagesTot", messagesCounting.total);
+      this.setSkip(Math.max(0, messagesCounting.total - 20));
       const messages = await this.getService("messages").find({
         query: {
+          $skip: this.skip,
+          $limit: 20,
           $sort: { createdAt: 1 },
           conversation: useRoute().params.id,
         },
       });
       this.messages = messages.data;
+    },
+    async appendHistoryMessages() {
+      if (this.skip == 0 || this.isAppendingMessages) {
+        return;
+      }
+      this.isAppendingMessages = true;
+
+      let limit = this.skip;
+      this.setSkip(Math.max(0, this.skip - 20));
+      if (this.skip > 20) {
+        limit = 20;
+      }
+      const messages = await this.getService("messages").find({
+        query: {
+          $limit: limit,
+          $skip: this.skip,
+          $sort: { createdAt: 1 },
+          conversation: useRoute().params.id,
+        },
+      });
+      this.messages = messages.data.concat(this.messages);
+      this.isAppendingMessages = false;
     },
     async getMessages(idConv: string) {
       return await this.getService("messages").find({
@@ -77,6 +112,10 @@ export const useMessagesStore = defineStore("messagesStore", {
         //set lastMessage
         useConversationsStore().setLastMessage(message);
         this.addMessage(message);
+        //make event to scroll down
+        setTimeout(() => {
+          eventBus.emit("messageReceived", message);
+        }, 10);
       });
       this.getService("messages").on("removed", async (message: Message) => {
         //set new lastMessage

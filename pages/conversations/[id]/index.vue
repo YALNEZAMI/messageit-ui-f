@@ -13,6 +13,7 @@
     <!--messages container and input-->
     <div class="flex w-3/4 mr-4 flex-col h-full">
       <div
+        id="messagesContainer"
         class="p-2 flex flex-col overflow-y-auto bg-blue-200"
         style="height: 32rem"
       >
@@ -31,8 +32,12 @@
   </main>
 </template>
 <script lang="ts" setup>
+import { eventBus } from "@/utils/eventBus";
+import type { Conversation } from "~/interfaces/conversation";
 import type { Message } from "~/interfaces/message";
 const clickedId = ref("");
+const isAtBottom = ref(true);
+
 const setClickedId = (val: any) => {
   if (clickedId.value == val) {
     clickedId.value = "";
@@ -46,12 +51,47 @@ const getConvs = (): any[] => {
 const getMessages = () => {
   return useMessagesStore().messages;
 };
+let messagesContainer: HTMLDivElement;
 
+const goBottom = () => {
+  messagesContainer!.scrollTop =
+    messagesContainer!.scrollHeight + messagesContainer.clientHeight + 1;
+};
+onMounted(async () => {
+  await useMessagesStore().getInitialMessages();
+  //set messages containrer
+  messagesContainer = document.getElementById(
+    "messagesContainer"
+  ) as HTMLDivElement;
+  //initial scrolling
+  goBottom();
+  //listen to conversation change event and scroll then
+  eventBus.on("conversationChanged", (conv: Conversation) => {
+    goBottom();
+  });
+  //listen to messages recieved event and scoll if the conversation is concerned
+  eventBus.on("messageReceived", (msg: Message) => {
+    const msgConversation = msg.conversation as Conversation;
+    if (
+      msgConversation._id == useConversationsStore().currentConversation._id &&
+      isAtBottom.value
+    ) {
+      goBottom();
+    }
+  });
+  messagesContainer.addEventListener("scroll", async (e) => {
+    // update isAtBottom
+    isAtBottom.value =
+      messagesContainer.scrollHeight - messagesContainer.scrollTop <=
+      messagesContainer.clientHeight + 1;
+    //check out if at top
+    if (messagesContainer.scrollTop < 1) {
+      await useMessagesStore().appendHistoryMessages();
+    }
+  });
+});
 definePageMeta({
   layout: "conversations",
   middleware: "conversations",
-});
-onBeforeMount(async () => {
-  await useMessagesStore().getInitialMessages();
 });
 </script>
