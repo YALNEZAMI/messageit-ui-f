@@ -96,21 +96,31 @@ const getSecondaryText = () => {
   const lastMessage = useConversationsStore().getLastMessage(conversation._id);
 
   if (lastMessage == undefined) {
-    if (conversation.type == "private") {
-      return (
-        "Dites bonjour à " +
-        useConversationsStore().getOtherUser(conversation).name
-      );
-    } else if (conversation.type == "group") {
-      return "Nouveau Groupe.";
+    switch (conversation.type) {
+      case "private":
+        return (
+          "Dites bonjour à " +
+          useConversationsStore().getOtherUser(conversation).name
+        );
+      case "group":
+        return "Nouveau Groupe.";
+      case "ai":
+        return "Posez une question à l'assistant Boby";
     }
   } else {
-    if (conversation.type == "ai") {
-      if (lastMessage.sender._id == useAuthStore().user._id) {
+    switch (conversation.type) {
+      case "private":
         return "Moi: " + lastMessage.text;
-      } else {
-        return "Boby: " + lastMessage.text;
-      }
+      case "group":
+        useConversationsStore().getOtherUser(conversation).name +
+          ": " +
+          lastMessage.text;
+      case "ai":
+        if (lastMessage.sender._id == useAuthStore().user._id) {
+          return "Moi: " + lastMessage.text;
+        } else {
+          return "Boby: " + lastMessage.text;
+        }
     }
   }
 };
