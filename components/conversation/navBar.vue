@@ -19,7 +19,6 @@ onMounted(async () => {
   await friendStore.getAcceptedFriendRequests();
 });
 
-console.log("useRouteparams", useRoute().params.id);
 const isSamePath = (nbi: any): boolean => {
   return useRoute().path == nbi.path;
 };
