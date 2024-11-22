@@ -8,7 +8,6 @@
     >
       <div class="flex items-end" v-if="thereIsImage()">
         <ImagesMessageSender
-          class="rounded-full w-8 h-8 border-2 border-solid p-1"
           :title="message.sender.name"
           :src="
             getConversationType() == 'ai' && !isMyMessage()
