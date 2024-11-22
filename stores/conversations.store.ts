@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import type { Conversation } from "~/interfaces/conversation";
 import type { Message } from "~/interfaces/message";
+import type { Theme } from "~/interfaces/theme";
 import type { User } from "~/interfaces/user";
 export const useConversationsStore = defineStore("conversationsStore", {
   state: () => {
@@ -9,6 +10,12 @@ export const useConversationsStore = defineStore("conversationsStore", {
         "https://cdn.pixabay.com/photo/2016/12/13/21/20/alien-1905155_640.png",
       conversations: [] as Conversation[],
       currentConversation: {} as Conversation,
+      themes: [
+        { name: "Basique", _id: "basic" },
+        { name: "Printemps", _id: "spring" },
+        { name: "Amour", _id: "love" },
+        { name: "Panda", _id: "panda" },
+      ] as Theme[],
     };
   },
   actions: {
@@ -53,19 +60,19 @@ export const useConversationsStore = defineStore("conversationsStore", {
     },
     getOtherUser(conv: Conversation): User {
       if (!conv.members || conv.type == "ai") {
-        return useAuthStore().user;
+        return useUsersStore().user;
       }
       return conv.members.find((member: any) => {
-        return member._id != useAuthStore().user._id;
+        return member._id != useUsersStore().user._id;
       }) as User;
     },
     getConnectedFriend(conv: Conversation): User {
       if (!conv.members || conv.type == "ai") {
-        return useAuthStore().user;
+        return useUsersStore().user;
       }
 
       const connectedFriend = conv.members.find((member: any) => {
-        return member._id != useAuthStore().user._id && member.onLine;
+        return member._id != useUsersStore().user._id && member.onLine;
       }) as User;
 
       if (connectedFriend) {
@@ -91,7 +98,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
     async getInitalConversations() {
       const conversations = await this.getService("conversations").find({
         query: {
-          currentUserId: useAuthStore().user._id,
+          currentUserId: useUsersStore().user._id,
         },
       });
       //set last Message
@@ -105,7 +112,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
 
     async chatWithUser(user: User) {
       const conv = await this.getService("conversations").create({
-        members: [user._id, useAuthStore().user._id],
+        members: [user._id, useUsersStore().user._id],
         type: "private",
       });
       this.conversations.push(conv);
@@ -113,16 +120,16 @@ export const useConversationsStore = defineStore("conversationsStore", {
     },
     async createAIConversation() {
       const conv = await this.getService("conversations").create({
-        members: [useAuthStore().user._id],
+        members: [useUsersStore().user._id],
         type: "ai",
-        name: useAuthStore().user._id,
+        name: useUsersStore().user._id,
       });
       this.conversations.push(conv);
       useRouter().push(`/conversations/${conv._id}`);
     },
     async createGroup(group: Conversation) {
       //add current User
-      group.members.push(useAuthStore().user._id as any);
+      group.members.push(useUsersStore().user._id as any);
       const conv = await this.getService("conversations").create(group);
       this.conversations.push(conv);
       useRouter().push(`/conversations/${conv._id}`);

@@ -50,7 +50,7 @@ export const useFriendsStore = defineStore("friendsStore", {
     },
     async getFriendRequestsSentToMe(): Promise<Notification[]> {
       const query = {
-        recipient: useAuthStore().user._id,
+        recipient: useUsersStore().user._id,
       };
       const response: any = await this.getService("friend-requests").find({
         query,
@@ -67,7 +67,7 @@ export const useFriendsStore = defineStore("friendsStore", {
       return friendRequests;
     },
     async getAcceptedFriendRequests() {
-      const currentUserId = useAuthStore().user._id;
+      const currentUserId = useUsersStore().user._id;
       const query = {
         sender: currentUserId,
       };
@@ -81,7 +81,7 @@ export const useFriendsStore = defineStore("friendsStore", {
       this.setAcceptatons(acceptations);
     },
     async clearAcceptations() {
-      const currentUserId = useAuthStore().user._id;
+      const currentUserId = useUsersStore().user._id;
       const query = {
         id: currentUserId,
       };
@@ -106,7 +106,7 @@ export const useFriendsStore = defineStore("friendsStore", {
     async IsISentFriendRequest(id: string): Promise<boolean> {
       // Access Feathers client
       const query = {
-        sender: useAuthStore().user._id,
+        sender: useUsersStore().user._id,
         recipient: id,
       };
       const response: any = await this.getService("friend-requests").find({
@@ -121,7 +121,7 @@ export const useFriendsStore = defineStore("friendsStore", {
     async IsHeSentFriendRequest(id: string): Promise<boolean> {
       const query = {
         sender: id,
-        recipient: useAuthStore().user._id,
+        recipient: useUsersStore().user._id,
       };
       const response: any = await this.getService("friend-requests").find({
         query,
@@ -136,7 +136,7 @@ export const useFriendsStore = defineStore("friendsStore", {
       const service = this.getService("friend-requests");
 
       const friendReq = await service.create({
-        sender: useAuthStore().user._id,
+        sender: useUsersStore().user._id,
         recipient: id,
         seen: false,
       });
@@ -150,7 +150,7 @@ export const useFriendsStore = defineStore("friendsStore", {
     async accept(id: string) {
       const accepting = await this.getService("friends").create({
         sender: id,
-        recipient: useAuthStore().user._id,
+        recipient: useUsersStore().user._id,
       });
       if (accepting) {
         //remove friend request from store
@@ -163,7 +163,7 @@ export const useFriendsStore = defineStore("friendsStore", {
       }
     },
     async getMyFriends(): Promise<User[]> {
-      const id = useAuthStore().user._id;
+      const id = useUsersStore().user._id;
       const myFriends: any = await this.getService("friends").find({
         query: { id },
       });
@@ -172,7 +172,7 @@ export const useFriendsStore = defineStore("friendsStore", {
     },
     async remove(id: string) {
       const deleting: any = await this.getService("friends").remove(null, {
-        query: { sender: useAuthStore().user._id, recipient: id },
+        query: { sender: useUsersStore().user._id, recipient: id },
       });
       return deleting;
     },
@@ -206,7 +206,7 @@ export const useFriendsStore = defineStore("friendsStore", {
       service.on("created", async (acceptation: Notification) => {
         //adding friend
         let newFriend: User;
-        if (acceptation.sender == useAuthStore().user._id) {
+        if (acceptation.sender == useUsersStore().user._id) {
           newFriend = await useUsersStore().getUser(
             acceptation.recipient as string
           );
@@ -217,7 +217,7 @@ export const useFriendsStore = defineStore("friendsStore", {
         }
         this.addFriend(newFriend);
         //acceptation handling
-        if (acceptation.sender == useAuthStore().user._id) {
+        if (acceptation.sender == useUsersStore().user._id) {
           const acceptationExist =
             this.acceptations.filter((acc: Notification) => {
               return acc._id === acceptation._id;
@@ -230,7 +230,7 @@ export const useFriendsStore = defineStore("friendsStore", {
       });
       //removing friends
       service.on("removed", (notif: Notification) => {
-        if (notif.sender == useAuthStore().user._id) {
+        if (notif.sender == useUsersStore().user._id) {
           this.setFriends(
             this.friends.filter((fr) => {
               return fr != notif.recipient;

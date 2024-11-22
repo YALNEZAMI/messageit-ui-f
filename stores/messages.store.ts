@@ -29,7 +29,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       }
     },
     async send(msg: Message) {
-      msg.sender = useAuthStore().user._id as string;
+      msg.sender = useUsersStore().user._id as string;
       msg.conversation = useConversationsStore().currentConversation
         ._id as string;
       const message = await this.getService("messages").create(msg);

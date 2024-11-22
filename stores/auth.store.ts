@@ -1,21 +1,11 @@
 import { defineStore } from "pinia";
-import type { Theme } from "~/interfaces/theme";
 import type { User } from "~/interfaces/user";
 
 export const useAuthStore = defineStore("authStore", {
   state: () => {
     return {
-      defaultUserImg:
-        "https://cdn.pixabay.com/photo/2012/04/13/21/07/user-33638_640.png",
-      user: {} as User,
       accessToken: "",
       authentication: { payload: { exp: 1 } },
-      themes: [
-        { name: "Basique", _id: "basic" },
-        { name: "Printemps", _id: "spring" },
-        { name: "Amour", _id: "love" },
-        { name: "Panda", _id: "panda" },
-      ] as Theme[],
     };
   },
   actions: {
@@ -30,10 +20,7 @@ export const useAuthStore = defineStore("authStore", {
     isAuthenticated() {
       return this.accessToken != "" && !this.isTokenExpired();
     },
-    setUser(user: User) {
-      this.user = user;
-      localStorage.setItem("user", JSON.stringify(user));
-    },
+
     setAuthentication(auth: any) {
       this.authentication = auth;
       localStorage.setItem("authentication", JSON.stringify(auth));
@@ -69,7 +56,7 @@ export const useAuthStore = defineStore("authStore", {
       localStorage.clear();
       this.setAccessToken("");
       this.setAuthentication({});
-      this.setUser({} as User);
+      useUsersStore().setUser({} as User);
       useRouter().push("/auth/login");
       window.location.reload();
     },
@@ -86,7 +73,7 @@ export const useAuthStore = defineStore("authStore", {
         const completeUser = await this.getService("my-users").get(
           response.user._id
         );
-        this.setUser(completeUser);
+        useUsersStore().setUser(completeUser);
 
         //init friends requests
         await useFriendsStore().getFriendRequestsSentToMe();
@@ -118,9 +105,9 @@ export const useAuthStore = defineStore("authStore", {
         this.setAccessToken("");
       }
       if (storedUser != null) {
-        this.setUser(JSON.parse(storedUser));
+        useUsersStore().setUser(JSON.parse(storedUser));
       } else {
-        this.setUser({} as User);
+        useUsersStore().setUser({} as User);
       }
       if (storedAuthentication != null) {
         this.setAuthentication(JSON.parse(storedAuthentication));

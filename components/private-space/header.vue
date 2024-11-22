@@ -1,15 +1,15 @@
 <template>
   <ContainersTheme class="flex items-center p-2 rounded">
     <div class="flex w-20 h-16">
-      <ImagesHeader :src="authStore.user.image"></ImagesHeader>
+      <ImagesHeader :src="userStore.user.image"></ImagesHeader>
     </div>
     <div
-      v-if="authStore.user.name"
+      v-if="userStore.user.name"
       class="text-2xl md:text-3xl mx-2 w-3/4 truncate font-bold"
     >
       {{
-        authStore.user
-          ? "Bienvenue " + authStore.user.name.toUpperCase()
+        userStore.user
+          ? "Bienvenue " + userStore.user.name.toUpperCase()
           : "Deconnecté"
       }}
     </div>
@@ -33,5 +33,5 @@
   </ContainersTheme>
 </template>
 <script lang="ts" setup>
-const authStore = useAuthStore();
+const userStore = useUsersStore();
 </script>

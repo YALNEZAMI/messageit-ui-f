@@ -1,7 +1,7 @@
 <template>
   <main class="flex flex-col space-y-3">
     <div class="flex justify-center">
-      <img class="w-32 h-32" :src="authStore.defaultUserImg" alt="" />
+      <img class="w-32 h-32" :src="useUsersStore().defaultUserImg" alt="" />
     </div>
     <div class="flex justify-center">
       <input
@@ -30,7 +30,7 @@
       <label for="theme">Theme:</label>
       <select v-model="user.theme" name="theme" class="p-1 mx-2 rounded">
         <option
-          v-for="theme of useAuthStore().themes"
+          v-for="theme of useUsersStore().themes"
           :key="theme._id"
           :value="theme"
         >
@@ -111,7 +111,7 @@
 </template>
 <script lang="ts" setup>
 const authStore = useAuthStore();
-const user = ref(authStore.user);
+const user = ref(useUsersStore().user);
 const auth = ref({
   email: user.value.email,
   password: "",
@@ -161,7 +161,7 @@ const updateUser = async () => {
   const updating = await useUsersStore().updateUser(user.value);
   let emailIssu = false;
   if (updating._id) {
-    authStore.setUser(updating);
+    useUsersStore().setUser(updating);
   } else {
     success = false;
     if (updating.inputId == "email") {
@@ -172,7 +172,8 @@ const updateUser = async () => {
   }
   //auth user updating
   if (
-    (auth.value.email != authStore.user.email || auth.value.password != "") &&
+    (auth.value.email != useUsersStore().user.email ||
+      auth.value.password != "") &&
     !emailIssu
   ) {
     const updatingAuth = await useUsersStore().updateCurrentAuthUser(
