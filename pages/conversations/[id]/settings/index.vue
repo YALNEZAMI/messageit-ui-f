@@ -3,24 +3,32 @@
     <div class="flex justify-center">
       <NuxtImg :src="conversation.image" class="w-28 h-28"></NuxtImg>
     </div>
-    <div class="flex">
+    <div class="flex my-2 flex-col md:flex-row">
       <!--name-->
-      <div v-if="conversation.type == 'group'" class="flex">
-        nom du groupe: <input type="text" v-model="conversation.name" />
+      <div v-if="conversation.type == 'group'" class="flex space-x-2 my-1">
+        Nom du groupe:
+        <input
+          type="text"
+          v-model="conversation.name"
+          class="rounded p-1 px-2"
+        />
       </div>
-      <select
-        v-model="conversation.theme"
-        name="theme"
-        class="p-1 mx-2 rounded"
-      >
-        <option
-          v-for="theme of useConversationsStore().themes"
-          :key="theme._id"
-          :value="theme"
+      <div class="flex">
+        <div>Thème</div>
+        <select
+          v-model="conversation.theme"
+          name="theme"
+          class="p-1 mx-2 rounded"
         >
-          {{ theme.name }}
-        </option>
-      </select>
+          <option
+            v-for="theme of useConversationsStore().themes"
+            :key="theme._id"
+            :value="theme"
+          >
+            {{ theme.name }}
+          </option>
+        </select>
+      </div>
     </div>
     <!--update conversation-->
     <div class="flex justify-center my-2">
@@ -74,11 +82,14 @@ import type { Conversation } from "~/interfaces/conversation";
 
 const conversation = ref(useConversationsStore().currentConversation);
 const update = async () => {
-  console.log("cov to update", conversation.value);
-  await useConversationsStore().updateConversation({
+  const convToUpdate = {
     _id: conversation.value._id,
     theme: conversation.value.theme,
-  } as Conversation);
+  } as Conversation;
+  if (conversation.value.type == "group") {
+    convToUpdate.name = conversation.value.name;
+  }
+  await useConversationsStore().updateConversation(convToUpdate);
 };
 definePageMeta({
   middleware: "conversations",
