@@ -14,7 +14,7 @@
     <div class="flex w-3/4 mr-4 flex-col h-full">
       <div
         id="messagesContainer"
-        class="p-2 flex flex-col overflow-y-auto bg-blue-200"
+        class="p-2 flex flex-col overflow-y-auto"
         style="height: 32rem"
       >
         <div class="flex justify-center" v-if="getIsAppendingMessages()">
