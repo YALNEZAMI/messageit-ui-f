@@ -2,7 +2,7 @@
   <main>
     <div
       class="overflow-y-auto flex sm:justify-center flex-col sm:flex-row"
-      style="height: 35.9rem"
+      style="height: 35.9rem; scrollbar-width: thin"
     >
       <User v-for="user of getMembers()" :key="user._id" :user="user"></User>
     </div>

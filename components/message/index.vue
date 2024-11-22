@@ -23,8 +23,10 @@
             'mr-12': !thereIsImage() && isMyMessage(),
             'mr-1': isMyMessage() && thereIsImage(),
             'ml-1': thereIsImage() && !isMyMessage(),
+            'rounded-t-md rounded-bl-md': isMyMessage(),
+            'rounded-t-md rounded-br-md': !isMyMessage(),
           }"
-          class="p-1 rounded break-words w-max h-max md:max-w-52 max-w-40"
+          class="p-1 break-words w-max h-max md:max-w-52 max-w-40"
           >{{ message.text }}</ContainersConversationTheme
         >
       </div>

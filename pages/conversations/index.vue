@@ -1,19 +1,20 @@
 <template>
-  <main
-    style="height: 35rem"
-    class="flex flex-wrap overflow-y-auto justify-center p-2"
-  >
-    <Conversation
-      class="w-11/12 md:w-1/3"
-      v-for="conv of getConvs()"
-      :key="conv._id"
-      :conversation="conv"
-      :isSideBar="false"
-    />
-    <NoResult
-      v-if="isNoConversations()"
-      message="Aucune conversations pour le moment."
-    />
+  <main style="min-height: 35rem" class="flex justify-center">
+    <div
+      style="max-height: 35rem; scrollbar-width: thin"
+      class="flex h-max w-full lg:w-3/4 justify-center flex-wrap overflow-y-auto p-2"
+    >
+      <Conversation
+        v-for="conv of getConvs()"
+        :key="conv._id"
+        :conversation="conv"
+        :isSideBar="false"
+      />
+      <NoResult
+        v-if="isNoConversations()"
+        message="Aucune conversations pour le moment."
+      />
+    </div>
   </main>
 </template>
 <script lang="ts" setup>

@@ -1,7 +1,7 @@
 <template>
   <ContainersTheme
     :id="user._id"
-    class="flex items-center w-11/12 sm:w-96 h-16 rounded p-2 m-1 shadow-md"
+    class="flex items-center w-11/12 md:w-96 h-16 rounded p-2 m-1 shadow-md"
   >
     <div class="relative">
       <ImagesUser :src="user.image" />

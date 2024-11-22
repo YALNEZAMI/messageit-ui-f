@@ -70,6 +70,7 @@
     <!--leave conversation-->
     <div class="flex justify-center my-2">
       <button
+        @click="leave"
         class="bg-red-600 border-0 hover:bg-red-500 transition-all duration-500 ease-in-out flex space-x-2 items-center rounded text-white p-2"
       >
         <div>Quitter la conversation</div>
@@ -130,6 +131,10 @@ const lanceAlert = (msg: string) => {
   setTimeout(() => {
     alert.value.bool = false;
   }, 3000);
+};
+const leave = () => {
+  console.log("leaving");
+  //TODO
 };
 definePageMeta({
   middleware: "conversations",

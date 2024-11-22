@@ -15,14 +15,14 @@
     <div class="w-3/4 text-2xl md:text-3xl px-3 font-bold">
       {{ getType() != "ai" ? getName() : "Boby 🤖" }}
     </div>
-    <div class="flex justify-center">
+    <ContainersMain class="flex justify-center font-bold">
       <button
         @click="goToConversations"
-        class="bg-red-400 cursor-pointer text-white py-1 px-2 rounded"
+        class="bg-transparent cursor-pointer text-white py-1 px-2 rounded"
       >
         X
       </button>
-    </div>
+    </ContainersMain>
   </ContainersConversationTheme>
 </template>
 <script lang="ts" setup>

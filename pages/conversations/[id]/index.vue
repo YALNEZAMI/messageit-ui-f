@@ -1,22 +1,29 @@
 <template>
   <main class="flex w-screen" style="height: 35.5rem">
     <!--side conversations-->
-    <ContainersMain class="w-1/4 rounded h-full overflow-y-auto">
-      <Conversation
-        class="mb-1"
-        v-for="conv of getConvs()"
-        :key="conv._id"
-        :conversation="conv"
-        :isSideBar="true"
-      ></Conversation>
+    <ContainersMain style="min-height: 35.5rem" class="w-1/4 md:w-1/3 rounded">
+      <div
+        style="max-height: 35.5rem; direction: rtl; scrollbar-width: thin"
+        class="overflow-y-auto scro flex justify-center flex-wrap h-max"
+      >
+        <Conversation
+          style="direction: ltr"
+          class="mb-1"
+          v-for="conv of getConvs()"
+          :key="conv._id"
+          :conversation="conv"
+          :isSideBar="true"
+        ></Conversation>
+      </div>
     </ContainersMain>
     <!--messages container and input-->
     <div class="flex w-3/4 mr-4 flex-col h-full">
       <div
         id="messagesContainer"
         class="p-2 flex flex-col overflow-y-auto"
-        style="height: 32rem"
+        style="height: 32rem; scrollbar-width: thin"
       >
+        <!--load spinner-->
         <div class="flex justify-center" v-if="getIsAppendingMessages()">
           <div
             class="w-6 h-6 mb-10 border-4 border-solid border-white border-t-transparent rounded-full animate-spin"

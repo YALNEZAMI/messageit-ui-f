@@ -27,30 +27,39 @@
     <!--no result-->
     <NoResult
       v-if="
-        (getFriendRequests().length == 0 && categorie == 'FriendRequests') ||
-        (getAcceptations().length == 0 && categorie == 'Acceptations')
+        (noFriendRequests() && categorie == 'FriendRequests') ||
+        (noAcceptations() && categorie == 'Acceptations')
       "
       class="mt-3"
       :message="getNoResultMessage()"
     ></NoResult>
-    <!--friendrequests data-->
     <div
-      v-if="categorie == 'FriendRequests'"
-      class="overflow-y-auto"
-      style="height: 27rem"
+      style="min-height: 31rem; scrollbar-width: thin"
+      class="flex overflow-y-auto justify-center"
     >
-      <div v-for="fr of getFriendRequests()" :key="fr._id">
-        <User :user="fr.sender"></User>
+      <!--friendrequests data-->
+      <div
+        style="max-height: 31rem; scrollbar-width: thin"
+        v-if="categorie == 'FriendRequests'"
+        class="overflow-y-auto lg:w-3/4 h-max w-full flex flex-wrap justify-center"
+      >
+        <User
+          v-for="fr of getFriendRequests()"
+          :key="fr._id"
+          :user="fr.sender"
+        ></User>
       </div>
-    </div>
-    <!--acceptations-->
-    <div
-      v-if="categorie == 'Acceptations'"
-      class="overflow-y-auto"
-      style="height: 27rem"
-    >
-      <div v-for="acc of getAcceptations()" :key="acc._id">
-        <User :user="acc.recipient"></User>
+      <!--acceptations-->
+      <div
+        style="max-height: 31rem; scrollbar-width: thin"
+        v-if="categorie == 'Acceptations'"
+        class="overflow-y-auto lg:w-3/4 h-max w-full flex flex-wrap justify-center"
+      >
+        <User
+          v-for="acc of getAcceptations()"
+          :key="acc._id"
+          :user="acc.recipient"
+        ></User>
       </div>
     </div>
   </main>
@@ -64,6 +73,12 @@ const getFriendRequests = (): any[] => {
 };
 const getAcceptations = (): any[] => {
   return useFriendsStore().acceptations;
+};
+const noFriendRequests = (): boolean => {
+  return getFriendRequests().length == 0;
+};
+const noAcceptations = (): boolean => {
+  return getAcceptations().length == 0;
 };
 const getNoResultMessage = (): string => {
   if (categorie.value == "FriendRequests") {

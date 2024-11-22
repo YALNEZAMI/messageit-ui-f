@@ -1,6 +1,10 @@
 <template>
   <ContainersTheme
-    class="flex items-center shadow-md cursor-pointer p-2 py-1 rounded m-1"
+    :class="{
+      'md:w-96': !isSideBar,
+      'md:w-72': isSideBar,
+    }"
+    class="flex w-11/12 h-20 items-center shadow-md cursor-pointer p-2 py-1 rounded m-1"
   >
     <div
       class="flex w-11/12 items-center"
