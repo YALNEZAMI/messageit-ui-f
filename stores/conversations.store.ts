@@ -29,7 +29,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
 
       if (conv != undefined) {
         conv.lastMessage = message;
-        this.updateConversation(conv);
+        this.updateConversationLocally(conv);
       }
     },
     getLastMessage(idConv: string): Message {
@@ -84,13 +84,21 @@ export const useConversationsStore = defineStore("conversationsStore", {
     getNamePrivateConversation(conv: Conversation): string {
       return this.getOtherUser(conv).name as string;
     },
-    updateConversation(newConv: Conversation) {
+    updateConversationLocally(newConv: Conversation) {
       this.conversations = this.conversations.map((conv: Conversation) => {
         if (newConv._id == conv._id) {
           return newConv;
         }
         return conv;
       });
+    },
+    async updateConversation(
+      conversation: Conversation
+    ): Promise<Conversation> {
+      return await this.getService("conversations").patch(
+        conversation._id as string,
+        conversation
+      );
     },
     getService(name: string) {
       return useNuxtApp().$feathers.service(name);
