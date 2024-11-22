@@ -70,11 +70,15 @@
   </main>
 </template>
 <script lang="ts" setup>
+import type { Conversation } from "~/interfaces/conversation";
+
 const conversation = ref(useConversationsStore().currentConversation);
 const update = async () => {
-  console.log("cov to update", conversation);
-  return;
-  await useConversationsStore().updateConversation(conversation.value);
+  console.log("cov to update", conversation.value);
+  await useConversationsStore().updateConversation({
+    _id: conversation.value._id,
+    theme: conversation.value.theme,
+  } as Conversation);
 };
 definePageMeta({
   middleware: "conversations",
