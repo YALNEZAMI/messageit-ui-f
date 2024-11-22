@@ -3,18 +3,24 @@
     <div class="flex justify-center">
       <NuxtImg :src="conversation.image" class="w-28 h-28"></NuxtImg>
     </div>
-    <div class="flex my-2 flex-col md:flex-row">
+    <div class="flex my-2 flex-col md:flex-row text-black">
       <!--name-->
       <div v-if="conversation.type == 'group'" class="flex space-x-2 my-1">
-        Nom du groupe:
+        <div>Nom du groupe:</div>
         <input
           type="text"
-          v-model="conversation.name"
+          v-model.trim="conversation.name"
           class="rounded p-1 px-2"
         />
       </div>
-      <div class="flex">
-        <div>Thème</div>
+      <!--theme-->
+      <div
+        class="flex items-center my-2"
+        :class="{
+          'justify-center': conversation.type != 'group',
+        }"
+      >
+        <div>Thème:</div>
         <select
           v-model="conversation.theme"
           name="theme"
@@ -30,8 +36,16 @@
         </select>
       </div>
     </div>
+    <!--success message-->
+    <div v-if="success" class="text-center bg-green-600 p-2">
+      La conversation a été mise à jour avec success.
+    </div>
+    <!--alert-->
+    <div v-if="alert.bool" class="text-center bg-red-600 p-2">
+      {{ alert.message }}
+    </div>
     <!--update conversation-->
-    <div class="flex justify-center my-2">
+    <div class="flex justify-center my-2 mb-10">
       <button
         @click="update"
         class="bg-green-600 border-0 hover:bg-green-500 transition-all duration-500 ease-in-out flex space-x-2 items-center rounded text-white p-2"
@@ -87,9 +101,35 @@ const update = async () => {
     theme: conversation.value.theme,
   } as Conversation;
   if (conversation.value.type == "group") {
+    if (conversation.value.name == "") {
+      lanceAlert("Le nom du groupe est requis.");
+      return;
+    }
     convToUpdate.name = conversation.value.name;
   }
-  await useConversationsStore().updateConversation(convToUpdate);
+  const response = await useConversationsStore().updateConversation(
+    convToUpdate
+  );
+  if (response) {
+    success.value = true;
+    setTimeout(() => {
+      success.value = false;
+    }, 3000);
+  } else {
+    lanceAlert("Une erreur est survenue lors de la mise à jour !");
+  }
+};
+const success = ref(false);
+const alert = ref({
+  bool: false,
+  message: "",
+});
+const lanceAlert = (msg: string) => {
+  alert.value.bool = true;
+  alert.value.message = msg;
+  setTimeout(() => {
+    alert.value.bool = false;
+  }, 3000);
 };
 definePageMeta({
   middleware: "conversations",
