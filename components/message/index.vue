@@ -52,7 +52,7 @@ const thereIsImage = () => {
   );
 };
 const isMyMessage = () => {
-  return message.sender._id == useAuthStore().user._id;
+  return message.sender._id == useUsersStore().user._id;
 };
 const getDate = () => {
   const date = new Date(message.createdAt);

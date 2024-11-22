@@ -116,7 +116,7 @@ const getSecondaryText = () => {
           ": " +
           lastMessage.text;
       case "ai":
-        if (lastMessage.sender._id == useAuthStore().user._id) {
+        if (lastMessage.sender._id == useUsersStore().user._id) {
           return "Moi: " + lastMessage.text;
         } else {
           return "Boby: " + lastMessage.text;

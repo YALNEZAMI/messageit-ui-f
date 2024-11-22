@@ -16,7 +16,7 @@
     </div>
     <div
       id="btngroupe"
-      v-if="user._id != useAuthStore().user._id && !noButtons"
+      v-if="user._id != useUsersStore().user._id && !noButtons"
     >
       <!--delete and chat-->
       <div v-if="isMyFriend" class="flex flex-col sm:flex-row">
@@ -97,7 +97,7 @@
         v-else-if="isISentFriendRequest"
         @click="
           cancelFriendRequest({
-            sender: useAuthStore().user._id,
+            sender: useUsersStore().user._id,
             recipient: user._id,
           })
         "
@@ -149,7 +149,7 @@
           class="userButton bg-red-500 hover:bg-red-600"
           @click="
             cancelFriendRequest({
-              recipient: useAuthStore().user._id,
+              recipient: useUsersStore().user._id,
               sender: user._id,
             })
           "
