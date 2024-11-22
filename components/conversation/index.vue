@@ -81,7 +81,7 @@ const getRobotImage = () => {
   return useConversationsStore().robotImage;
 };
 const getName = () => {
-  switch (useConversationsStore().currentConversation.type) {
+  switch (conversation.type) {
     case "private":
       return useConversationsStore().getNamePrivateConversation(conversation);
     case "group":
