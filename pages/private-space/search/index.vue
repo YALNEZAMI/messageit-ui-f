@@ -1,5 +1,5 @@
 <template>
-  <main>
+  <main style="height: 36rem">
     <!--input-->
     <div class="flex justify-center bg-gray-200 p-2">
       <input

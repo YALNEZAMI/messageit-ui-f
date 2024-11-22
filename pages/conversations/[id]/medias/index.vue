@@ -1,5 +1,5 @@
 <template>
-  <main>medias</main>
+  <main style="height: 36rem">medias</main>
 </template>
 <script lang="ts" setup>
 definePageMeta({

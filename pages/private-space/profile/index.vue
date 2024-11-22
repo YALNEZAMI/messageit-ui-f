@@ -1,5 +1,5 @@
 <template>
-  <main class="flex flex-col space-y-3">
+  <main style="height: 36rem" class="flex flex-col space-y-3">
     <div class="flex justify-center">
       <img class="w-32 h-32" :src="useUsersStore().defaultUserImg" alt="" />
     </div>

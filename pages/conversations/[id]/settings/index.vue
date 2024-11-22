@@ -1,5 +1,5 @@
 <template>
-  <main>
+  <main style="height: 36rem">
     <div class="flex justify-center">
       <NuxtImg :src="conversation.image" class="w-28 h-28"></NuxtImg>
     </div>

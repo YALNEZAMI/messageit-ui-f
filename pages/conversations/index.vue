@@ -1,5 +1,5 @@
 <template>
-  <main>
+  <main style="height: 36rem">
     <div class="flex flex-wrap justify-center p-2">
       <Conversation
         class="w-11/12 md:w-1/3"
