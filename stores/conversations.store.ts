@@ -59,7 +59,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
       return await this.getService("conversations").get(id);
     },
     getOtherUser(conv: Conversation): User {
-      if (!conv.members || conv.type == "ai") {
+      if (!conv.members || conv.type == "ai" || conv.members.length == 1) {
         return useUsersStore().user;
       }
       return conv.members.find((member: any) => {
@@ -92,6 +92,18 @@ export const useConversationsStore = defineStore("conversationsStore", {
         return conv;
       });
     },
+    async leave() {
+      const res = await this.getService("conversations").remove(
+        this.currentConversation._id as string,
+        {
+          query: {
+            currentUserId: useUsersStore().user._id,
+          },
+        }
+      );
+      console.log("leave res", res);
+      useRouter().push("/conversations");
+    },
     async updateConversation(
       conversation: Conversation
     ): Promise<Conversation> {
@@ -110,6 +122,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
         },
       });
       //set last Message
+      //TODO make it in backen
       for (const conv of conversations) {
         conv.lastMessage = await useMessagesStore().getLastMessage(
           conv._id as string
