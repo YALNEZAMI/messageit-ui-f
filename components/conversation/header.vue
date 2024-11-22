@@ -32,8 +32,12 @@ const getConnectedFriend = () => {
   );
 };
 const getName = () => {
+  const currentConversation = useConversationsStore().currentConversation;
+  if (currentConversation.type == "group") {
+    return currentConversation.name;
+  }
   return useConversationsStore().getNamePrivateConversation(
-    useConversationsStore().currentConversation
+    currentConversation
   );
 };
 const getType = () => {
