@@ -42,6 +42,7 @@ export const useMessagesStore = defineStore("messagesStore", {
     async getInitialMessages() {
       const messagesCounting = await this.getService("messages").find({
         query: {
+          currentUserId: useUsersStore().user._id,
           $limit: 0,
           conversation: useRoute().params.id,
         },
@@ -49,6 +50,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       this.setSkip(Math.max(0, messagesCounting.total - this.paginationValue));
       const messages = await this.getService("messages").find({
         query: {
+          currentUserId: useUsersStore().user._id,
           $skip: this.skip,
           $limit: this.paginationValue,
           $sort: { createdAt: 1 },
@@ -70,6 +72,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       }
       const messages = await this.getService("messages").find({
         query: {
+          currentUserId: useUsersStore().user._id,
           $limit: limit,
           $skip: this.skip,
           $sort: { createdAt: 1 },
@@ -89,6 +92,7 @@ export const useMessagesStore = defineStore("messagesStore", {
     async getLastMessage(idConv: string) {
       const result = await this.getService("messages").find({
         query: {
+          currentUserId: useUsersStore().user._id,
           conversation: idConv,
           $sort: { createdAt: -1 }, // Sort by `createdAt` in descending order
           $limit: 1, // Limit the results to 1
