@@ -16,7 +16,45 @@
           "
         ></ImagesMessageSender>
       </div>
-      <div class="flex items-center">
+      <div
+        class="flex items-center justify-between w-full"
+        :class="{
+          'flex-row-reverse': !isMyMessage(),
+        }"
+      >
+        <div class="text-black cursor-pointer" @click="select">
+          <svg
+            v-if="isMyMessage()"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25"
+            />
+          </svg>
+          <svg
+            v-else
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"
+            />
+          </svg>
+        </div>
+
         <ContainersConversationTheme
           :class="{
             'ml-12': !thereIsImage() && !isMyMessage(),
@@ -44,8 +82,12 @@ const props = defineProps({
   message: "Object",
   clickedId: "Boolean",
 });
-
 const message = props.message;
+
+const emit = defineEmits(["select"]);
+const select = () => {
+  emit("select");
+};
 const getRobotImage = () => {
   return useConversationsStore().robotImage;
 };
