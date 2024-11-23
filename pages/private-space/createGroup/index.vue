@@ -1,5 +1,5 @@
 <template>
-  <main>
+  <main style="min-height: 35.9rem">
     <div class="flex justify-center items-center space-x-10">
       <div class="relative my-4 w-1/2 md:w-1/3 lg:w-1/4">
         <label
@@ -35,11 +35,35 @@
       </button>
     </div>
     <!--friends-->
-    <div class="flex flex-col">
+    <div
+      style="max-height: 31rem"
+      class="flex flex-wrap justify-center h-max overflow-y-auto"
+    >
+      <div
+        class="w-11/12 md:w-1/3 m-1"
+        v-for="(pulse, index) in ([].length = 10)"
+        :key="index"
+        :class="{
+          hidden: !isFriendsPulse(),
+        }"
+      >
+        <Pulse
+          v-if="isFriendsPulse()"
+          class="w-full bg-gray-300 overflow-hidden"
+        ></Pulse>
+      </div>
       <div
         @click="select(friend._id)"
-        class="flex items-center w-full cursor-pointer"
-        v-for="friend of getFriends()"
+        class="flex items-center w-full cursor-pointer justify-center"
+        v-for="friend of getFriends()
+          .concat(getFriends())
+          .concat(getFriends())
+          .concat(getFriends())
+          .concat(getFriends())
+          .concat(getFriends())
+          .concat(getFriends())
+          .concat(getFriends())
+          .concat(getFriends())"
         :key="friend._id"
       >
         <User :user="friend" :noButtons="true"></User>
@@ -51,7 +75,7 @@
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-6"
+          class="size-6 text-black"
         >
           <path
             stroke-linecap="round"
@@ -65,7 +89,7 @@
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="currentColor"
-          class="size-6"
+          class="size-6 text-black"
         >
           <path
             fill-rule="evenodd"
@@ -112,6 +136,9 @@ const alert = ref({
 const lanceAlert = (msg: string): void => {
   alert.value.bool = true;
   alert.value.message = msg;
+};
+const isFriendsPulse = () => {
+  return useFriendsStore().isFriendsPulse;
 };
 const createGroupe = async () => {
   if (group.value.name == "") {

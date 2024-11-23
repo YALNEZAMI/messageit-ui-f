@@ -1,6 +1,7 @@
 <template>
   <ContainersTheme
     :id="user._id"
+    style="min-width: 19rem"
     class="flex items-center w-11/12 md:w-96 h-16 rounded p-2 m-1 shadow-md"
   >
     <div class="relative">

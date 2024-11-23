@@ -49,13 +49,16 @@
           :user="fr.sender"
         ></User>
         <div
-          class="w-11/12 md:w-1/3"
+          class="w-11/12 md:w-1/3 m-1"
           v-for="(pulse, index) in ([].length = 10)"
           :key="index"
+          :class="{
+            hidden: !isFriendRequestsPulse(),
+          }"
         >
           <Pulse
             v-if="isFriendRequestsPulse()"
-            class="w-full overflow-hidden"
+            class="w-full overflow-hidden bg-gray-300 rounded"
           ></Pulse>
         </div>
       </div>
@@ -66,13 +69,16 @@
         class="overflow-y-auto lg:w-3/4 h-max w-full flex flex-wrap justify-center"
       >
         <div
-          class="w-11/12 md:w-1/3"
+          class="w-11/12 md:w-1/3 m-1"
           v-for="(pulse, index) in ([].length = 10)"
           :key="index"
+          :class="{
+            hidden: !isAcceptationsPulse(),
+          }"
         >
           <Pulse
             v-if="isAcceptationsPulse()"
-            class="w-full overflow-hidden"
+            class="w-full overflow-hidden bg-gray-300 rounded"
           ></Pulse>
         </div>
         <User

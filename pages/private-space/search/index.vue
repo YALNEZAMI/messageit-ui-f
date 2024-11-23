@@ -28,13 +28,16 @@
         :user="user"
       ></User>
       <div
-        class="w-11/12 md:w-1/3"
+        class="w-11/12 md:w-1/3 m-1"
         v-for="(pulse, index) in ([].length = 10)"
         :key="index"
+        :class="{
+          hidden: !isSearchUsersPulse(),
+        }"
       >
         <Pulse
           v-if="isSearchUsersPulse()"
-          class="w-full overflow-hidden"
+          class="w-full overflow-hidden bg-gray-300"
         ></Pulse>
       </div>
     </div>

@@ -1,25 +1,29 @@
 <template>
   <main class="flex w-screen" style="height: 35.5rem">
     <!--side conversations-->
-    <ContainersMain style="min-height: 35.5rem" class="w-1/4 md:w-1/3 rounded">
+    <ContainersMain style="min-height: 35.5rem" class="w-1/4 md:w-1/5 rounded">
       <div
         style="max-height: 35.5rem; direction: rtl; scrollbar-width: thin"
         class="overflow-y-auto scro flex justify-center flex-wrap h-max"
       >
         <Conversation
           style="direction: ltr"
-          class="mb-1"
+          class="mb-1 overflow-hidden"
           v-for="conv of getConvs()"
           :key="conv._id"
           :conversation="conv"
           :isSideBar="true"
         ></Conversation>
         <div
-          class="w-11/12 md:w-1/3"
+          class="w-11/12"
           v-for="(pulse, index) in ([].length = 10)"
           :key="index"
+          :class="{
+            hidden: !isConversationPulse(),
+          }"
         >
           <Pulse
+            style="direction: ltr"
             v-if="isConversationPulse()"
             class="w-full overflow-hidden"
           ></Pulse>
@@ -27,10 +31,10 @@
       </div>
     </ContainersMain>
     <!--messages container and input-->
-    <div class="flex w-3/4 mr-4 flex-col h-full">
+    <div class="flex w-3/4 md:w-4/5 mr-4 flex-col h-full">
       <div
         id="messagesContainer"
-        class="p-2 flex flex-col overflow-y-auto"
+        class="p-2 flex flex-col overflow-y-auto overflow-x-hidden"
         style="height: 32rem; scrollbar-width: thin"
       >
         <!--load spinner-->
@@ -48,13 +52,20 @@
           :clickedId="clickedId"
         ></Message>
         <div
-          class="w-11/12 md:w-1/3"
+          class="w-full m-1"
+          :class="{
+            'flex justify-start': index % 2 == 0,
+            hidden: !isMessagesPulse(),
+          }"
+          :style="{
+            direction: index % 2 == 0 ? 'rtl' : 'ltr',
+          }"
           v-for="(pulse, index) in ([].length = 10)"
           :key="index"
         >
           <Pulse
             v-if="isMessagesPulse()"
-            class="w-full overflow-hidden"
+            class="bg-gray-300 overflow-x-hidden rounded p-2 h-16 w-96 overflow-hidden"
           ></Pulse>
         </div>
         <!--scroll down button-->

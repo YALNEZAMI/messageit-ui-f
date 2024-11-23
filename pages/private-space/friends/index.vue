@@ -10,11 +10,17 @@
         :user="friend"
       ></User>
       <div
-        class="w-11/12 md:w-1/3"
+        class="w-11/12 md:w-1/3 m-1"
         v-for="(pulse, index) in ([].length = 10)"
         :key="index"
+        :class="{
+          hidden: !isFriendsPulse(),
+        }"
       >
-        <Pulse v-if="isFriendsPulse()" class="w-full overflow-hidden"></Pulse>
+        <Pulse
+          v-if="isFriendsPulse()"
+          class="w-full bg-gray-300 overflow-hidden"
+        ></Pulse>
       </div>
       <NoResult
         v-if="friendsStore.friends.length == 0"

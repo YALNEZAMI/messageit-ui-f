@@ -11,11 +11,17 @@
         :isSideBar="false"
       />
       <div
-        class="w-11/12 md:w-1/3"
+        class="w-11/12 md:w-1/3 m-1"
+        :class="{
+          hidden: !isPulse(),
+        }"
         v-for="(pulse, index) in ([].length = 10)"
         :key="index"
       >
-        <Pulse v-if="isPulse()" class="w-full overflow-hidden"></Pulse>
+        <Pulse
+          v-if="isPulse()"
+          class="w-full overflow-hidden bg-gray-300 rounded"
+        ></Pulse>
       </div>
 
       <NoResult
