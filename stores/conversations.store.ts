@@ -125,13 +125,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
           currentUserId: useUsersStore().user._id,
         },
       });
-      //set last Message
-      //TODO make it in backen
-      for (const conv of conversations) {
-        conv.lastMessage = await useMessagesStore().getLastMessage(
-          conv._id as string
-        );
-      }
+
       this.setConversations(conversations);
       this.isConversationsPulse = false;
     },
