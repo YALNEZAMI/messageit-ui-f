@@ -96,12 +96,7 @@
         type="button"
         class="userButton bg-yellow-500 hover:bg-yellow-600"
         v-else-if="isISentFriendRequest"
-        @click="
-          cancelFriendRequest({
-            sender: useUsersStore().user._id,
-            recipient: user._id,
-          })
-        "
+        @click="cancelFriendRequest(user._id)"
       >
         <div>Annuler</div>
         <svg
@@ -148,12 +143,7 @@
         <button
           type="button"
           class="userButton bg-red-500 hover:bg-red-600"
-          @click="
-            cancelFriendRequest({
-              recipient: useUsersStore().user._id,
-              sender: user._id,
-            })
-          "
+          @click="cancelFriendRequest(user._id)"
         >
           <div>Refuser</div>
           <svg
@@ -197,8 +187,8 @@ const addFriendRequest = async () => {
   const response = await friendsStore.sendFriendRequest(user._id);
   await setUserFriendShipStatus();
 };
-const cancelFriendRequest = async (query) => {
-  const response = await friendsStore.cancelFriendRequest(query);
+const cancelFriendRequest = async (id) => {
+  const response = await friendsStore.cancelFriendRequest(id);
   await setUserFriendShipStatus();
 };
 const setUserFriendShipStatus = async () => {

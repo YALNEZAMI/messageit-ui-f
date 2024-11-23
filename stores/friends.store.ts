@@ -73,13 +73,8 @@ export const useFriendsStore = defineStore("friendsStore", {
     },
     async getAcceptedFriendRequests() {
       this.isAcceptationsPulse = true;
-      const currentUserId = useUsersStore().user._id;
-      const query = {
-        sender: currentUserId,
-      };
-      const response = await this.getService("friend-acceptations").find({
-        query: query,
-      });
+
+      const response = await this.getService("friend-acceptations").find();
       const acceptations = response.data as Notification[];
       for (let acc of acceptations) {
         acc.recipient = await useUsersStore().getUser(acc.recipient as string);
@@ -88,15 +83,8 @@ export const useFriendsStore = defineStore("friendsStore", {
       this.isAcceptationsPulse = false;
     },
     async clearAcceptations() {
-      const currentUserId = useUsersStore().user._id;
-      const query = {
-        id: currentUserId,
-      };
       const response = await this.getService("friend-acceptations").remove(
-        null,
-        {
-          query: query,
-        }
+        null
       );
       this.setAcceptatons([]);
     },
@@ -122,7 +110,13 @@ export const useFriendsStore = defineStore("friendsStore", {
       if (response.total == 0) {
         return false;
       } else {
-        return true;
+        const res = response.data.filter((freq: Notification) => {
+          return (
+            freq.sender == useUsersStore().user._id && freq.recipient == id
+          );
+        });
+
+        return res.length > 0;
       }
     },
     async IsHeSentFriendRequest(id: string): Promise<boolean> {
@@ -149,9 +143,11 @@ export const useFriendsStore = defineStore("friendsStore", {
       });
       return friendReq;
     },
-    async cancelFriendRequest(query: any) {
+    async cancelFriendRequest(id: string) {
       const cancelReq = await this.getService("friend-requests").remove(null, {
-        query,
+        query: {
+          otherUserId: id,
+        },
       });
     },
     async accept(id: string) {
