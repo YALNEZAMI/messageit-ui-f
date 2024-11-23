@@ -102,6 +102,8 @@
   </main>
 </template>
 <script lang="ts" setup>
+import type { User } from "~/interfaces/user";
+
 const auth = ref({
   name: "yaser",
   email: "yaser@gmail.com",
@@ -114,7 +116,7 @@ const alert = ref({
 });
 const loading = ref(false);
 const requiredInputs = ["name", "email", "password", "password2"];
-const inputInError = ref([]);
+const inputInError = ref([] as string[]);
 
 onMounted(async () => {
   requiredInputs.map((ri) => {
@@ -154,15 +156,14 @@ const register = async () => {
     return;
   }
   auth.value.email = auth.value.email.toLowerCase();
-  const res = await authStore.register(auth.value);
-
+  const res = await authStore.register(auth.value as User);
   if (res._id) {
     authStore.login({
       email: auth.value.email,
       password: auth.value.password,
     });
   } else if (res.status == 500) {
-    inputInError.value.push(res.inputId);
+    inputInError.value.push(res.inputId as string);
     lanceAlert(res.message);
   }
 };
