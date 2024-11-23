@@ -47,11 +47,13 @@
         <Message
           :id="message._id"
           @click="setClickedId(message._id)"
+          @select="select(message)"
           v-for="message of getMessages()"
           :key="message._id"
           :message="message"
           :clickedId="clickedId"
         ></Message>
+        <!--pulse effect-->
         <div
           class="w-full m-1"
           :class="{
@@ -96,6 +98,34 @@
       <!-- input -->
       <MessageInput></MessageInput>
     </div>
+    <!--options-->
+    <div
+      style="height: 35.5rem"
+      v-if="isOptions"
+      @click="toogleIsOptions"
+      class="bg-black bg-opacity-80 fixed w-screen z-30 flex justify-center items-center"
+    >
+      <div class="w-3/4 h-max py-3 bg-white rounded p-4">
+        <h3 class="text-center text-black">
+          Choisir l'opération à effectuer sur
+        </h3>
+        <div class="flex flex-wrap justify-center">
+          <button
+            @click="deleteForMe"
+            class="border-0 bg-red-500 cursor-pointer p-2 rounded-md text-white hover:bg-red-600"
+          >
+            Supprimer pour moi
+          </button>
+          <button
+            v-if="message.sender._id == useUsersStore().user._id"
+            @click="deleteForAll"
+            class="border-0 bg-red-500 cursor-pointer p-2 rounded-md text-white hover:bg-red-600"
+          >
+            Supprimer pour tous
+          </button>
+        </div>
+      </div>
+    </div>
   </main>
 </template>
 <script lang="ts" setup>
@@ -104,6 +134,27 @@ import type { Conversation } from "~/interfaces/conversation";
 import type { Message } from "~/interfaces/message";
 const clickedId = ref("");
 const isAtBottom = ref(true);
+const isOptions = ref(false);
+const toogleIsOptions = () => {
+  isOptions.value = !isOptions.value;
+};
+let message = useMessagesStore().messages[0];
+const selectedMessages = ref([]);
+
+const deleteForMe = async () => {
+  await useMessagesStore().deleteForMe(message._id as string);
+
+  toogleIsOptions();
+};
+const deleteForAll = async () => {
+  await useMessagesStore().deleteForAll(message._id as string);
+  toogleIsOptions();
+};
+const select = (msg: any) => {
+  message = msg;
+  toogleIsOptions();
+};
+const copie = (msg: any) => {};
 const isConversationPulse = () => {
   return useConversationsStore().isConversationsPulse;
 };
