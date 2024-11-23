@@ -45,6 +45,7 @@
         </div>
         <!--messages-->
         <Message
+          :id="message._id"
           @click="setClickedId(message._id)"
           v-for="message of getMessages()"
           :key="message._id"
@@ -131,6 +132,22 @@ const goBottom = () => {
   messagesContainer!.scrollTop =
     messagesContainer!.scrollHeight + messagesContainer.clientHeight + 1;
 };
+const goToMessage = async (messageId: string) => {
+  const messageElement = document.getElementById(messageId);
+  if (!messageElement) {
+    messagesContainer.scrollTop = 0;
+    await useMessagesStore().appendHistoryMessages();
+  } else {
+    messageElement.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+    messageElement.classList.toggle("animate-pulse");
+    setTimeout(() => {
+      messageElement.classList.toggle("animate-pulse");
+    }, 4000);
+  }
+};
 onMounted(async () => {
   await useMessagesStore().getInitialMessages();
   //set messages containrer
@@ -163,7 +180,14 @@ onMounted(async () => {
       await useMessagesStore().appendHistoryMessages();
     }
   });
+  //search message case
+  let messageId = useRoute().query.messageId;
+
+  if (messageId) {
+    await goToMessage(messageId as string);
+  }
 });
+
 definePageMeta({
   layout: "conversations",
   middleware: "conversations",
