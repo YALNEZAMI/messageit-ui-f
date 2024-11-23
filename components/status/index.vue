@@ -17,4 +17,11 @@
 const props = defineProps({
   user: "Object",
 });
+import { eventBus } from "@/utils/eventBus";
+
+eventBus.on("userPatched", (user) => {
+  if (user._id == props.user._id) {
+    props.user.onLine = user.onLine;
+  }
+});
 </script>

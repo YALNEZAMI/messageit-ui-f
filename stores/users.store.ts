@@ -2,6 +2,8 @@ import { defineStore } from "pinia";
 import type { Conversation } from "~/interfaces/conversation";
 import type { Theme } from "~/interfaces/theme";
 import type { User } from "~/interfaces/user";
+import { eventBus } from "@/utils/eventBus";
+
 export const useUsersStore = defineStore("usersStore", {
   state: () => {
     return {
@@ -67,10 +69,8 @@ export const useUsersStore = defineStore("usersStore", {
         let response = await this.getService("my-users").find({
           query: {
             name,
-            currentUserId: this.user._id,
           },
         });
-
         this.setsearchedUsers(response);
         this.isSearchUsersPulse = false;
         return response.data;
@@ -87,6 +87,7 @@ export const useUsersStore = defineStore("usersStore", {
     },
     onUser() {
       this.getService("my-users").on("patched", (user: User) => {
+        eventBus.emit("userPatched", user);
         //update friends
         useFriendsStore().setFriends(
           useFriendsStore().friends.map((fr: User) => {
