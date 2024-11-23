@@ -15,7 +15,7 @@
     <div class="w-3/4 text-2xl md:text-3xl px-3 font-bold">
       {{ getType() != "ai" ? getName() : "Boby 🤖" }}
     </div>
-    <ContainersMain class="flex justify-center font-bold">
+    <ContainersMain class="flex justify-center font-bold hover:bg-opacity-80">
       <button
         @click="goToConversations"
         class="bg-transparent cursor-pointer text-white py-1 px-2 rounded"
