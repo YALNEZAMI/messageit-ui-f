@@ -44,6 +44,7 @@
           {{ useMessagesStore().getDate(msg.createdAt + "") }}
         </div>
       </ContainersConversationTheme>
+
       <div
         class="w-11/12 md:w-1/3 m-1"
         v-for="(pulse, index) in ([].length = 10)"
@@ -70,10 +71,8 @@
 import type { Message } from "~/interfaces/message";
 import type { User } from "~/interfaces/user";
 
-const key = ref("yaser");
-onMounted(async () => {
-  await search();
-});
+const key = ref("");
+
 const search = async () => {
   await useMessagesStore().search(key.value);
 };
