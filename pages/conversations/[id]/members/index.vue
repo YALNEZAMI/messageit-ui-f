@@ -4,7 +4,12 @@
       class="overflow-y-auto flex flex-wrap justify-center h-max"
       style="max-height: 35.9rem; scrollbar-width: thin"
     >
-      <User v-for="user of getMembers()" :key="user._id" :user="user"></User>
+      <User
+        v-for="user of getMembers()"
+        :noButtons="getConversationType() == 'ai'"
+        :key="user._id"
+        :user="user"
+      ></User>
       <div
         class="w-full m-2 rounded md:w-1/3"
         v-for="(pulse, index) in ([].length = 10)"
@@ -29,6 +34,9 @@ const getMembers = (): User[] => {
 };
 const isConversationPulse = () => {
   return useConversationsStore().isConversationsPulse;
+};
+const getConversationType = () => {
+  return useConversationsStore().currentConversation.type;
 };
 definePageMeta({
   middleware: "conversations",
