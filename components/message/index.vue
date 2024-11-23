@@ -31,7 +31,10 @@
         >
       </div>
     </div>
-    <div class="text-center text-sm" v-if="props.clickedId == message._id">
+    <div
+      class="text-center text-sm text-black"
+      v-if="props.clickedId == message._id"
+    >
       {{ getDate() }}
     </div>
   </div>
