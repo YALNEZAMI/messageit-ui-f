@@ -55,15 +55,7 @@
       <div
         @click="select(friend._id)"
         class="flex items-center w-full cursor-pointer justify-center"
-        v-for="friend of getFriends()
-          .concat(getFriends())
-          .concat(getFriends())
-          .concat(getFriends())
-          .concat(getFriends())
-          .concat(getFriends())
-          .concat(getFriends())
-          .concat(getFriends())
-          .concat(getFriends())"
+        v-for="friend of getFriends()"
         :key="friend._id"
       >
         <User :user="friend" :noButtons="true"></User>
