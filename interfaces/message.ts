@@ -6,4 +6,5 @@ export interface Message {
   sender: string | User;
   conversation: string | Conversation;
   text?: string;
+  createdAt?: string;
 }
