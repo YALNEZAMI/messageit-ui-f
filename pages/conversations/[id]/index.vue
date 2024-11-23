@@ -41,7 +41,7 @@
         <div class="flex justify-center sticky bottom-0 left-0 w-full">
           <button
             v-if="!isAtBottom"
-            class="bg-transparent border-0 cursor-pointer"
+            class="animate-bounce bg-transparent border-0 cursor-pointer"
             @click="goBottom"
           >
             <svg
