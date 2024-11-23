@@ -15,6 +15,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     //init data
     await useFriendsStore().getMyFriends();
     await useConversationsStore().getInitalConversations();
+
     //websocket channels subscription
     await useConversationsStore().onConversation();
     useUsersStore().onUser();

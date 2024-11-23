@@ -8,6 +8,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       skip: 0,
       isAppendingMessages: false, //to prevent multiple calls
       messages: [] as Message[],
+      isMessagesPulse: false,
     };
   },
   actions: {
@@ -40,6 +41,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       return message;
     },
     async getInitialMessages() {
+      this.isMessagesPulse = true;
       const messagesCounting = await this.getService("messages").find({
         query: {
           currentUserId: useUsersStore().user._id,
@@ -58,6 +60,7 @@ export const useMessagesStore = defineStore("messagesStore", {
         },
       });
       this.messages = messages.data;
+      this.isMessagesPulse = false;
     },
     async appendHistoryMessages() {
       if (this.skip == 0 || this.isAppendingMessages) {

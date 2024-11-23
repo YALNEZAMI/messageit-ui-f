@@ -14,6 +14,16 @@
           :conversation="conv"
           :isSideBar="true"
         ></Conversation>
+        <div
+          class="w-11/12 md:w-1/3"
+          v-for="(pulse, index) in ([].length = 10)"
+          :key="index"
+        >
+          <Pulse
+            v-if="isConversationPulse()"
+            class="w-full overflow-hidden"
+          ></Pulse>
+        </div>
       </div>
     </ContainersMain>
     <!--messages container and input-->
@@ -37,6 +47,16 @@
           :message="message"
           :clickedId="clickedId"
         ></Message>
+        <div
+          class="w-11/12 md:w-1/3"
+          v-for="(pulse, index) in ([].length = 10)"
+          :key="index"
+        >
+          <Pulse
+            v-if="isMessagesPulse()"
+            class="w-full overflow-hidden"
+          ></Pulse>
+        </div>
         <!--scroll down button-->
         <div class="flex justify-center sticky bottom-0 left-0 w-full">
           <button
@@ -72,6 +92,12 @@ import type { Conversation } from "~/interfaces/conversation";
 import type { Message } from "~/interfaces/message";
 const clickedId = ref("");
 const isAtBottom = ref(true);
+const isConversationPulse = () => {
+  return useConversationsStore().isConversationsPulse;
+};
+const isMessagesPulse = () => {
+  return useMessagesStore().isMessagesPulse;
+};
 const getIsAppendingMessages = () => {
   return useMessagesStore().isAppendingMessages;
 };

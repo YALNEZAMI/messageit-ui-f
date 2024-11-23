@@ -8,6 +8,9 @@ export const useFriendsStore = defineStore("friendsStore", {
       friends: [] as User[],
       friendRequests: [] as Notification[],
       acceptations: [] as Notification[],
+      isFriendRequestsPulse: false,
+      isAcceptationsPulse: false,
+      isFriendsPulse: false,
     };
   },
   actions: {
@@ -49,6 +52,7 @@ export const useFriendsStore = defineStore("friendsStore", {
       return useNuxtApp().$feathers.service(name);
     },
     async getFriendRequestsSentToMe(): Promise<Notification[]> {
+      this.isFriendRequestsPulse = true;
       const query = {
         recipient: useUsersStore().user._id,
       };
@@ -64,9 +68,11 @@ export const useFriendsStore = defineStore("friendsStore", {
         fr.sender = await useUsersStore().getUser(fr.sender as string);
       }
       this.setFriendRequests(friendRequests);
+      this.isFriendRequestsPulse = false;
       return friendRequests;
     },
     async getAcceptedFriendRequests() {
+      this.isAcceptationsPulse = true;
       const currentUserId = useUsersStore().user._id;
       const query = {
         sender: currentUserId,
@@ -79,6 +85,7 @@ export const useFriendsStore = defineStore("friendsStore", {
         acc.recipient = await useUsersStore().getUser(acc.recipient as string);
       }
       this.setAcceptatons(acceptations);
+      this.isAcceptationsPulse = false;
     },
     async clearAcceptations() {
       const currentUserId = useUsersStore().user._id;
@@ -163,11 +170,13 @@ export const useFriendsStore = defineStore("friendsStore", {
       }
     },
     async getMyFriends(): Promise<User[]> {
+      this.isFriendsPulse = true;
       const id = useUsersStore().user._id;
       const myFriends: any = await this.getService("friends").find({
         query: { id },
       });
       this.setFriends(myFriends as User[]);
+      this.isFriendsPulse = false;
       return myFriends;
     },
     async remove(id: string) {

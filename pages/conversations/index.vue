@@ -10,6 +10,14 @@
         :conversation="conv"
         :isSideBar="false"
       />
+      <div
+        class="w-11/12 md:w-1/3"
+        v-for="(pulse, index) in ([].length = 10)"
+        :key="index"
+      >
+        <Pulse v-if="isPulse()" class="w-full overflow-hidden"></Pulse>
+      </div>
+
       <NoResult
         v-if="isNoConversations()"
         message="Aucune conversations pour le moment."
@@ -20,6 +28,9 @@
 <script lang="ts" setup>
 const getConvs = (): any[] => {
   return useConversationsStore().conversations;
+};
+const isPulse = () => {
+  return useConversationsStore().isConversationsPulse;
 };
 const isNoConversations = (): boolean => {
   return getConvs().length == 0;

@@ -48,6 +48,16 @@
           :key="fr._id"
           :user="fr.sender"
         ></User>
+        <div
+          class="w-11/12 md:w-1/3"
+          v-for="(pulse, index) in ([].length = 10)"
+          :key="index"
+        >
+          <Pulse
+            v-if="isFriendRequestsPulse()"
+            class="w-full overflow-hidden"
+          ></Pulse>
+        </div>
       </div>
       <!--acceptations-->
       <div
@@ -55,6 +65,16 @@
         v-if="categorie == 'Acceptations'"
         class="overflow-y-auto lg:w-3/4 h-max w-full flex flex-wrap justify-center"
       >
+        <div
+          class="w-11/12 md:w-1/3"
+          v-for="(pulse, index) in ([].length = 10)"
+          :key="index"
+        >
+          <Pulse
+            v-if="isAcceptationsPulse()"
+            class="w-full overflow-hidden"
+          ></Pulse>
+        </div>
         <User
           v-for="acc of getAcceptations()"
           :key="acc._id"
@@ -67,6 +87,12 @@
 
 <script lang="ts" setup>
 //Ref<"FriendRequests" | "Acceptations">
+const isFriendRequestsPulse = () => {
+  return useFriendsStore().isFriendRequestsPulse;
+};
+const isAcceptationsPulse = () => {
+  return useFriendsStore().isAcceptationsPulse;
+};
 const categorie = ref("Acceptations");
 const getFriendRequests = (): any[] => {
   return useFriendsStore().friendRequests;

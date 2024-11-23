@@ -16,9 +16,13 @@ export const useConversationsStore = defineStore("conversationsStore", {
         { name: "Amour", _id: "love" },
         { name: "Panda", _id: "panda" },
       ] as Theme[],
+      isConversationsPulse: false,
     };
   },
   actions: {
+    setIsConversationsPulse(nval: boolean) {
+      this.isConversationsPulse = nval;
+    },
     setConversations(convs: Conversation[]) {
       this.conversations = convs;
     },
@@ -116,6 +120,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
       return useNuxtApp().$feathers.service(name);
     },
     async getInitalConversations() {
+      this.isConversationsPulse = true;
       const conversations = await this.getService("conversations").find({
         query: {
           currentUserId: useUsersStore().user._id,
@@ -129,6 +134,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
         );
       }
       this.setConversations(conversations);
+      this.isConversationsPulse = false;
     },
 
     async chatWithUser(user: User) {

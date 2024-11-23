@@ -18,6 +18,7 @@ export const useUsersStore = defineStore("usersStore", {
         { name: "Amour", _id: "love" },
         { name: "Panda", _id: "panda" },
       ] as Theme[],
+      isSearchUsersPulse: false,
     };
   },
   actions: {
@@ -61,6 +62,7 @@ export const useUsersStore = defineStore("usersStore", {
       );
     },
     async search(name: string) {
+      this.isSearchUsersPulse = true;
       try {
         let response = await this.getService("my-users").find({
           query: {
@@ -70,6 +72,7 @@ export const useUsersStore = defineStore("usersStore", {
         });
 
         this.setsearchedUsers(response);
+        this.isSearchUsersPulse = false;
         return response.data;
       } catch (error) {
         console.error("Error retrieving users:", error);
