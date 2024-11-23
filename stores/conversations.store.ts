@@ -97,7 +97,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
       });
     },
     async leave() {
-      const res = await this.getService("conversations").remove(
+      await this.getService("conversations").remove(
         this.currentConversation._id as string,
         {
           query: {
@@ -105,7 +105,6 @@ export const useConversationsStore = defineStore("conversationsStore", {
           },
         }
       );
-      console.log("leave res", res);
       useRouter().push("/conversations");
     },
     async updateConversation(
