@@ -9,6 +9,8 @@ export const useMessagesStore = defineStore("messagesStore", {
       isAppendingMessages: false, //to prevent multiple calls
       messages: [] as Message[],
       isMessagesPulse: false,
+      searchedMessages: [] as Message[],
+      isSearchMessagePulse: false,
     };
   },
   actions: {
@@ -107,6 +109,7 @@ export const useMessagesStore = defineStore("messagesStore", {
     async getMessage(id: string) {
       return await this.getService("messages").get(id);
     },
+
     async onMessage() {
       this.getService("messages").on("created", async (message: Message) => {
         const conv = message.conversation;
@@ -135,6 +138,30 @@ export const useMessagesStore = defineStore("messagesStore", {
           return msg._id != message._id;
         });
       });
+    },
+    async search(key: string) {
+      this.isSearchMessagePulse = true;
+      const res = await this.getService("messages").find({
+        query: {
+          key,
+          conversation: useConversationsStore().currentConversation._id,
+        },
+      });
+      this.searchedMessages = res;
+      this.isSearchMessagePulse = false;
+      return res;
+    },
+    getDate(str: string) {
+      const date = new Date(str);
+
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+      const year = date.getFullYear();
+
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+
+      return `${day}/${month}/${year} at ${hours}:${minutes}`;
     },
   },
 });
