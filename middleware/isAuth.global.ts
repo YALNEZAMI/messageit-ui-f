@@ -26,6 +26,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       await useMessagesStore().onMessage();
     } catch (e) {
       localStorage.clear();
+      useAuthStore().setAccessToken("");
       useRouter().push("/auth/login");
     }
   }
