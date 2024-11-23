@@ -9,4 +9,5 @@ export interface User {
   name?: string;
   strategy?: string;
   image: string;
+  onLine: boolean;
 }
