@@ -13,7 +13,7 @@
       ></Status>
     </div>
     <div class="mx-2 w-1/2 md:3/4 truncate">
-      {{ user ? user.name.toUpperCase() : "Deconnecté" }}
+      {{ getUserName() }}
     </div>
     <div
       id="btngroupe"
@@ -210,5 +210,13 @@ const remove = async () => {
 };
 const chatWithUser = async () => {
   await useConversationsStore().chatWithUser(user);
+};
+const getUserName = () => {
+  if (useConversationsStore().currentConversation.type == "ai") {
+    return user._id == useUsersStore().user._id
+      ? user.name.toUpperCase()
+      : "Boby 🤖";
+  }
+  return user ? user.name.toUpperCase() : "Deconnecté";
 };
 </script>
