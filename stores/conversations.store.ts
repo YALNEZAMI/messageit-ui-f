@@ -66,9 +66,10 @@ export const useConversationsStore = defineStore("conversationsStore", {
       if (!conv.members || conv.type == "ai" || conv.members.length == 1) {
         return useUsersStore().user;
       }
-      return conv.members.find((member: any) => {
+      const otherUser = conv.members.find((member: any) => {
         return member._id != useUsersStore().user._id;
       }) as User;
+      return otherUser ? otherUser : useUsersStore().user;
     },
     getConnectedFriend(conv: Conversation): User {
       if (!conv.members || conv.type == "ai") {
@@ -89,6 +90,9 @@ export const useConversationsStore = defineStore("conversationsStore", {
       return this.getOtherUser(conv).name as string;
     },
     updateConversationLocally(newConv: Conversation) {
+      if (this.currentConversation._id == newConv._id) {
+        this.currentConversation = newConv;
+      }
       this.conversations = this.conversations.map((conv: Conversation) => {
         if (newConv._id == conv._id) {
           return newConv;
@@ -98,12 +102,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
     },
     async leave() {
       await this.getService("conversations").remove(
-        this.currentConversation._id as string,
-        {
-          query: {
-            currentUserId: useUsersStore().user._id,
-          },
-        }
+        this.currentConversation._id as string
       );
       useRouter().push("/conversations");
     },
@@ -120,11 +119,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
     },
     async getInitalConversations() {
       this.isConversationsPulse = true;
-      const conversations = await this.getService("conversations").find({
-        query: {
-          currentUserId: useUsersStore().user._id,
-        },
-      });
+      const conversations = await this.getService("conversations").find();
 
       this.setConversations(conversations);
       this.isConversationsPulse = false;
@@ -171,6 +166,12 @@ export const useConversationsStore = defineStore("conversationsStore", {
               return conv._id != conversation._id;
             })
           );
+        }
+      );
+      this.getService("conversations").on(
+        "patched",
+        (conversation: Conversation) => {
+          this.updateConversationLocally(conversation);
         }
       );
       this.getService("conversations").on(
