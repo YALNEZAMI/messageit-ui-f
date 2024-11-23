@@ -1,8 +1,13 @@
 import { defineStore } from "pinia";
 import { eventBus } from "@/utils/eventBus";
 import type { Message } from "~/interfaces/message";
+import conversations from "~/middleware/conversations";
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
+    //TODO message options(reply, delete forall forme, copie select)
+    //TODO send photos
+    //TODO update profile photo and conversation photo
+    //TODO message status(sent recieved vue)
     return {
       paginationValue: 25,
       skip: 0,
@@ -46,7 +51,6 @@ export const useMessagesStore = defineStore("messagesStore", {
       this.isMessagesPulse = true;
       const messagesCounting = await this.getService("messages").find({
         query: {
-          currentUserId: useUsersStore().user._id,
           $limit: 0,
           conversation: useRoute().params.id,
         },
@@ -54,7 +58,6 @@ export const useMessagesStore = defineStore("messagesStore", {
       this.setSkip(Math.max(0, messagesCounting.total - this.paginationValue));
       const messages = await this.getService("messages").find({
         query: {
-          currentUserId: useUsersStore().user._id,
           $skip: this.skip,
           $limit: this.paginationValue,
           $sort: { createdAt: 1 },
@@ -77,7 +80,6 @@ export const useMessagesStore = defineStore("messagesStore", {
       }
       const messages = await this.getService("messages").find({
         query: {
-          currentUserId: useUsersStore().user._id,
           $limit: limit,
           $skip: this.skip,
           $sort: { createdAt: 1 },
@@ -97,7 +99,6 @@ export const useMessagesStore = defineStore("messagesStore", {
     async getLastMessage(idConv: string) {
       const result = await this.getService("messages").find({
         query: {
-          currentUserId: useUsersStore().user._id,
           conversation: idConv,
           $sort: { createdAt: -1 }, // Sort by `createdAt` in descending order
           $limit: 1, // Limit the results to 1
@@ -141,6 +142,11 @@ export const useMessagesStore = defineStore("messagesStore", {
     },
     async search(key: string) {
       this.isSearchMessagePulse = true;
+      if (key == "") {
+        this.isSearchMessagePulse = false;
+        this.searchedMessages = [];
+        return;
+      }
       const res = await this.getService("messages").find({
         query: {
           key,
@@ -162,6 +168,29 @@ export const useMessagesStore = defineStore("messagesStore", {
       const minutes = String(date.getMinutes()).padStart(2, "0");
 
       return `${day}/${month}/${year} at ${hours}:${minutes}`;
+    },
+    deleteMessageLocally(_id: string) {
+      this.messages = this.messages.filter((msg: Message) => {
+        return msg._id != _id;
+      });
+    },
+    async deleteForMe(_id: string) {
+      const res = await this.getService("message-visibility").remove(null, {
+        query: {
+          messageId: _id,
+          userId: useUsersStore().user._id,
+          conversationId: useConversationsStore().currentConversation._id,
+        },
+      } as any);
+      if (res) {
+        this.deleteMessageLocally(_id);
+      }
+    },
+    async deleteForAll(_id: string) {
+      const res = await this.getService("messages").remove(_id);
+      if (res) {
+        this.deleteMessageLocally(_id);
+      }
     },
   },
 });
