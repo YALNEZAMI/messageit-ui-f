@@ -12,16 +12,21 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     useRouter().push("/auth/login");
   }
   if (authStore.isAuthenticated()) {
-    //init data
-    await useFriendsStore().getMyFriends();
-    await useConversationsStore().getInitalConversations();
+    try {
+      //init data
+      await useFriendsStore().getMyFriends();
+      await useConversationsStore().getInitalConversations();
 
-    //websocket channels subscription
-    await useConversationsStore().onConversation();
-    useUsersStore().onUser();
-    await useFriendsStore().onFriendRequests();
-    await useFriendsStore().onFriends();
-    useUsersStore().onUser();
-    await useMessagesStore().onMessage();
+      //websocket channels subscription
+      await useConversationsStore().onConversation();
+      useUsersStore().onUser();
+      await useFriendsStore().onFriendRequests();
+      await useFriendsStore().onFriends();
+      useUsersStore().onUser();
+      await useMessagesStore().onMessage();
+    } catch (e) {
+      localStorage.clear();
+      useRouter().push("/auth/login");
+    }
   }
 });
