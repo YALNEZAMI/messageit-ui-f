@@ -50,15 +50,24 @@ export const useAuthStore = defineStore("authStore", {
       }
     },
     async logout() {
-      //set as offline
-      await useUsersStore().setCurrentUserStatus(false);
+      try {
+        //set as offline
+        await useUsersStore().setCurrentUserStatus(false);
 
-      localStorage.clear();
-      this.setAccessToken("");
-      this.setAuthentication({});
-      useUsersStore().setUser({} as User);
-      useRouter().push("/auth/login");
-      window.location.reload();
+        localStorage.clear();
+        this.setAccessToken("");
+        this.setAuthentication({});
+        useUsersStore().setUser({} as User);
+        useRouter().push("/auth/login");
+        window.location.reload();
+      } catch (error) {
+        localStorage.clear();
+        this.setAccessToken("");
+        this.setAuthentication({});
+        useUsersStore().setUser({} as User);
+        useRouter().push("/auth/login");
+        window.location.reload();
+      }
     },
     async login(auth: any) {
       try {
