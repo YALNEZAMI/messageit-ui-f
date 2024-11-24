@@ -31,6 +31,7 @@ export const useAuthStore = defineStore("authStore", {
     },
     async register(auth: User) {
       localStorage.clear();
+      this.initializeAuth();
       try {
         const body: any = {
           email: auth.email,
@@ -70,6 +71,8 @@ export const useAuthStore = defineStore("authStore", {
       }
     },
     async login(auth: any) {
+      localStorage.clear();
+      this.initializeAuth();
       try {
         auth.strategy = "local";
         const response: any = await this.getService("authentication").create(
