@@ -10,6 +10,9 @@ export const useMessagesStore = defineStore("messagesStore", {
     //TODO update profile photo and conversation photo
     //TODO message status(sent recieved vue)
     //TODO is typing
+    //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
+    //TODO search conversations
+    //TODO sort conversations
     return {
       paginationValue: 25,
       skip: 0,
