@@ -100,6 +100,9 @@ const getSecondaryText = () => {
   const lastMessage = useConversationsStore().getLastMessage(conversation._id);
 
   if (lastMessage == undefined) {
+    if (conversation.members.length == 1) {
+      return "Auto conversation";
+    }
     switch (conversation.type) {
       case "private":
         return (
@@ -114,11 +117,11 @@ const getSecondaryText = () => {
   } else {
     switch (conversation.type) {
       case "private":
-        return "Moi: " + lastMessage.text;
       case "group":
-        useConversationsStore().getOtherUser(conversation).name +
-          ": " +
-          lastMessage.text;
+        return lastMessage.sender._id == useUsersStore().user._id
+          ? "Moi: " + lastMessage.text
+          : lastMessage.sender.name + ": " + lastMessage.text;
+
       case "ai":
         if (lastMessage.sender._id == useUsersStore().user._id) {
           return "Moi: " + lastMessage.text;
