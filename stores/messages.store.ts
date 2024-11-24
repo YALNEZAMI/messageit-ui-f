@@ -2,12 +2,14 @@ import { defineStore } from "pinia";
 import { eventBus } from "@/utils/eventBus";
 import type { Message } from "~/interfaces/message";
 import conversations from "~/middleware/conversations";
+import type { User } from "~/interfaces/user";
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
     //TODO message options(reply, delete forall forme, copie select)
     //TODO send photos
     //TODO update profile photo and conversation photo
     //TODO message status(sent recieved vue)
+    //TODO is typing
     return {
       paginationValue: 25,
       skip: 0,
@@ -16,9 +18,13 @@ export const useMessagesStore = defineStore("messagesStore", {
       isMessagesPulse: false,
       searchedMessages: [] as Message[],
       isSearchMessagePulse: false,
+      isAtBottom: true,
     };
   },
   actions: {
+    setIsAtBottom(nval: boolean) {
+      this.isAtBottom = nval;
+    },
     setSkip(newskip: number) {
       this.skip = newskip;
     },
@@ -64,8 +70,28 @@ export const useMessagesStore = defineStore("messagesStore", {
           conversation: useRoute().params.id,
         },
       });
-      this.messages = messages.data;
+
+      this.messages = await this.populateMessages(messages.data);
+
       this.isMessagesPulse = false;
+    },
+    async populateMessages(messages: Message[]) {
+      const res = [];
+      for (const msg of messages) {
+        const refMessage = msg.referedMessage as Message;
+        if (refMessage) {
+          let refSender: any = refMessage.sender;
+          if (!refSender._id) {
+            const refSenderId = refSender as string;
+            refSender = await useUsersStore().getUser(refSenderId as string);
+            refMessage.sender = refSender;
+            msg.referedMessage = refMessage;
+          }
+        }
+
+        res.push(msg);
+      }
+      return res;
     },
     async appendHistoryMessages() {
       if (this.skip == 0 || this.isAppendingMessages) {
@@ -78,7 +104,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       if (this.skip > this.paginationValue) {
         limit = this.paginationValue;
       }
-      const messages = await this.getService("messages").find({
+      let messages = await this.getService("messages").find({
         query: {
           $limit: limit,
           $skip: this.skip,
@@ -86,6 +112,8 @@ export const useMessagesStore = defineStore("messagesStore", {
           conversation: useRoute().params.id,
         },
       });
+      messages = await this.populateMessages(messages);
+
       this.messages = messages.data.concat(this.messages);
       this.isAppendingMessages = false;
     },
@@ -109,36 +137,6 @@ export const useMessagesStore = defineStore("messagesStore", {
     },
     async getMessage(id: string) {
       return await this.getService("messages").get(id);
-    },
-
-    async onMessage() {
-      this.getService("messages").on("created", async (message: Message) => {
-        const conv = message.conversation;
-        message.conversation = await useConversationsStore().getConversation(
-          conv as string
-        );
-        message.sender = await useUsersStore().getUser(
-          message.sender as string
-        );
-        //set lastMessage
-        useConversationsStore().setLastMessage(message);
-        this.addMessage(message);
-        //make event to scroll down
-        setTimeout(() => {
-          eventBus.emit("messageReceived", message);
-        }, 10);
-      });
-      this.getService("messages").on("removed", async (message: Message) => {
-        //set new lastMessage
-        const conversationId = message.conversation;
-        const lastMessage = await useMessagesStore().getLastMessage(
-          conversationId as string
-        );
-        useConversationsStore().setLastMessage(lastMessage);
-        this.messages = this.messages.filter((msg) => {
-          return msg._id != message._id;
-        });
-      });
     },
     async search(key: string) {
       this.isSearchMessagePulse = true;
@@ -191,6 +189,31 @@ export const useMessagesStore = defineStore("messagesStore", {
       if (res) {
         this.deleteMessageLocally(_id);
       }
+    },
+
+    async onMessage() {
+      this.getService("messages").on("created", async (message: Message) => {
+        const populating = await this.populateMessages([message]);
+        message = populating[0];
+        //set lastMessage
+        useConversationsStore().setLastMessage(message);
+        this.addMessage(message);
+        //make event to scroll down
+        setTimeout(() => {
+          eventBus.emit("messageReceived", message);
+        }, 10);
+      });
+      this.getService("messages").on("removed", async (message: Message) => {
+        //set new lastMessage
+        const conversationId = message.conversation;
+        const lastMessage = await useMessagesStore().getLastMessage(
+          conversationId as string
+        );
+        useConversationsStore().setLastMessage(lastMessage);
+        this.messages = this.messages.filter((msg) => {
+          return msg._id != message._id;
+        });
+      });
     },
   },
 });
