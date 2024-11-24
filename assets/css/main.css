@@ -3,11 +3,14 @@
 html {
   overflow: hidden;
   height: 100vh;
-  padding: 0%
+  padding: 0%;
 }
 .inputError {
   @apply border-2 text-red-400 border-red-500;
 }
 .userButton {
   @apply transition-all duration-500 cursor-pointer text-white p-2 rounded mx-1 border-0 flex justify-center items-center space-x-2 my-1;
+}
+.half {
+  width: 45%;
 }
