@@ -17,9 +17,14 @@ export const useConversationsStore = defineStore("conversationsStore", {
         { name: "Panda", _id: "panda" },
       ] as Theme[],
       isConversationsPulse: false,
+      searchedConversations: [] as Conversation[],
+      isSearchedConversationsPulse: false,
     };
   },
   actions: {
+    setSearchedConversations(convs: Conversation[]) {
+      this.searchedConversations = convs;
+    },
     setIsConversationsPulse(nval: boolean) {
       this.isConversationsPulse = nval;
     },
@@ -158,6 +163,18 @@ export const useConversationsStore = defineStore("conversationsStore", {
           return response._id != conv._id;
         })
       );
+    },
+    async searchConversations(key: string) {
+      console.log("search convs");
+      this.isSearchedConversationsPulse = true;
+      const res = await this.getService("conversations").find({
+        query: {
+          key,
+        },
+      });
+      console.log("res ", res);
+      this.setSearchedConversations(res);
+      this.isSearchedConversationsPulse = false;
     },
     async onConversation() {
       this.getService("conversations").on(
