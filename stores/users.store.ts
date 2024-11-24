@@ -77,7 +77,7 @@ export const useUsersStore = defineStore("usersStore", {
         });
         this.setsearchedUsers(response);
         this.isSearchUsersPulse = false;
-        return response.data;
+        return response;
       } catch (error) {
         console.error("Error retrieving users:", error);
       }
