@@ -27,16 +27,19 @@
           ></div>
         </div>
         <!--messages-->
-        <Message
-          :id="message._id"
-          @click="setClickedId(message._id)"
-          @select="messageOptions(message)"
-          @goToReferedMessage="goToMessage(getReferedMessageId(message))"
-          v-for="message of getMessages()"
-          :key="message._id"
-          :message="message"
-          :clickedId="clickedId"
-        ></Message>
+        <div v-for="message of getMessages()" :key="message._id">
+          <Message
+            :id="message._id"
+            @click="setClickedId(message._id)"
+            @options="messageOptions(message)"
+            @select="select(message._id + '')"
+            @goToReferedMessage="goToMessage(getReferedMessageId(message))"
+            :message="message"
+            :clickedId="clickedId"
+            :selectingMode="selectingMode"
+          ></Message>
+        </div>
+
         <!--pulse effect-->
         <div
           class="w-full m-1"
@@ -79,7 +82,30 @@
           </button>
         </div>
       </div>
-
+      <!--selection multiple options-->
+      <div
+        class="flex flex-wrap justify-center bg-gray-400 bg-opacity-65 p-2"
+        v-if="selectedMessages.length > 0"
+      >
+        <button
+          class="selectionButtons half bg-orange-500 hover:bg-orange-600"
+          @click="deleteForMe"
+        >
+          Supprimer pour moi
+        </button>
+        <button
+          class="selectionButtons half bg-red-500 hover:bg-red-600"
+          @click="deleteForAll"
+        >
+          Supprimer pour tous
+        </button>
+        <button
+          class="selectionButtons w-1/2 bg-yellow-500 hover:bg-yellow-600"
+          @click="cancelSelection()"
+        >
+          Annuler
+        </button>
+      </div>
       <!-- input -->
       <MessageInput></MessageInput>
     </div>
@@ -110,7 +136,7 @@
           </button>
 
           <button
-            @click="deleteForAll"
+            @click="toogleSelectingMode()"
             class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
           >
             Selection multiple
@@ -130,6 +156,9 @@
 .optionsButtons {
   @apply border-0  cursor-pointer p-2 rounded-md text-white m-1 min-w-36;
 }
+.selectionButtons {
+  @apply border-0  cursor-pointer p-2 rounded-md text-white m-1 max-w-40;
+}
 .searchedMessage {
   @apply animate-pulse bg-red-300 p-2 rounded;
 }
@@ -142,11 +171,31 @@ import type { User } from "~/interfaces/user";
 
 const clickedId = ref("");
 const isOptions = ref(false);
+const selectingMode = ref(false as boolean);
+const select = (_id: string) => {
+  console.log("selecting", _id);
+  if (selectedMessages.value.includes(_id)) {
+    selectedMessages.value = selectedMessages.value.filter(
+      (id: string) => id != _id
+    );
+    return;
+  }
+  selectedMessages.value.push(_id);
+};
+const cancelSelection = () => {
+  selectedMessages.value = [];
+  selectingMode.value = false;
+};
+const toogleSelectingMode = () => {
+  selectingMode.value = !selectingMode.value;
+
+  isOptions.value = false;
+};
 const toogleIsOptions = (newVal: boolean) => {
   isOptions.value = newVal;
 };
 let message = useMessagesStore().messages[0];
-const selectedMessages = ref([]);
+const selectedMessages = ref([] as string[]);
 const getSender = (): User => {
   return message.sender as User;
 };
@@ -155,10 +204,25 @@ const getReferedMessageId = (msg: Message): string => {
   return message._id as string;
 };
 const deleteForMe = async () => {
+  if (selectingMode.value) {
+    for (const _id of selectedMessages.value) {
+      await useMessagesStore().deleteForMe(_id);
+    }
+    selectingMode.value = false;
+
+    return;
+  }
   await useMessagesStore().deleteForMe(message._id as string);
   toogleIsOptions(false);
 };
 const deleteForAll = async () => {
+  if (selectingMode.value) {
+    for (const _id of selectedMessages.value) {
+      await useMessagesStore().deleteForAll(_id);
+    }
+    selectingMode.value = false;
+    return;
+  }
   await useMessagesStore().deleteForAll(message._id as string);
   toogleIsOptions(false);
 };
@@ -188,7 +252,7 @@ const getIsAppendingMessages = () => {
   return useMessagesStore().isAppendingMessages;
 };
 const setClickedId = (val: any) => {
-  if (clickedId.value == val) {
+  if (clickedId.value == val || selectingMode.value) {
     clickedId.value = "";
     return;
   }

@@ -22,7 +22,10 @@
           'flex-row-reverse': !isMyMessage(),
         }"
       >
-        <div class="text-black cursor-pointer" @click="select">
+        <div v-if="props.selectingMode">
+          <input type="checkbox" @change="select()" />
+        </div>
+        <div v-else class="text-black cursor-pointer" @click="options">
           <svg
             v-if="isMyMessage()"
             xmlns="http://www.w3.org/2000/svg"
@@ -54,6 +57,7 @@
             />
           </svg>
         </div>
+        <!--text and reply arrow-->
         <div class="flex items-center">
           <svg
             v-if="isMyMessage() && clickedId == message._id"
@@ -136,9 +140,14 @@ import { eventBus } from "@/utils/eventBus";
 const props = defineProps({
   message: "Object",
   clickedId: "Boolean",
+  selectingMode: "Boolean",
 });
+
 const message = props.message;
-const emit = defineEmits(["select", "goToReferedMessage"]);
+const emit = defineEmits(["options", "goToReferedMessage", "select"]);
+const options = () => {
+  emit("options");
+};
 const select = () => {
   emit("select");
 };
