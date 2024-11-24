@@ -212,11 +212,6 @@ const chatWithUser = async () => {
   await useConversationsStore().chatWithUser(user);
 };
 const getUserName = () => {
-  if (useConversationsStore().currentConversation.type == "ai") {
-    return user._id == useUsersStore().user._id
-      ? user.name.toUpperCase()
-      : "Boby 🤖";
-  }
-  return user ? user.name.toUpperCase() : "Deconnecté";
+  return user.aiUser ? "Boby" : user.name;
 };
 </script>
