@@ -46,10 +46,13 @@ export const useMessagesStore = defineStore("messagesStore", {
       msg.sender = useUsersStore().user._id as string;
       msg.conversation = useConversationsStore().currentConversation
         ._id as string;
+      //if ai conversation message:{myMessage:Message,aiMessage:Message}
       const message = await this.getService("messages").create(msg);
       if (useConversationsStore().currentConversation.type == "ai") {
         this.messages.push(message.myMessage);
         this.messages.push(message.aiMessage);
+        eventBus.emit("messageReceived", message.myMessage);
+        eventBus.emit("messageReceived", message.aiMessage);
       }
       return message;
     },
@@ -193,6 +196,7 @@ export const useMessagesStore = defineStore("messagesStore", {
 
     async onMessage() {
       this.getService("messages").on("created", async (message: Message) => {
+        console.log("messagec created", message);
         const populating = await this.populateMessages([message]);
         message = populating[0];
         //set lastMessage
