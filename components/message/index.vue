@@ -54,19 +54,67 @@
             />
           </svg>
         </div>
+        <div class="flex items-center">
+          <svg
+            v-if="isMyMessage() && clickedId == message._id"
+            @click="reply(message)"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-4 replyArrow"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3"
+            />
+          </svg>
+          <ContainersConversationTheme
+            :class="{
+              'ml-12': !thereIsImage() && !isMyMessage(),
+              'mr-12': !thereIsImage() && isMyMessage(),
+              'mr-1': isMyMessage() && thereIsImage(),
+              'ml-1': thereIsImage() && !isMyMessage(),
+              'rounded-t-md rounded-bl-md': isMyMessage(),
+              'rounded-t-md rounded-br-md': !isMyMessage(),
+            }"
+            class="p-1 break-words w-max h-max md:max-w-52 max-w-40 shadow-md"
+          >
+            <div
+              @click="emit('goToReferedMessage')"
+              v-if="message.referedMessage"
+              class="bg-gray-300 text-black p-1 truncate rounded border-l-4 border-solid border-0 border-red-600"
+            >
+              <div class="text-red-600">
+                {{ message.referedMessage.sender.name }}
+              </div>
+              <div class="truncate">
+                {{ message.referedMessage.text }}
+              </div>
+            </div>
 
-        <ContainersConversationTheme
-          :class="{
-            'ml-12': !thereIsImage() && !isMyMessage(),
-            'mr-12': !thereIsImage() && isMyMessage(),
-            'mr-1': isMyMessage() && thereIsImage(),
-            'ml-1': thereIsImage() && !isMyMessage(),
-            'rounded-t-md rounded-bl-md': isMyMessage(),
-            'rounded-t-md rounded-br-md': !isMyMessage(),
-          }"
-          class="p-1 break-words w-max h-max md:max-w-52 max-w-40"
-          >{{ message.text }}</ContainersConversationTheme
-        >
+            <div>{{ message.text }}</div>
+          </ContainersConversationTheme>
+
+          <svg
+            v-if="!isMyMessage() && clickedId == message._id"
+            @click="reply(message)"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-4 replyArrow"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"
+            />
+          </svg>
+        </div>
       </div>
     </div>
     <div
@@ -77,16 +125,25 @@
     </div>
   </div>
 </template>
+<style lang="postcss" scoped>
+.replyArrow {
+  @apply text-black text-sm mx-2 cursor-pointer;
+}
+</style>
 <script setup>
+import { eventBus } from "@/utils/eventBus";
+
 const props = defineProps({
   message: "Object",
   clickedId: "Boolean",
 });
 const message = props.message;
-
-const emit = defineEmits(["select"]);
+const emit = defineEmits(["select", "goToReferedMessage"]);
 const select = () => {
   emit("select");
+};
+const reply = (msg) => {
+  eventBus.emit("refereMessage", msg);
 };
 const getRobotImage = () => {
   return useConversationsStore().robotImage;
