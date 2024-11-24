@@ -180,10 +180,10 @@ export const useConversationsStore = defineStore("conversationsStore", {
         // Get the timestamp of the last message or the conversation creation date as fallback
         const date1 = conv1.lastMessage?.createdAt
           ? new Date(conv1.lastMessage.createdAt).getTime()
-          : new Date(conv1.createdAt).getTime();
+          : new Date(conv1.createdAt!).getTime();
         const date2 = conv2.lastMessage?.createdAt
           ? new Date(conv2.lastMessage.createdAt).getTime()
-          : new Date(conv2.createdAt).getTime();
+          : new Date(conv2.createdAt!).getTime();
 
         // Sort in descending order (newest to oldest)
         return date2 - date1;
