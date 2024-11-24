@@ -7,6 +7,7 @@ type Events = {
   messageReceived: Message;
   conversationChanged: Conversation;
   userPatched: User;
+  refereMessage: Message;
 };
 
 export const eventBus = mitt<Events>();
