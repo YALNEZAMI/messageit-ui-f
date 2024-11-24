@@ -1,25 +1,54 @@
 <template>
   <main style="height: 36rem">
     <!--input-->
-    <div class="flex justify-center bg-gray-200 p-2">
-      <input
-        @input="search"
-        type="text"
-        v-model="req"
-        class="p-2 rounded w-1/2 md:w-1/4"
-        placeholder="Jack"
-      />
-      <button
-        type="button"
-        class="cursor-pointer bg-green-500 hover:bg-green-600 rounded text-white border-0 p-2 mx-2 transition-all duration-500"
-        @click="searchButton"
-      >
-        Rechercher
-      </button>
-    </div>
-    <!--result container-->
     <div
-      v-if="getSearchedUsers().length > 0"
+      class="flex justify-center flex-col space-y-2 sm:space-y-0 sm:flex-row sm:justify-between sm:px-10 bg-gray-200 p-2"
+    >
+      <div class="flex justify-center sm:justify-normal w-full">
+        <button
+          type="button"
+          class="cursor-pointer bg-green-500 hover:bg-green-600 rounded text-white border-0 md:p-2 p-1 mx-2 transition-all duration-500"
+          @click="searchButton"
+        >
+          Rechercher
+        </button>
+        <input
+          @input="search"
+          type="text"
+          v-model="req"
+          class="p-2 rounded w-1/2"
+          placeholder="Jack"
+        />
+      </div>
+      <div class="flex justify-center text-black space-x-2">
+        <label>
+          Utilisateurs
+          <div class="flex justify-center">
+            <input
+              v-model="category"
+              type="radio"
+              name="option"
+              value="users"
+              checked
+            />
+          </div>
+        </label>
+        <label>
+          Conversations
+          <div class="flex justify-center">
+            <input
+              v-model="category"
+              type="radio"
+              name="option"
+              value="conversations"
+            />
+          </div>
+        </label>
+      </div>
+    </div>
+    <!--users result container-->
+    <div
+      v-if="getSearchedUsers().length > 0 && category == 'users'"
       class="flex flex-wrap justify-center"
     >
       <User
@@ -41,8 +70,39 @@
         ></Pulse>
       </div>
     </div>
+    <!--conversations result container-->
+    <div
+      v-if="
+        getSearchedConversations().length > 0 && category == 'conversations'
+      "
+      class="flex flex-wrap justify-center"
+    >
+      <Conversation
+        v-for="conv of getSearchedConversations()"
+        :key="conv._id"
+        :conversation="conv"
+        :isSideBar="false"
+      ></Conversation>
+      <div
+        class="w-11/12 md:w-1/3 m-1"
+        v-for="(pulse, index) in ([].length = 10)"
+        :key="index"
+        :class="{
+          hidden: !isSearchConversationsPulse(),
+        }"
+      >
+        <Pulse
+          v-if="isSearchConversationsPulse()"
+          class="w-full overflow-hidden bg-gray-300"
+        ></Pulse>
+      </div>
+    </div>
     <NoResult
-      v-if="getSearchedUsers().length == 0"
+      v-if="
+        (getSearchedConversations().length == 0 &&
+          category == 'conversations') ||
+        (getSearchedUsers().length == 0 && category == 'users')
+      "
       class="mt-3"
       :message="req ? `Aucun resultat pour << ${req} >>` : 'Aucun resultat'"
     ></NoResult>
@@ -53,17 +113,26 @@ import type { User } from "~/interfaces/user";
 
 const usersStore = useUsersStore();
 const req = ref("");
+const category = ref("users");
 const search = async () => {
   await usersStore.search(req.value);
+  await useConversationsStore().searchConversations(req.value);
 };
 const isSearchUsersPulse = () => {
   return useUsersStore().isSearchUsersPulse;
 };
+const isSearchConversationsPulse = () => {
+  return useConversationsStore().isSearchedConversationsPulse;
+};
 const getSearchedUsers = (): User[] => {
   return usersStore.searchedUsers;
 };
+const getSearchedConversations = () => {
+  return useConversationsStore().searchedConversations;
+};
 const searchButton = async () => {
   usersStore.setsearchedUsers([]);
+  useConversationsStore().setSearchedConversations([]);
   await search();
 };
 onMounted(async () => {
