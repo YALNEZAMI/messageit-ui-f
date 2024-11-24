@@ -32,7 +32,10 @@
           style="resize: none"
         ></textarea>
         <button
-          :disabled="getConversationType() == 'ai' && isGenerating"
+          :disabled="
+            (getConversationType() == 'ai' && isGenerating) ||
+            (getConversationType() == 'ai' && message.text == '')
+          "
           v-if="message.text != '' || getConversationType() == 'ai'"
           @click="send"
           class="bg-white text-black rounded border-0 px-2 cursor-pointer hover:bg-gray-200 transition-all duration-500 ease-in-out"
