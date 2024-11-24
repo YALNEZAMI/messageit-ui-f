@@ -64,7 +64,9 @@ export const useConversationsStore = defineStore("conversationsStore", {
     },
     getOtherUser(conv: Conversation): User {
       if (!conv.members || conv.type == "ai" || conv.members.length == 1) {
-        return useUsersStore().user;
+        const currentUser = useUsersStore().user;
+        currentUser.onLine = true;
+        return currentUser;
       }
       const otherUser = conv.members.find((member: any) => {
         return member._id != useUsersStore().user._id;
