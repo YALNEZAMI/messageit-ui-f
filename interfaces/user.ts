@@ -10,4 +10,5 @@ export interface User {
   strategy?: string;
   image: string;
   onLine: boolean;
+  aiUser?: boolean;
 }
