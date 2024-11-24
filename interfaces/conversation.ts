@@ -10,4 +10,6 @@ export interface Conversation {
   members: string[] | User[];
   image?: string;
   lastMessage?: Message;
+  createdAt?: string;
+  updatedAt?: string;
 }

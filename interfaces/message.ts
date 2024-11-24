@@ -8,4 +8,5 @@ export interface Message {
   text?: string;
   referedMessage: string | Message;
   createdAt?: string;
+  updatedAt?: string;
 }
