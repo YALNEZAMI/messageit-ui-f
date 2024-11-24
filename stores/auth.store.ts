@@ -57,14 +57,14 @@ export const useAuthStore = defineStore("authStore", {
         localStorage.clear();
         this.setAccessToken("");
         this.setAuthentication({});
-        useUsersStore().setUser({} as User);
+        useUsersStore().setUserLocally({} as User);
         useRouter().push("/auth/login");
         window.location.reload();
       } catch (error) {
         localStorage.clear();
         this.setAccessToken("");
         this.setAuthentication({});
-        useUsersStore().setUser({} as User);
+        useUsersStore().setUserLocally({} as User);
         useRouter().push("/auth/login");
         window.location.reload();
       }
@@ -82,7 +82,7 @@ export const useAuthStore = defineStore("authStore", {
         const completeUser = await this.getService("my-users").get(
           response.user._id
         );
-        useUsersStore().setUser(completeUser);
+        useUsersStore().setUserLocally(completeUser);
 
         //init friends requests
         await useFriendsStore().getFriendRequestsSentToMe();
@@ -114,9 +114,9 @@ export const useAuthStore = defineStore("authStore", {
         this.setAccessToken("");
       }
       if (storedUser != null) {
-        useUsersStore().setUser(JSON.parse(storedUser));
+        useUsersStore().setUserLocally(JSON.parse(storedUser));
       } else {
-        useUsersStore().setUser({} as User);
+        useUsersStore().setUserLocally({} as User);
       }
       if (storedAuthentication != null) {
         this.setAuthentication(JSON.parse(storedAuthentication));
