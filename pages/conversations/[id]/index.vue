@@ -2,36 +2,19 @@
   <main class="flex w-screen" style="height: 35.5rem">
     <!--side conversations-->
     <ContainersMain style="min-height: 35.5rem" class="w-1/4 md:w-1/5 rounded">
-      <div
-        style="max-height: 35.5rem; direction: rtl; scrollbar-width: thin"
-        class="overflow-y-auto scro flex justify-center flex-wrap h-max"
-      >
-        <Conversation
-          style="direction: ltr"
-          class="mb-1 overflow-hidden"
-          v-for="conv of getConvs()"
-          :key="conv._id"
-          :conversation="conv"
-          :isSideBar="true"
-        ></Conversation>
-        <div
-          class="w-11/12"
-          v-for="(pulse, index) in ([].length = 10)"
-          :key="index"
-          :class="{
-            hidden: !isConversationPulse(),
-          }"
-        >
-          <Pulse
-            style="direction: ltr"
-            v-if="isConversationPulse()"
-            class="w-full overflow-hidden"
-          ></Pulse>
-        </div>
-      </div>
+      <ConversationSideBar></ConversationSideBar>
     </ContainersMain>
     <!--messages container and input-->
-    <div class="flex w-3/4 md:w-4/5 mr-4 flex-col h-full">
+    <div class="relative flex w-3/4 md:w-4/5 mr-4 flex-col h-full">
+      <!--copied message-->
+      <div
+        v-if="copied"
+        class="flex justify-center absolute bottom-14 left-0 w-full"
+      >
+        <span class="bg-white p-1 rounded-md text-green-400 font-bold"
+          >Copied ✔️</span
+        >
+      </div>
       <div
         id="messagesContainer"
         class="p-2 flex flex-col overflow-y-auto overflow-x-hidden"
@@ -48,6 +31,7 @@
           :id="message._id"
           @click="setClickedId(message._id)"
           @select="select(message)"
+          @goToReferedMessage="goToMessage(getReferedMessageId(message))"
           v-for="message of getMessages()"
           :key="message._id"
           :message="message"
@@ -74,7 +58,7 @@
         <!--scroll down button-->
         <div class="flex justify-center sticky bottom-0 left-0 w-full">
           <button
-            v-if="!isAtBottom"
+            v-if="!isAtBottom()"
             class="animate-bounce bg-transparent border-0 cursor-pointer"
             @click="goBottom"
           >
@@ -95,6 +79,7 @@
           </button>
         </div>
       </div>
+
       <!-- input -->
       <MessageInput></MessageInput>
     </div>
@@ -112,35 +97,63 @@
         <div class="flex flex-wrap justify-center">
           <button
             @click="deleteForMe"
-            class="border-0 bg-red-500 cursor-pointer p-2 rounded-md text-white hover:bg-red-600"
+            class="optionsButtons bg-orange-500 hover:bg-orange-600"
           >
             Supprimer pour moi
           </button>
           <button
-            v-if="message.sender._id == useUsersStore().user._id"
+            v-if="getSender()._id == useUsersStore().user._id"
             @click="deleteForAll"
-            class="border-0 bg-red-500 cursor-pointer p-2 rounded-md text-white hover:bg-red-600"
+            class="optionsButtons bg-red-500 hover:bg-red-600"
           >
             Supprimer pour tous
+          </button>
+
+          <button
+            @click="deleteForAll"
+            class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
+          >
+            Selection multiple
+          </button>
+          <button
+            @click="copy"
+            class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
+          >
+            {{ copied ? "Copied ✔️" : "Copier le text" }}
           </button>
         </div>
       </div>
     </div>
   </main>
 </template>
+<style lang="postcss" scoped>
+.optionsButtons {
+  @apply border-0  cursor-pointer p-2 rounded-md text-white m-1 min-w-36;
+}
+.searchedMessage {
+  @apply animate-pulse bg-red-300 p-2 rounded;
+}
+</style>
 <script lang="ts" setup>
 import { eventBus } from "@/utils/eventBus";
 import type { Conversation } from "~/interfaces/conversation";
 import type { Message } from "~/interfaces/message";
+import type { User } from "~/interfaces/user";
+
 const clickedId = ref("");
-const isAtBottom = ref(true);
 const isOptions = ref(false);
 const toogleIsOptions = () => {
   isOptions.value = !isOptions.value;
 };
 let message = useMessagesStore().messages[0];
 const selectedMessages = ref([]);
-
+const getSender = (): User => {
+  return message.sender as User;
+};
+const getReferedMessageId = (msg: Message): string => {
+  const message = msg.referedMessage as Message;
+  return message._id as string;
+};
 const deleteForMe = async () => {
   await useMessagesStore().deleteForMe(message._id as string);
 
@@ -150,14 +163,25 @@ const deleteForAll = async () => {
   await useMessagesStore().deleteForAll(message._id as string);
   toogleIsOptions();
 };
+
+const copied = ref(false);
+const copy = () => {
+  copied.value = true;
+  navigator.clipboard
+    .writeText(message.text as string)
+    .then(() => {})
+    .catch((err) => {
+      console.error("Failed to copy text: ", err);
+    });
+  setTimeout(() => {
+    copied.value = false;
+  }, 2000);
+};
 const select = (msg: any) => {
   message = msg;
   toogleIsOptions();
 };
-const copie = (msg: any) => {};
-const isConversationPulse = () => {
-  return useConversationsStore().isConversationsPulse;
-};
+
 const isMessagesPulse = () => {
   return useMessagesStore().isMessagesPulse;
 };
@@ -171,9 +195,7 @@ const setClickedId = (val: any) => {
   }
   clickedId.value = val;
 };
-const getConvs = (): any[] => {
-  return useConversationsStore().conversations;
-};
+
 const getMessages = () => {
   return useMessagesStore().messages;
 };
@@ -193,11 +215,15 @@ const goToMessage = async (messageId: string) => {
       behavior: "smooth",
       block: "center",
     });
-    messageElement.classList.toggle("animate-pulse");
+    messageElement.classList.toggle("searchedMessage");
+
     setTimeout(() => {
-      messageElement.classList.toggle("animate-pulse");
+      messageElement.classList.toggle("searchedMessage");
     }, 4000);
   }
+};
+const isAtBottom = () => {
+  return useMessagesStore().isAtBottom;
 };
 onMounted(async () => {
   await useMessagesStore().getInitialMessages();
@@ -214,19 +240,21 @@ onMounted(async () => {
   //listen to messages recieved event and scoll if the conversation is concerned
   eventBus.on("messageReceived", (msg: Message) => {
     const msgConversation = msg.conversation as Conversation;
+
     if (
       msgConversation._id == useConversationsStore().currentConversation._id &&
-      isAtBottom.value
+      isAtBottom()
     ) {
       goBottom();
     }
   });
   messagesContainer.addEventListener("scroll", async (e) => {
     // update isAtBottom
-    isAtBottom.value =
+    useMessagesStore().setIsAtBottom(
       messagesContainer.scrollHeight - messagesContainer.scrollTop <=
-      messagesContainer.clientHeight + 1;
-    //check out if at top
+        messagesContainer.clientHeight + 60
+    );
+    //check out message history if at top
     if (messagesContainer.scrollTop < 1) {
       await useMessagesStore().appendHistoryMessages();
     }
