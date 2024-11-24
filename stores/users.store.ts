@@ -36,8 +36,12 @@ export const useUsersStore = defineStore("usersStore", {
     async getUser(id: string) {
       return await this.getService("my-users").get(id, {});
     },
-    setUser(user: User) {
+    async setUserLocally(user: User) {
       this.user = user;
+      localStorage.setItem("user", JSON.stringify(user));
+    },
+    async setUserFromApi(user: User) {
+      this.user = await this.getService("my-users").get(user._id as string, {});
       localStorage.setItem("user", JSON.stringify(user));
     },
     async updateUser(user: any) {

@@ -161,7 +161,7 @@ const updateUser = async () => {
   const updating = await useUsersStore().updateUser(user.value);
   let emailIssu = false;
   if (updating._id) {
-    useUsersStore().setUser(updating);
+    useUsersStore().setUserLocally(updating);
   } else {
     success = false;
     if (updating.inputId == "email") {
