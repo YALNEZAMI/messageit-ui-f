@@ -30,7 +30,7 @@
         <Message
           :id="message._id"
           @click="setClickedId(message._id)"
-          @select="select(message)"
+          @select="messageOptions(message)"
           @goToReferedMessage="goToMessage(getReferedMessageId(message))"
           v-for="message of getMessages()"
           :key="message._id"
@@ -87,10 +87,10 @@
     <div
       style="height: 35.5rem"
       v-if="isOptions"
-      @click="toogleIsOptions"
+      @click="toogleIsOptions(false)"
       class="bg-black bg-opacity-80 fixed w-screen z-30 flex justify-center items-center"
     >
-      <div class="w-3/4 h-max py-3 bg-white rounded p-4">
+      <div class="z-40 relative w-3/4 h-max py-3 bg-white rounded p-4">
         <h3 class="text-center text-black">
           Choisir l'opération à effectuer sur
         </h3>
@@ -142,8 +142,8 @@ import type { User } from "~/interfaces/user";
 
 const clickedId = ref("");
 const isOptions = ref(false);
-const toogleIsOptions = () => {
-  isOptions.value = !isOptions.value;
+const toogleIsOptions = (newVal: boolean) => {
+  isOptions.value = newVal;
 };
 let message = useMessagesStore().messages[0];
 const selectedMessages = ref([]);
@@ -156,12 +156,11 @@ const getReferedMessageId = (msg: Message): string => {
 };
 const deleteForMe = async () => {
   await useMessagesStore().deleteForMe(message._id as string);
-
-  toogleIsOptions();
+  toogleIsOptions(false);
 };
 const deleteForAll = async () => {
   await useMessagesStore().deleteForAll(message._id as string);
-  toogleIsOptions();
+  toogleIsOptions(false);
 };
 
 const copied = ref(false);
@@ -177,9 +176,9 @@ const copy = () => {
     copied.value = false;
   }, 2000);
 };
-const select = (msg: any) => {
+const messageOptions = (msg: any) => {
   message = msg;
-  toogleIsOptions();
+  toogleIsOptions(true);
 };
 
 const isMessagesPulse = () => {
