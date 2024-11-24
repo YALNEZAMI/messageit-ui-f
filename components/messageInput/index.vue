@@ -125,7 +125,10 @@ const send = async () => {
     isGenerating.value = true;
   }
 
-  const res = await useMessagesStore().send(message.value);
+  const res = await useMessagesStore().send(
+    message.value,
+    useConversationsStore().currentConversation._id as string
+  );
   isGenerating.value = false;
   message.value.text = "";
   cancelReply();

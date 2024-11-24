@@ -44,10 +44,9 @@ export const useMessagesStore = defineStore("messagesStore", {
         this.messages.push(msg);
       }
     },
-    async send(msg: Message) {
+    async send(msg: Message, conversationId: string) {
       msg.sender = useUsersStore().user._id as string;
-      msg.conversation = useConversationsStore().currentConversation
-        ._id as string;
+      msg.conversation = conversationId;
       //if ai conversation message:{myMessage:Message,aiMessage:Message}
       const message = await this.getService("messages").create(msg);
       if (useConversationsStore().currentConversation.type == "ai") {
