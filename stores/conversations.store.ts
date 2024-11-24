@@ -172,9 +172,22 @@ export const useConversationsStore = defineStore("conversationsStore", {
           key,
         },
       });
-      console.log("res ", res);
       this.setSearchedConversations(res);
       this.isSearchedConversationsPulse = false;
+    },
+    sortConversations() {
+      this.conversations = this.conversations.sort((conv1, conv2) => {
+        // Get the timestamp of the last message or the conversation creation date as fallback
+        const date1 = conv1.lastMessage?.createdAt
+          ? new Date(conv1.lastMessage.createdAt).getTime()
+          : new Date(conv1.createdAt).getTime();
+        const date2 = conv2.lastMessage?.createdAt
+          ? new Date(conv2.lastMessage.createdAt).getTime()
+          : new Date(conv2.createdAt).getTime();
+
+        // Sort in descending order (newest to oldest)
+        return date2 - date1;
+      });
     },
     async onConversation() {
       this.getService("conversations").on(
@@ -196,6 +209,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
       this.getService("conversations").on(
         "created",
         async (conversation: Conversation) => {
+          console.log("conversation created", conversation);
           //filling members
           const membersAsUsers: User[] = [];
           for (let member of conversation.members) {
@@ -209,7 +223,8 @@ export const useConversationsStore = defineStore("conversationsStore", {
               return conv._id == conversation._id;
             }).length != 0;
           if (!existConversation) {
-            this.conversations.push(conversation);
+            this.setConversations(this.conversations);
+            this.sortConversations();
           }
         }
       );

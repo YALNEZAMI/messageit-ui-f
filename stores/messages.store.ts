@@ -11,8 +11,7 @@ export const useMessagesStore = defineStore("messagesStore", {
     //TODO message status(sent recieved vue)
     //TODO is typing
     //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
-    //TODO search conversations
-    //TODO sort conversations
+    //TODO notification for conversations leaving , changing name or theme
     return {
       paginationValue: 25,
       skip: 0,
@@ -209,6 +208,8 @@ export const useMessagesStore = defineStore("messagesStore", {
         setTimeout(() => {
           eventBus.emit("messageReceived", message);
         }, 10);
+        //sort conversations
+        useConversationsStore().sortConversations();
       });
       this.getService("messages").on("removed", async (message: Message) => {
         //set new lastMessage
@@ -220,6 +221,8 @@ export const useMessagesStore = defineStore("messagesStore", {
         this.messages = this.messages.filter((msg) => {
           return msg._id != message._id;
         });
+        //sort conversations
+        useConversationsStore().sortConversations();
       });
     },
   },
