@@ -40,6 +40,20 @@
           ></Message>
         </div>
 
+        <dir class="flex flex-col p-0" v-if="typings.length > 0">
+          <div
+            v-for="typing of typings"
+            :key="getTyper(typing)._id + ''"
+            class="flex items-center space-x-2"
+          >
+            <ImagesMessageSender
+              :title="getTyper(typing).name"
+              :src="getTyper(typing).image"
+            ></ImagesMessageSender>
+            <div class="text-black font-bold">en train...</div>
+          </div>
+        </dir>
+
         <!--pulse effect-->
         <div
           class="w-full m-1"
@@ -207,6 +221,7 @@
 import { eventBus } from "@/utils/eventBus";
 import type { Conversation } from "~/interfaces/conversation";
 import type { Message } from "~/interfaces/message";
+import type { Typing } from "~/interfaces/typing";
 import type { User } from "~/interfaces/user";
 
 const clickedId = ref("");
@@ -362,6 +377,15 @@ const goToMessage = async (messageId: string) => {
 const isAtBottom = () => {
   return useMessagesStore().isAtBottom;
 };
+const typings = ref([] as Typing[]);
+const getTyper = (typing: Typing): User => {
+  return typing.typer as User;
+};
+const popTyper = (_id: string) => {
+  typings.value = typings.value.filter((tFilter: Typing) => {
+    return _id != (tFilter.typer as User)._id;
+  });
+};
 onMounted(async () => {
   await useMessagesStore().getInitialMessages();
   //set messages containrer
@@ -374,8 +398,19 @@ onMounted(async () => {
   eventBus.on("conversationChanged", (conv: Conversation) => {
     goBottom();
   });
+  //listen to typing event
+  eventBus.on("typing", (t: Typing) => {
+    if (getTyper(t)._id != useUsersStore().user._id) {
+      typings.value.push(t);
+      setTimeout(() => {
+        popTyper(getTyper(t)._id as string);
+      }, 2000);
+    }
+  });
+
   //listen to messages recieved event and scoll if the conversation is concerned
   eventBus.on("messageReceived", (msg: Message) => {
+    popTyper((msg.sender as User)._id as string);
     const msgConversation = msg.conversation as Conversation;
 
     if (
