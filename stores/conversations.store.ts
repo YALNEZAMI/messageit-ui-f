@@ -165,7 +165,6 @@ export const useConversationsStore = defineStore("conversationsStore", {
       );
     },
     async searchConversations(key: string) {
-      console.log("search convs");
       this.isSearchedConversationsPulse = true;
       const res = await this.getService("conversations").find({
         query: {
@@ -209,7 +208,6 @@ export const useConversationsStore = defineStore("conversationsStore", {
       this.getService("conversations").on(
         "created",
         async (conversation: Conversation) => {
-          console.log("conversation created", conversation);
           //filling members
           const membersAsUsers: User[] = [];
           for (let member of conversation.members) {
