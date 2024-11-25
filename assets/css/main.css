@@ -14,3 +14,6 @@ html {
 .half {
   width: 45%;
 }
+.basicButton{
+  @apply p-2 cursor-pointer rounded border-0 text-white
+}
