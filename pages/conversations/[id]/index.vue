@@ -39,17 +39,21 @@
             :selectingMode="selectingMode"
           ></Message>
         </div>
-
-        <dir class="flex flex-col p-0" v-if="typings.length > 0">
+        <!--typing-->
+        <dir
+          class="flex flex-col p-0 transition-all duration-300 ease-out"
+          v-if="typings.length > 0"
+        >
           <div
             v-for="typing of typings"
             :key="getTyper(typing)._id + ''"
-            class="flex items-center space-x-2"
+            :id="getTyper(typing)._id"
+            class="flex items-center space-x-2 w-full h-16 transition-all duration-300 ease-out"
           >
             <ImagesMessageSender
               :title="getTyper(typing).name"
               :src="getTyper(typing).image"
-            ></ImagesMessageSender>
+            />
             <div class="text-black font-bold">en train...</div>
           </div>
         </dir>
@@ -381,12 +385,25 @@ const typings = ref([] as Typing[]);
 const getTyper = (typing: Typing): User => {
   return typing.typer as User;
 };
-const popTyper = (_id: string) => {
+const popTyper = (t: Typing) => {
   typings.value = typings.value.filter((tFilter: Typing) => {
-    return _id != (tFilter.typer as User)._id;
+    return (
+      getTyper(t)._id != (tFilter.typer as User)._id && t._id != tFilter._id
+    );
   });
 };
 onMounted(async () => {
+  //set interval to clear typings
+  //remove typer
+  let date = new Date().getTime();
+  setInterval(() => {
+    typings.value = typings.value.filter((t: Typing) => {
+      let typingDate = new Date(t.createdAt as string).getTime();
+      return typingDate > date;
+    });
+    date = new Date().getTime();
+  }, 3000);
+  //init messages
   await useMessagesStore().getInitialMessages();
   //set messages containrer
   messagesContainer = document.getElementById(
@@ -400,17 +417,37 @@ onMounted(async () => {
   });
   //listen to typing event
   eventBus.on("typing", (t: Typing) => {
+    popTyper(t);
     if (getTyper(t)._id != useUsersStore().user._id) {
+      const isAtBotm: boolean = isAtBottom();
       typings.value.push(t);
-      setTimeout(() => {
-        popTyper(getTyper(t)._id as string);
+      //scroll down if already down
+      if (isAtBotm) {
+        console.log("go bottom");
+        const to3 = setTimeout(() => {
+          goBottom();
+          clearTimeout(to3);
+        }, 100);
+      }
+      //hide typer smoothly
+      const to = setTimeout(() => {
+        const typer = document.getElementById(
+          getTyper(t)._id as string
+        ) as HTMLDivElement;
+        typer.classList.toggle("opacity-0");
+        typer.classList.toggle("h-16");
+        typer.classList.toggle("h-0");
+        clearTimeout(to);
       }, 2000);
     }
   });
 
   //listen to messages recieved event and scoll if the conversation is concerned
   eventBus.on("messageReceived", (msg: Message) => {
-    popTyper((msg.sender as User)._id as string);
+    popTyper({
+      typer: msg.sender as User,
+      conversation: (msg.conversation as Conversation)._id as string,
+    });
     const msgConversation = msg.conversation as Conversation;
 
     if (
