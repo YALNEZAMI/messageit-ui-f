@@ -4,4 +4,6 @@ export interface Typing {
   _id?: string;
   typer: string | User;
   conversation: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
