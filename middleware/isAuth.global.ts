@@ -24,6 +24,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       await useFriendsStore().onFriends();
       useUsersStore().onUser();
       await useMessagesStore().onMessage();
+      useTypingStore().onTyping();
     } catch (e) {
       localStorage.clear();
       useAuthStore().setAccessToken("");
