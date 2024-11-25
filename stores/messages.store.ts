@@ -5,11 +5,9 @@ import conversations from "~/middleware/conversations";
 import type { User } from "~/interfaces/user";
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
-    //TODO message options(reply, delete forall forme, copie select)
     //TODO send photos
     //TODO update profile photo and conversation photo
     //TODO message status(sent recieved vue)
-    //TODO is typing
     //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
     //TODO notification for conversations leaving , changing name or theme
     return {
@@ -197,7 +195,6 @@ export const useMessagesStore = defineStore("messagesStore", {
 
     async onMessage() {
       this.getService("messages").on("created", async (message: Message) => {
-        console.log("messagec created", message);
         const populating = await this.populateMessages([message]);
         message = populating[0];
         //set lastMessage
