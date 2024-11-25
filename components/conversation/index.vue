@@ -3,8 +3,10 @@
     :class="{
       'md:w-96': !isSideBar,
       'md:w-72': isSideBar,
+      'w-11/12': !props.noSettings,
+      'w-3/4': props.noSettings,
     }"
-    class="flex w-11/12 h-20 items-center shadow-md cursor-pointer p-2 py-1 rounded m-1"
+    class="flex h-20 items-center shadow-md cursor-pointer p-2 py-1 rounded m-1"
   >
     <div
       class="flex w-11/12 items-center"
@@ -13,6 +15,7 @@
       }"
       @click="setConversation()"
     >
+      <!--image and status-->
       <div
         :class="{
           'relative z-0 w-16': true,
@@ -30,6 +33,7 @@
           :user="getConnectedFriend()"
         ></Status>
       </div>
+      <!--name and second text-->
       <div
         class="w-3/4 flex h-full items-center"
         :class="{
@@ -45,7 +49,7 @@
       </div>
     </div>
     <!--settings-->
-    <div v-if="!isSideBar">
+    <div v-if="!isSideBar && !noSettings">
       <svg
         @click="
           $router.push('/conversations/' + conversation._id + '/settings')
@@ -75,6 +79,7 @@
 const props = defineProps({
   conversation: "Object",
   isSideBar: "Boolean",
+  noSettings: "Boolean",
 });
 const conversation = props.conversation;
 const isSideBar = props.isSideBar;
