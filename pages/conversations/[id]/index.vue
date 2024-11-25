@@ -32,7 +32,7 @@
             :id="message._id"
             @click="setClickedId(message._id)"
             @options="messageOptions(message)"
-            @select="select(message._id + '')"
+            @select="select(message)"
             @goToReferedMessage="goToMessage(getReferedMessageId(message))"
             :message="message"
             :clickedId="clickedId"
@@ -105,10 +105,32 @@
         >
           Annuler
         </button>
+        <button
+          @click="transfering = true"
+          class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
+        >
+          Transferer
+        </button>
+        <button
+          @click="copy"
+          class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
+        >
+          {{ copied ? "Copied ✔️" : "Copier le text" }}
+        </button>
+      </div>
+
+      <div v-else-if="selectingMode" class="flex justify-center">
+        <button
+          class="selectionButtons w-1/2 bg-yellow-500 hover:bg-yellow-600"
+          @click="cancelSelection()"
+        >
+          Annuler
+        </button>
       </div>
       <!-- input -->
       <MessageInput></MessageInput>
     </div>
+
     <!--options-->
     <div
       style="height: 35.5rem"
@@ -142,6 +164,12 @@
             Selection multiple
           </button>
           <button
+            @click="transferOne()"
+            class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
+          >
+            Transferer
+          </button>
+          <button
             @click="copy"
             class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
           >
@@ -149,6 +177,18 @@
           </button>
         </div>
       </div>
+    </div>
+    <!--transfer component-->
+    <div
+      v-if="transfering"
+      class="flex justify-center items-center fixed z-0 w-full h-full top-0 left-0 bg-black bg-opacity-50"
+    >
+      <Transfer
+        @send="sendFromTransfer($event)"
+        @finish="cancelTransfering"
+        :sentToConversations="sentToConversations"
+        class="relative z-10"
+      ></Transfer>
     </div>
   </main>
 </template>
@@ -172,15 +212,50 @@ import type { User } from "~/interfaces/user";
 const clickedId = ref("");
 const isOptions = ref(false);
 const selectingMode = ref(false as boolean);
-const select = (_id: string) => {
-  console.log("selecting", _id);
-  if (selectedMessages.value.includes(_id)) {
+let message = useMessagesStore().messages[0];
+const selectedMessages = ref([] as Message[]);
+const sentToConversations = ref([] as string[]);
+const transfering = ref(false);
+const sendFromTransfer = async (conv: Conversation) => {
+  for (const msg of selectedMessages.value) {
+    const sending = await useMessagesStore().send(
+      {
+        text: msg.text,
+        sender: "",
+        conversation: "",
+        referedMessage: "",
+      },
+      conv._id as string
+    );
+    if (conv.type == "ai") {
+      sentToConversations.value.push(sending.myMessage.conversation);
+    } else {
+      sentToConversations.value.push(sending.conversation);
+    }
+  }
+  selectedMessages.value = [];
+  selectingMode.value = false;
+};
+const cancelTransfering = () => {
+  transfering.value = false;
+  selectedMessages.value = [];
+};
+const transferOne = () => {
+  selectedMessages.value.push(message);
+  transfering.value = true;
+};
+const select = (msg: Message) => {
+  const isSelected =
+    selectedMessages.value.find((msgfind: Message) => {
+      return msg._id == msgfind._id;
+    }) != undefined;
+  if (isSelected) {
     selectedMessages.value = selectedMessages.value.filter(
-      (id: string) => id != _id
+      (msgfilter: Message) => msgfilter._id != msg._id
     );
     return;
   }
-  selectedMessages.value.push(_id);
+  selectedMessages.value.push(msg);
 };
 const cancelSelection = () => {
   selectedMessages.value = [];
@@ -194,8 +269,7 @@ const toogleSelectingMode = () => {
 const toogleIsOptions = (newVal: boolean) => {
   isOptions.value = newVal;
 };
-let message = useMessagesStore().messages[0];
-const selectedMessages = ref([] as string[]);
+
 const getSender = (): User => {
   return message.sender as User;
 };
@@ -205,8 +279,8 @@ const getReferedMessageId = (msg: Message): string => {
 };
 const deleteForMe = async () => {
   if (selectingMode.value) {
-    for (const _id of selectedMessages.value) {
-      await useMessagesStore().deleteForMe(_id);
+    for (const msg of selectedMessages.value) {
+      await useMessagesStore().deleteForMe(msg._id as string);
     }
     selectingMode.value = false;
 
@@ -217,8 +291,8 @@ const deleteForMe = async () => {
 };
 const deleteForAll = async () => {
   if (selectingMode.value) {
-    for (const _id of selectedMessages.value) {
-      await useMessagesStore().deleteForAll(_id);
+    for (const msg of selectedMessages.value) {
+      await useMessagesStore().deleteForAll(msg._id as string);
     }
     selectingMode.value = false;
     return;
