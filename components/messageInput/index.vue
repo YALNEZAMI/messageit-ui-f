@@ -23,6 +23,7 @@
     <ContainersConversationTheme class="w-full flex justify-center">
       <div class="p-2 flex justify-center space-x-1 w-full md:w1/2">
         <textarea
+          @input="typing"
           id="textInput"
           type="text"
           v-model.trim="message.text"
@@ -132,6 +133,9 @@ const send = async () => {
   isGenerating.value = false;
   message.value.text = "";
   cancelReply();
+};
+const typing = async () => {
+  await useTypingStore().createTyping();
 };
 onMounted(async () => {
   const input = document.getElementById("textInput") as HTMLInputElement;
