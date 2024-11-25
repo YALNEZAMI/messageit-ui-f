@@ -2,7 +2,9 @@
   <ContainersTheme
     :class="{
       'md:w-96': !isSideBar,
-      'md:w-72': isSideBar,
+      'md:w-72 ': isSideBar,
+      'border-b-4 bg-red-400 border-solid border-white':
+        isSideBar && isCurrentConversation(),
       'w-11/12': !props.noSettings,
       'w-3/4': props.noSettings,
     }"
@@ -141,5 +143,8 @@ const getConnectedFriend = () => {
 };
 const getPhoto = () => {
   return useAuthStore().defaultUserImg;
+};
+const isCurrentConversation = () => {
+  return conversation._id == useConversationsStore().currentConversation._id;
 };
 </script>
