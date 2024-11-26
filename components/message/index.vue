@@ -1,5 +1,6 @@
 <template>
   <div class="flex flex-col">
+    <!--message body-->
     <div
       class="pb-1 mb-1 rounded flex"
       :class="{
@@ -76,6 +77,7 @@
             />
           </svg>
           <ContainersConversationTheme
+            :title="'-msgid: ' + message._id"
             :class="{
               'ml-12': !thereIsImage() && !isMyMessage(),
               'mr-12': !thereIsImage() && isMyMessage(),
@@ -122,9 +124,24 @@
       </div>
     </div>
     <!--message status-->
-    <div class="flex justify-end px-2 mb-2">
+    <!--viewers images-->
+    <div
+      v-if="getViewers().length > 0 && getConversationType() != 'ai'"
+      class="flex justify-end px-2 mb-2"
+    >
+      <img
+        class="w-4 h-4 rounded-full"
+        :title="viewer.name + ' userid: ' + viewer._id"
+        :src="viewer.image"
+        v-for="viewer of getViewers()"
+        :key="viewer._id"
+      />
+    </div>
+    <div
+      class="flex justify-end px-2 mb-2"
+      v-else-if="isMyMessage() && isLastMessage()"
+    >
       <svg
-        v-if="isMyMessage() && isLastMessage()"
         xmlns="http://www.w3.org/2000/svg"
         width="16"
         height="16"
@@ -144,6 +161,7 @@
         />
       </svg>
     </div>
+
     <!--date-->
     <div
       class="text-center text-sm text-black"
@@ -224,7 +242,7 @@ const getPreviousMessage = () => {
 const isRecieved = ref(false);
 onMounted(async () => {
   if (isLastMessage()) {
-    isRecieved.value = await useMessagesStore().isRecieved(message._id);
+    isRecieved.value = await useMessageStatusStore().isRecieved(message);
   }
   //listent to recieve message to mark it as recieved
   eventBus.on("recieving", (recieving) => {
@@ -232,6 +250,10 @@ onMounted(async () => {
       isRecieved.value = true;
     }
   });
+  //listent to recieve message to mark it as recieved
+  // eventBus.on("messageSeen", (messageSeen) => {
+  //   useMessageStatusStore().updateMessageViewersLocally(messageSeen);
+  // });
   eventBus.on("userPatched", (user) => {
     const isMember =
       message.conversation.members.filter((mem) => mem._id == user._id).length >
@@ -241,4 +263,8 @@ onMounted(async () => {
     }
   });
 });
+const getViewers = () => {
+  const res = useMessageStatusStore().getViewers(message._id);
+  return res;
+};
 </script>
