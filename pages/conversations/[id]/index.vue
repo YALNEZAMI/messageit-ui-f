@@ -423,7 +423,6 @@ onMounted(async () => {
       typings.value.push(t);
       //scroll down if already down
       if (isAtBotm) {
-        console.log("go bottom");
         const to3 = setTimeout(() => {
           goBottom();
           clearTimeout(to3);
@@ -457,6 +456,7 @@ onMounted(async () => {
       goBottom();
     }
   });
+
   messagesContainer.addEventListener("scroll", async (e) => {
     // update isAtBottom
     useMessagesStore().setIsAtBottom(
