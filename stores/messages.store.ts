@@ -5,9 +5,12 @@ import conversations from "~/middleware/conversations";
 import type { User } from "~/interfaces/user";
 import type { Recieving } from "~/interfaces/recieving";
 import type { Conversation } from "~/interfaces/conversation";
+import type { MessageSeen } from "~/interfaces/message-seen";
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
-    //TODO message status(sent recieved vue)
+    //TODO message status(vue)
+    //TODO last message of conv status
+    //TODO select conversations
     //TODO not seend messages
     //TODO send photos
     //TODO update profile photo and conversation photo
@@ -80,6 +83,8 @@ export const useMessagesStore = defineStore("messagesStore", {
 
       this.isMessagesPulse = false;
       //set messages as seen
+      //set conversation messages as seen
+      await useMessageStatusStore().setConversationMessagesAsSeen();
     },
     async populateMessages(messages: Message[]) {
       const res = [];
@@ -122,6 +127,8 @@ export const useMessagesStore = defineStore("messagesStore", {
 
       this.messages = messages.data.concat(this.messages);
       this.isAppendingMessages = false;
+      //set new loaded messages as seen
+      await useMessageStatusStore().setConversationMessagesAsSeen();
     },
     async getMessages(idConv: string) {
       return await this.getService("messages").find({
@@ -196,26 +203,16 @@ export const useMessagesStore = defineStore("messagesStore", {
         this.deleteMessageLocally(_id);
       }
     },
-    async isRecieved(messageId: string): Promise<boolean> {
-      const res = await this.getService("message-recieving").find({
-        query: {
-          message: messageId,
-          conversation: useConversationsStore().currentConversation._id,
-        },
-        paginate: false,
-      });
-      return (
-        res.data.filter((recieving: Recieving) => {
-          return recieving.recipient != useUsersStore().user._id;
-        }).length > 0
-      );
-    },
+
     async onMessage() {
       this.getService("messages").on("created", async (message: Message) => {
         const populating = await this.populateMessages([message]);
         message = populating[0];
         //set lastMessage
-        useConversationsStore().setLastMessage(message);
+        useConversationsStore().setLastMessage(
+          message,
+          (message.conversation as Conversation)._id as string
+        );
         this.addMessage(message);
         //make event to scroll down
         setTimeout(() => {
@@ -223,13 +220,23 @@ export const useMessagesStore = defineStore("messagesStore", {
         }, 10);
         //sort conversations
         useConversationsStore().sortConversations();
+        //set message as seen
+
+        if (
+          useRoute().params.id &&
+          useRoute().params.id == (message.conversation as Conversation)._id
+        ) {
+          const messageSeen: MessageSeen = {
+            message: message._id as string,
+            conversation: (message.conversation as Conversation)._id as string,
+            viewer: useUsersStore().user._id as string,
+          };
+          const creatingMessageSeen = await this.getService(
+            "message-seen"
+          ).create(messageSeen);
+        }
         //set message as recieved
 
-        // if (
-        //   useRoute().params.id &&
-        //   useRoute().params.id == (message.conversation as Conversation)._id &&
-        //   (message.sender as User)._id != useUsersStore().user._id
-        // ) {
         const recieving: Recieving = {
           message: message._id as string,
           conversation: (message.conversation as Conversation)._id as string,
@@ -240,23 +247,25 @@ export const useMessagesStore = defineStore("messagesStore", {
       });
       this.getService("messages").on("removed", async (message: Message) => {
         //set new lastMessage
-        const conversationId = message.conversation;
+        let conversationId: any = message.conversation;
+        if (conversationId._id) {
+          conversationId = conversationId._id;
+        }
+        // ._id as string;
+        //update conversation last message
         const lastMessage = await useMessagesStore().getLastMessage(
           conversationId as string
         );
-        useConversationsStore().setLastMessage(lastMessage);
+        useConversationsStore().setLastMessage(
+          lastMessage,
+          message.conversation as string
+        );
         this.messages = this.messages.filter((msg) => {
           return msg._id != message._id;
         });
         //sort conversations
         useConversationsStore().sortConversations();
       });
-      this.getService("message-recieving").on(
-        "created",
-        (recieving: Recieving) => {
-          eventBus.emit("recieving", recieving);
-        }
-      );
     },
   },
 });
