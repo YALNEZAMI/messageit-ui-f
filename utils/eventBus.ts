@@ -13,7 +13,6 @@ type Events = {
   userPatched: User;
   refereMessage: Message;
   typing: Typing;
-  messageSeen: MessageSeen;
 };
 
 export const eventBus = mitt<Events>();

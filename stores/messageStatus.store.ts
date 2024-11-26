@@ -163,7 +163,6 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
         "created",
         (messageSeen: MessageSeen) => {
           this.updateMessageViewersLocally(messageSeen);
-          eventBus.emit("messageSeen", messageSeen);
         }
       );
     },
