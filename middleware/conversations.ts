@@ -1,4 +1,5 @@
 import { eventBus } from "@/utils/eventBus";
+import { useMessageStatusStore } from "~/stores/messageStatus.store";
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
   //to is the destination path(object)
@@ -7,10 +8,13 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const idConv = to.params.id as string;
   if (idConv) {
     const conv = await useConversationsStore().getConversation(idConv);
-
     useConversationsStore().setCurrentConversation(conv);
+
     //init messages
     await useMessagesStore().getInitialMessages();
+    //init viewers
+    await useMessageStatusStore().initViewers();
+
     eventBus.emit("conversationChanged", conv);
   }
 
