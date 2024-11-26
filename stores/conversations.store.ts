@@ -31,9 +31,9 @@ export const useConversationsStore = defineStore("conversationsStore", {
     setConversations(convs: Conversation[]) {
       this.conversations = convs;
     },
-    setLastMessage(message: any) {
+    setLastMessage(message: any, conversationId: string) {
       const conv = this.conversations.find((conv: Conversation) => {
-        return conv._id == message.conversation._id;
+        return conv._id == conversationId;
       });
 
       if (conv != undefined) {
@@ -174,6 +174,11 @@ export const useConversationsStore = defineStore("conversationsStore", {
       this.setSearchedConversations(res);
       this.isSearchedConversationsPulse = false;
     },
+    getMember(_id: string): User {
+      return (this.currentConversation.members as User[]).find((mem: User) => {
+        return mem._id == _id;
+      }) as User;
+    },
     sortConversations() {
       this.conversations = this.conversations.sort((conv1, conv2) => {
         // Get the timestamp of the last message or the conversation creation date as fallback
@@ -208,22 +213,24 @@ export const useConversationsStore = defineStore("conversationsStore", {
       this.getService("conversations").on(
         "created",
         async (conversation: Conversation) => {
-          //filling members
-          const membersAsUsers: User[] = [];
-          for (let member of conversation.members) {
-            const user = await useUsersStore().getUser(member as string);
-            membersAsUsers.push(user);
+          //filling members if not filled
+          if ((conversation.members[0] as any)._id == undefined) {
+            const membersAsUsers: User[] = [];
+            for (let member of conversation.members) {
+              const user = await useUsersStore().getUser(member as string);
+              membersAsUsers.push(user);
+            }
+            conversation.members = membersAsUsers;
           }
-          conversation.members = membersAsUsers;
+
           //push to conversations
-          const existConversation =
-            this.conversations.filter((conv: Conversation) => {
-              return conv._id == conversation._id;
-            }).length != 0;
-          if (!existConversation) {
-            this.setConversations(this.conversations);
-            this.sortConversations();
-          }
+          this.conversations = this.conversations.filter(
+            (conv: Conversation) => {
+              return conv._id != conversation._id;
+            }
+          );
+          this.setConversations([conversation, ...this.conversations]);
+          this.sortConversations();
         }
       );
     },
