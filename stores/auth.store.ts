@@ -31,7 +31,9 @@ export const useAuthStore = defineStore("authStore", {
     },
     async register(auth: User) {
       localStorage.clear();
-      this.initializeAuth();
+      useUsersStore().setUserLocally({} as User);
+      this.accessToken = "";
+
       try {
         const body: any = {
           email: auth.email,
