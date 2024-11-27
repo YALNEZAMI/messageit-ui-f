@@ -113,11 +113,13 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
       );
       for (const msgNotSeen of messageNotMarkedAsSeen) {
         const conversationId = useRoute().params.id;
-        const creating = await this.getService("message-seen").create({
-          message: msgNotSeen._id,
-          viewer: useUsersStore().user._id,
-          conversation: conversationId,
-        });
+        if (conversationId) {
+          const creating = await this.getService("message-seen").create({
+            message: msgNotSeen._id,
+            viewer: useUsersStore().user._id,
+            conversation: conversationId,
+          });
+        }
       }
     },
     updateMessageViewersLocally(messageSeen: MessageSeen) {
