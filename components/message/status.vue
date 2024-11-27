@@ -61,9 +61,10 @@ if (!conversation._id) {
 const isRecieved = ref(false);
 const viewers = ref([] as User[]);
 const popViewer = (_id: string) => {
-  viewers.value = viewers.value.filter((user: User) => {
+  const filtered = viewers.value.filter((user: User) => {
     return user._id != _id;
   });
+  viewers.value = filtered;
 };
 const getViewers = async () => {
   let res = [] as User[];
@@ -102,6 +103,15 @@ const senderIsViewer = () => {
     );
   }
 };
+const isViewer = (_id: string) => {
+  if (_id) {
+    return (
+      viewers.value.filter((view: any) => {
+        return view.viewer == _id;
+      }).length > 0
+    );
+  }
+};
 onMounted(async () => {
   //set viewers
   viewers.value = await getViewers();
@@ -133,18 +143,16 @@ onMounted(async () => {
     }
   });
   eventBus.on("seeing", (seeing: MessageSeen) => {
-    if (
-      message._id == seeing.message &&
-      seeing.viewer != useUsersStore().user._id &&
-      isLastMessage()
-    ) {
-      const viewer = conversation.members.find((user: User) => {
-        return user._id == seeing.viewer;
-      });
+    if (seeing.message != message._id) {
       popViewer(seeing.viewer);
+      popViewer((message.sender as User)._id as string);
+
+      return;
+    }
+    if (seeing.viewer != useUsersStore().user._id && isLastMessage()) {
+      const viewer = useConversationsStore().getMember(seeing.viewer);
+      popViewer(seeing.viewer); //avoid repetition
       viewers.value.push(viewer);
-    } else if (!isLastMessage()) {
-      popViewer(seeing.viewer);
     }
   });
 });
