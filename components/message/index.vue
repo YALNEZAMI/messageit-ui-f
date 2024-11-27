@@ -152,7 +152,9 @@ const props = defineProps({
 const message = props.message;
 const emit = defineEmits(["options", "goToReferedMessage", "select"]);
 const options = () => {
-  emit("options");
+  if (!useMessagesStore().temporaryMessagesIds.includes(message._id)) {
+    emit("options");
+  }
 };
 const select = () => {
   emit("select");
