@@ -67,6 +67,11 @@ export const useConversationsStore = defineStore("conversationsStore", {
     async getConversation(id: string) {
       return await this.getService("conversations").get(id);
     },
+    getConversationLocally(id: string): Conversation {
+      return this.conversations.find((conv: Conversation) => {
+        return conv._id == id;
+      }) as Conversation;
+    },
     getOtherUser(conv: Conversation): User {
       if (!conv.members || conv.type == "ai" || conv.members.length == 1) {
         const currentUser = useUsersStore().user;
@@ -176,6 +181,11 @@ export const useConversationsStore = defineStore("conversationsStore", {
     },
     getMember(_id: string): User {
       return (this.currentConversation.members as User[]).find((mem: User) => {
+        return mem._id == _id;
+      }) as User;
+    },
+    getMemberFromConv(_id: string, conv: Conversation): User {
+      return (conv.members as User[]).find((mem: User) => {
         return mem._id == _id;
       }) as User;
     },
