@@ -53,7 +53,6 @@ const props = defineProps({
 });
 const message = props.message as Message;
 let conversation = message.conversation as any;
-console.log("conversation", conversation);
 if (!conversation._id) {
   conversation = useConversationsStore().getConversationLocally(
     message.conversation as string
@@ -78,7 +77,6 @@ const getViewers = async () => {
   res = res.filter((user: User) => {
     return user != undefined;
   });
-  console.log("res", res);
   return res;
 };
 const getConversationType = () => {
@@ -94,15 +92,31 @@ const isLastMessage = () => {
       message!._id
   );
 };
+const senderIsViewer = () => {
+  let sender = message.sender as User;
+  if (sender._id) {
+    return (
+      viewers.value.filter((view: any) => {
+        return view.viewer == sender._id;
+      }).length > 0
+    );
+  }
+};
 onMounted(async () => {
   //set viewers
   viewers.value = await getViewers();
-  console.log("viewers", viewers.value);
+  if (!senderIsViewer() && isLastMessage()) {
+    if ((message.sender as User)._id != useUsersStore().user._id) {
+      popViewer((message.sender as User)._id as string);
+      viewers.value.push(message.sender as User);
+    }
+  } else {
+    popViewer((message.sender as User)._id as string);
+  }
   isRecieved.value = await useMessageStatusStore().isRecieved(
     message as Message
   );
 
-  console.log("isresved", isRecieved.value);
   //listent to recieve message to mark it as recieved
   eventBus.on("recieving", (recieving: Recieving) => {
     if (recieving.message == message!._id) {
@@ -114,20 +128,23 @@ onMounted(async () => {
       (conversation.members as User[]).filter(
         (mem: User) => mem._id == user._id
       ).length > 0;
-    if (isMember) {
+    if (isMember && user._id != useUsersStore().user._id) {
       isRecieved.value = true;
     }
   });
   eventBus.on("seeing", (seeing: MessageSeen) => {
     if (
       message._id == seeing.message &&
-      seeing.viewer != useUsersStore().user._id
+      seeing.viewer != useUsersStore().user._id &&
+      isLastMessage()
     ) {
       const viewer = conversation.members.find((user: User) => {
         return user._id == seeing.viewer;
       });
       popViewer(seeing.viewer);
       viewers.value.push(viewer);
+    } else if (!isLastMessage()) {
+      popViewer(seeing.viewer);
     }
   });
 });
