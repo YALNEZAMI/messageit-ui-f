@@ -3,14 +3,14 @@
     <!--message status-->
     <!--viewers images-->
     <div
-      v-if="getViewers().length > 0 && getConversationType() != 'ai'"
+      v-if="viewers.length > 0 && getConversationType() != 'ai'"
       class="flex justify-end px-2 mb-2"
     >
       <img
         class="w-4 h-4 rounded-full"
         :title="viewer.name + ' userid: ' + viewer._id"
         :src="viewer.image"
-        v-for="viewer of getViewers()"
+        v-for="viewer of viewers"
         :key="viewer._id"
       />
     </div>
@@ -26,7 +26,7 @@
         class="bi bi-check-circle rounded-full"
         :class="{
           'bg-white text-black': !isRecieved,
-          'bg-blue-400': isRecieved,
+          'bg-black': isRecieved,
         }"
         viewBox="0 0 16 16"
       >
@@ -41,50 +41,93 @@
   </main>
 </template>
 <script lang="ts" setup>
+import type { Conversation } from "~/interfaces/conversation";
 import type { Message } from "~/interfaces/message";
+import type { MessageSeen } from "~/interfaces/message-seen";
 import type { Recieving } from "~/interfaces/recieving";
 import type { User } from "~/interfaces/user";
 
 const props = defineProps({
   message: Object,
+  onConversation: Boolean,
 });
+const message = props.message as Message;
+let conversation = message.conversation as any;
+console.log("conversation", conversation);
+if (!conversation._id) {
+  conversation = useConversationsStore().getConversationLocally(
+    message.conversation as string
+  ) as Conversation;
+}
 const isRecieved = ref(false);
-
-const getViewers = () => {
-  const res = useMessageStatusStore().getViewers(props.message!._id);
+const viewers = ref([] as User[]);
+const popViewer = (_id: string) => {
+  viewers.value = viewers.value.filter((user: User) => {
+    return user._id != _id;
+  });
+};
+const getViewers = async () => {
+  let res = [] as User[];
+  if (props.onConversation) {
+    res = await useMessageStatusStore().getViewersForConversationLastMessage(
+      message as Message
+    );
+  } else {
+    res = useMessageStatusStore().getViewers(message!._id as string);
+  }
+  res = res.filter((user: User) => {
+    return user != undefined;
+  });
+  console.log("res", res);
   return res;
 };
 const getConversationType = () => {
-  return props.message!.conversation.type;
+  return conversation.type;
 };
 const isMyMessage = () => {
-  return props.message!.sender._id == useUsersStore().user._id;
+  return (message!.sender as User)._id == useUsersStore().user._id;
 };
 const isLastMessage = () => {
   return (
+    props.onConversation ||
     useMessagesStore().messages[useMessagesStore().messages.length - 1]._id ==
-    props.message!._id
+      message!._id
   );
 };
 onMounted(async () => {
-  if (isLastMessage()) {
-    isRecieved.value = await useMessageStatusStore().isRecieved(
-      props.message as Message
-    );
-  }
+  //set viewers
+  viewers.value = await getViewers();
+  console.log("viewers", viewers.value);
+  isRecieved.value = await useMessageStatusStore().isRecieved(
+    message as Message
+  );
+
+  console.log("isresved", isRecieved.value);
   //listent to recieve message to mark it as recieved
   eventBus.on("recieving", (recieving: Recieving) => {
-    if (recieving.message == props.message!._id) {
+    if (recieving.message == message!._id) {
       isRecieved.value = true;
     }
   });
   eventBus.on("userPatched", (user: User) => {
     const isMember =
-      props.message!.conversation.members.filter(
+      (conversation.members as User[]).filter(
         (mem: User) => mem._id == user._id
       ).length > 0;
     if (isMember) {
       isRecieved.value = true;
+    }
+  });
+  eventBus.on("seeing", (seeing: MessageSeen) => {
+    if (
+      message._id == seeing.message &&
+      seeing.viewer != useUsersStore().user._id
+    ) {
+      const viewer = conversation.members.find((user: User) => {
+        return user._id == seeing.viewer;
+      });
+      popViewer(seeing.viewer);
+      viewers.value.push(viewer);
     }
   });
 });
