@@ -125,13 +125,17 @@ const send = async () => {
   if (getConversationType() == "ai") {
     isGenerating.value = true;
   }
+  const text = message.value.text;
+  message.value.text = "";
 
   const res = await useMessagesStore().send(
-    message.value,
+    {
+      ...message.value,
+      text,
+    },
     useConversationsStore().currentConversation._id as string
   );
   isGenerating.value = false;
-  message.value.text = "";
   cancelReply();
 };
 const typing = async () => {
