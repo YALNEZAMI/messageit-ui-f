@@ -9,6 +9,7 @@ import type { User } from "~/interfaces/user";
 type Events = {
   messageReceived: Message;
   recieving: Recieving;
+  seeing: MessageSeen;
   conversationChanged: Conversation;
   userPatched: User;
   refereMessage: Message;
