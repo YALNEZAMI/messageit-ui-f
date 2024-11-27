@@ -29,7 +29,7 @@
     </div>
     <div
       @click="$router.push('/private-space')"
-      v-if="useAuthStore().isAuthenticated()"
+      v-if="useAuthStore().isAuthenticated() && !loading"
       class="bg-indigo-400 p-2 my-1 cursor-pointer text-white text-center flex justify-center space-x-2"
     >
       <div>Continuez en tant que</div>
