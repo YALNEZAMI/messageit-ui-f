@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import type { Conversation } from "~/interfaces/conversation";
 import type { Message } from "~/interfaces/message";
 import type { MessageSeen } from "~/interfaces/message-seen";
 import type { Recieving } from "~/interfaces/recieving";
@@ -15,16 +16,19 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
       return useNuxtApp().$feathers.service(name);
     },
     async isRecieved(message: Message): Promise<boolean> {
+      const convId = (message.conversation as Conversation)._id
+        ? (message.conversation as Conversation)._id
+        : message.conversation;
       const res = await this.getService("message-recieving").find({
         query: {
           recipient: { $ne: useUsersStore().user._id },
           $or: [
             {
               message: message._id,
-              conversation: useConversationsStore().currentConversation._id,
+              conversation: convId,
             },
             {
-              conversation: useConversationsStore().currentConversation._id,
+              conversation: convId,
               createdAt: {
                 $gt: new Date(message.createdAt as string).toISOString(),
               },
@@ -162,9 +166,39 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
       this.getService("message-seen").on(
         "created",
         (messageSeen: MessageSeen) => {
+          eventBus.emit("seeing", messageSeen);
           this.updateMessageViewersLocally(messageSeen);
         }
       );
+    },
+    async getViewersForConversationLastMessage(
+      message: Message
+    ): Promise<User[]> {
+      const res = await this.getService("message-seen").find({
+        query: {
+          conversation: message.conversation,
+          message: message._id,
+          viewer: { $ne: useUsersStore().user._id },
+          $sort: { createdAt: -1 },
+        },
+        paginate: false,
+      });
+      let usersIds: any = new Set(
+        res.data.map((view: MessageSeen) => {
+          return view.viewer;
+        })
+      );
+      usersIds = Array.from(usersIds);
+      const conv = useConversationsStore().getConversationLocally(
+        message.conversation as string
+      );
+      const result: User[] = [];
+      usersIds.map((id: string) => {
+        result.push(
+          useConversationsStore().getMemberFromConv(id, conv as Conversation)
+        );
+      });
+      return result;
     },
   },
 });
