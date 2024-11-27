@@ -71,7 +71,6 @@ onMounted(async () => {
         typings.value.filter((typingFilter: Typing) => {
           return (t.typer as User)._id == (typingFilter.typer as User)._id;
         }).length > 0;
-      console.log("typerExist", typerExist);
       if (!typerExist) {
         typings.value.push(t);
         if (isAtBotm) {
