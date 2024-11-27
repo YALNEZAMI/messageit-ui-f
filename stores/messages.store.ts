@@ -23,6 +23,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       searchedMessages: [] as Message[],
       isSearchMessagePulse: false,
       isAtBottom: true,
+      temporaryMessagesIds: [] as number[],
     };
   },
   actions: {
@@ -46,18 +47,48 @@ export const useMessagesStore = defineStore("messagesStore", {
         this.messages.push(msg);
       }
     },
+    handleTemporaryMessage(temporaryId: number, msg: Message) {
+      let temporaryMessage: any = {
+        ...msg,
+        sender: useUsersStore().user,
+        createdAt: new Date().toISOString(),
+        conversation: useConversationsStore().getConversationLocally(
+          msg.conversation as string
+        ),
+        _id: temporaryId,
+      };
+      this.temporaryMessagesIds.push(temporaryId);
+      this.messages.push(temporaryMessage);
+      setTimeout(() => {
+        eventBus.emit("messageReceived", temporaryMessage);
+      }, 50);
+    },
     async send(msg: Message, conversationId: string) {
       msg.sender = useUsersStore().user._id as string;
       msg.conversation = conversationId;
+      //set temporary message
+      const temporaryId = this.temporaryMessagesIds.length;
+
+      this.handleTemporaryMessage(temporaryId, msg);
       //if ai conversation message:{myMessage:Message,aiMessage:Message}
       const message = await this.getService("messages").create(msg);
       if (useConversationsStore().currentConversation.type == "ai") {
-        this.messages.push(message.myMessage);
+        this.popTemporaryMessage(temporaryId + "", message.myMessage);
         this.messages.push(message.aiMessage);
         eventBus.emit("messageReceived", message.myMessage);
         eventBus.emit("messageReceived", message.aiMessage);
+      } else {
+        this.popTemporaryMessage(temporaryId + "", message);
       }
       return message;
+    },
+    popTemporaryMessage(_id: string, newMessage: Message) {
+      this.messages = this.messages.map((msg: Message) => {
+        if (_id == msg._id) {
+          return newMessage;
+        }
+        return msg;
+      });
     },
     async getInitialMessages() {
       this.isMessagesPulse = true;
@@ -204,6 +235,9 @@ export const useMessagesStore = defineStore("messagesStore", {
 
     async onMessage() {
       this.getService("messages").on("created", async (message: Message) => {
+        if ((message.sender as User)._id == useUsersStore().user._id) {
+          return;
+        }
         const populating = await this.populateMessages([message]);
         message = populating[0];
         //set lastMessage
@@ -234,13 +268,14 @@ export const useMessagesStore = defineStore("messagesStore", {
           ).create(messageSeen);
         }
         //set message as recieved
-
-        const recieving: Recieving = {
-          message: message._id as string,
-          conversation: (message.conversation as Conversation)._id as string,
-          recipient: useUsersStore().user._id as string,
-        };
-        await this.getService("message-recieving").create(recieving);
+        if ((message.sender as User)._id != useUsersStore().user._id) {
+          const recieving: Recieving = {
+            message: message._id as string,
+            conversation: (message.conversation as Conversation)._id as string,
+            recipient: useUsersStore().user._id as string,
+          };
+          await this.getService("message-recieving").create(recieving);
+        }
         // }
       });
       this.getService("messages").on("removed", async (message: Message) => {
