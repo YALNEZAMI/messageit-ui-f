@@ -35,7 +35,7 @@
           :user="getConnectedFriend()"
         ></Status>
       </div>
-      <!--name and second text-->
+      <!--name + second text+ lastMessage status-->
       <div
         class="w-3/4 flex h-full items-center"
         :class="{
@@ -48,8 +48,16 @@
           </div>
           <div class="text-sm truncate 1/2">{{ getSecondaryText() }}</div>
         </div>
+        <!--lastMessage status-->
+        <MessageStatus
+          v-if="conversation.lastMessage != undefined"
+          class="flex h-full items-end mt-5 max-w-10 overflow-hidden"
+          :onConversation="true"
+          :message="conversation.lastMessage"
+        ></MessageStatus>
       </div>
     </div>
+
     <!--settings-->
     <div v-if="!isSideBar && !noSettings">
       <svg
