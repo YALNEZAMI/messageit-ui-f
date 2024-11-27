@@ -17,7 +17,7 @@
       }"
       @click="setConversation()"
     >
-      <!--image and status-->
+      <!--image and user status-->
       <div
         :class="{
           'relative z-0 w-16': true,
@@ -29,7 +29,7 @@
             conversation.type != 'ai' ? conversation.image : getRobotImage()
           "
         />
-
+        <!--user status-->
         <Status
           class="absolute top-0 right-0"
           :user="getConnectedFriend()"
@@ -37,7 +37,7 @@
       </div>
       <!--name + second text+ lastMessage status-->
       <div
-        class="w-3/4 flex h-full items-center"
+        class="w-3/4 flex h-full items-center justify-between"
         :class="{
           ' hidden md:block': props.isSideBar,
         }"
