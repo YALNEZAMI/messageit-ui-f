@@ -8,10 +8,8 @@ import type { Conversation } from "~/interfaces/conversation";
 import type { MessageSeen } from "~/interfaces/message-seen";
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
-    //TODO message status(vue)
-    //TODO last message of conv status
+    //TODO temporary message
     //TODO select conversations
-    //TODO not seend messages
     //TODO send photos
     //TODO update profile photo and conversation photo
     //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
