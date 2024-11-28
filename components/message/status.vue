@@ -65,6 +65,7 @@ const popViewer = (_id: string) => {
     return user._id != _id;
   });
   viewers.value = filtered;
+  viewers.value = filtered;
 };
 const getViewers = async () => {
   let res = [] as User[];
@@ -146,7 +147,6 @@ onMounted(async () => {
     if (seeing.message != message._id) {
       popViewer(seeing.viewer);
       popViewer((message.sender as User)._id as string);
-
       return;
     }
     if (seeing.viewer != useUsersStore().user._id && isLastMessage()) {
