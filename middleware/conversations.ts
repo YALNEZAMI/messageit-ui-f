@@ -16,6 +16,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     await useMessageStatusStore().initViewers();
 
     eventBus.emit("conversationChanged", conv);
+    eventBus.emit("notificationNumberChanged", true);
   }
 
   //set status checking interval
