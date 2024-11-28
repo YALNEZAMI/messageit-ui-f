@@ -7,6 +7,7 @@
         isSideBar && isCurrentConversation(),
       'w-11/12': !props.noSettings,
       'w-3/4': props.noSettings,
+      'border-2 border-solid border-white': !isSeen,
     }"
     class="flex h-20 items-center shadow-md cursor-pointer p-2 py-1 rounded m-1"
   >
@@ -43,10 +44,17 @@
         }"
       >
         <div class="w-3/4 truncate px-3">
-          <div class="font-bold text-lg">
+          <div class="font-bold text-xl">
             {{ getName() }}
           </div>
-          <div class="text-sm truncate 1/2">{{ getSecondaryText() }}</div>
+          <div
+            class="text-sm truncate"
+            :class="{
+              'font-bold ': !isSeen,
+            }"
+          >
+            {{ getSecondaryText() }}
+          </div>
         </div>
         <!--lastMessage status-->
         <MessageStatus
@@ -146,6 +154,7 @@ const getSecondaryText = () => {
     }
   }
 };
+
 const getConnectedFriend = () => {
   return useConversationsStore().getConnectedFriend(conversation);
 };
@@ -155,4 +164,15 @@ const getPhoto = () => {
 const isCurrentConversation = () => {
   return conversation._id == useConversationsStore().currentConversation._id;
 };
+const isSeen = ref(true);
+onMounted(async () => {
+  if (conversation.lastMessage) {
+    isSeen.value = await useMessageStatusStore().isSeenBy(
+      conversation.lastMessage._id,
+      useUsersStore().user._id
+    );
+  } else {
+    isSeen.value = false;
+  }
+});
 </script>
