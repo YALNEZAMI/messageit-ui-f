@@ -8,12 +8,13 @@ import type { Conversation } from "~/interfaces/conversation";
 import type { MessageSeen } from "~/interfaces/message-seen";
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
-    //TODO temporary message
-    //TODO select conversations
-    //TODO send photos
-    //TODO update profile photo and conversation photo
-    //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
+    //TODO group rights
     //TODO notification for conversations leaving , changing name or theme
+    //TODO add member to group
+    //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
+    //TODO update profile photo and conversation photo
+    //TODO send photos
+
     return {
       paginationValue: 25,
       skip: 0,
@@ -268,15 +269,16 @@ export const useMessagesStore = defineStore("messagesStore", {
           ).create(messageSeen);
         }
         //set message as recieved
-        if ((message.sender as User)._id != useUsersStore().user._id) {
-          const recieving: Recieving = {
-            message: message._id as string,
-            conversation: (message.conversation as Conversation)._id as string,
-            recipient: useUsersStore().user._id as string,
-          };
-          await this.getService("message-recieving").create(recieving);
-        }
+        const recieving: Recieving = {
+          message: message._id as string,
+          conversation: (message.conversation as Conversation)._id as string,
+          recipient: useUsersStore().user._id as string,
+        };
+        await this.getService("message-recieving").create(recieving);
+
         // }
+        //update navItem number
+        eventBus.emit("notificationNumberChanged", message);
       });
       this.getService("messages").on("removed", async (message: Message) => {
         //set new lastMessage
@@ -298,6 +300,8 @@ export const useMessagesStore = defineStore("messagesStore", {
         });
         //sort conversations
         useConversationsStore().sortConversations();
+        //update navItem number
+        eventBus.emit("notificationNumberChanged", message);
       });
     },
   },
