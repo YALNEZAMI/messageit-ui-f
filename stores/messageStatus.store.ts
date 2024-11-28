@@ -26,16 +26,27 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
             {
               message: message._id,
               conversation: convId,
+              recipient: { $ne: useUsersStore().user._id },
             },
             {
               conversation: convId,
-              createdAt: {
+              recipient: { $ne: useUsersStore().user._id },
+              updatedAt: {
                 $gt: new Date(message.createdAt as string).toISOString(),
               },
             },
           ],
         },
         paginate: false,
+      });
+      return res.data.length > 0;
+    },
+    async isSeenBy(messageId: string, userId: string) {
+      const res = await this.getService("message-seen").find({
+        query: {
+          message: messageId,
+          viewer: userId,
+        },
       });
       return res.data.length > 0;
     },
