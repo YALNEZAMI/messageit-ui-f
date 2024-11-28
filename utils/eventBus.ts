@@ -14,6 +14,7 @@ type Events = {
   userPatched: User;
   refereMessage: Message;
   typing: Typing;
+  notificationNumberChanged: any;
 };
 
 export const eventBus = mitt<Events>();

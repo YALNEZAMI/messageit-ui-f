@@ -125,6 +125,7 @@ onUnmounted(async () => {
     await useFriendsStore().setFriendRequestAsSeen(friendRes._id);
   }
   await clearAcceptations();
+  eventBus.emit("notificationNumberChanged", true);
 });
 const clearAcceptations = async () => {
   await useFriendsStore().clearAcceptations();

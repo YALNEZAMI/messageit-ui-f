@@ -195,6 +195,7 @@ export const useFriendsStore = defineStore("friendsStore", {
           friendReq.sender.toString()
         );
         this.setFriendRequests([friendReq, ...this.friendRequests]);
+        eventBus.emit("notificationNumberChanged", friendReq);
       });
       // Listen for the custom event
       service.on("removed", (friendReq: any) => {
@@ -203,6 +204,7 @@ export const useFriendsStore = defineStore("friendsStore", {
             return fr._id != friendReq._id;
           })
         );
+        eventBus.emit("notificationNumberChanged", friendReq);
       });
     },
     async onFriends() {
@@ -232,6 +234,7 @@ export const useFriendsStore = defineStore("friendsStore", {
             this.setAcceptatons([acceptation, ...this.acceptations]);
           }
         }
+        eventBus.emit("notificationNumberChanged", acceptation);
       });
       //removing friends
       service.on("removed", (notif: Notification) => {
@@ -248,6 +251,7 @@ export const useFriendsStore = defineStore("friendsStore", {
             })
           );
         }
+        eventBus.emit("notificationNumberChanged", notif);
       });
     },
     async setFriendRequestAsSeen(id: string) {
