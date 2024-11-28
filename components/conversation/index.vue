@@ -58,7 +58,7 @@
         </div>
         <!--lastMessage status-->
         <MessageStatus
-          v-if="conversation.lastMessage != undefined"
+          v-if="conversation.lastMessage != undefined && !isSideBar"
           class="flex h-full items-end mt-5 max-w-10 overflow-hidden"
           :onConversation="true"
           :message="conversation.lastMessage"
@@ -166,7 +166,11 @@ const isCurrentConversation = () => {
 };
 const isSeen = ref(true);
 onMounted(async () => {
-  if (conversation.lastMessage) {
+  if (
+    conversation.lastMessage &&
+    conversation.lastMessage.sender._id != useUsersStore().user._id
+  ) {
+    console.log("lastMessage", conversation.lastMessage);
     isSeen.value = await useMessageStatusStore().isSeenBy(
       conversation.lastMessage._id,
       useUsersStore().user._id
@@ -174,5 +178,15 @@ onMounted(async () => {
   } else {
     isSeen.value = false;
   }
+  eventBus.on("messageReceived", (message) => {
+    console.log("message", message);
+    if (
+      message.sender._id != useUsersStore().user._id &&
+      message.conversation._id == conversation._id &&
+      message.conversation._id != useRoute().params.id
+    ) {
+      isSeen.value = false;
+    }
+  });
 });
 </script>
