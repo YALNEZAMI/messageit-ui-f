@@ -138,6 +138,9 @@ const getSecondaryText = () => {
         return "Posez une question à l'assistant Boby";
     }
   } else {
+    if (lastMessage.type == "notification") {
+      return lastMessage.text;
+    }
     switch (conversation.type) {
       case "private":
       case "group":
@@ -170,7 +173,6 @@ onMounted(async () => {
     conversation.lastMessage &&
     conversation.lastMessage.sender._id != useUsersStore().user._id
   ) {
-    console.log("lastMessage", conversation.lastMessage);
     isSeen.value = await useMessageStatusStore().isSeenBy(
       conversation.lastMessage._id,
       useUsersStore().user._id
@@ -179,7 +181,6 @@ onMounted(async () => {
     isSeen.value = false;
   }
   eventBus.on("messageReceived", (message) => {
-    console.log("message", message);
     if (
       message.sender._id != useUsersStore().user._id &&
       message.conversation._id == conversation._id &&

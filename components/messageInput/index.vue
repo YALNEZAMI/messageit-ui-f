@@ -106,7 +106,6 @@ const cancelReply = () => {
 };
 const message = ref({
   text: "",
-  sender: "",
   conversation: "",
   referedMessage: "",
 });
@@ -132,6 +131,7 @@ const send = async () => {
     {
       ...message.value,
       text,
+      type: "message",
     },
     useConversationsStore().currentConversation._id as string
   );

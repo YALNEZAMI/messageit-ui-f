@@ -37,7 +37,14 @@
             :message="message"
             :clickedId="clickedId"
             :selectingMode="selectingMode"
+            v-if="message.type == 'message'"
           ></Message>
+          <ConversationNotification
+            v-if="message.type == 'notification'"
+            @click="setClickedId(message._id)"
+            :message="message"
+            :clickedId="clickedId"
+          ></ConversationNotification>
         </div>
         <!--typing component-->
         <Typing @goBottom="goBottom()"></Typing>
@@ -208,7 +215,6 @@
 import { eventBus } from "@/utils/eventBus";
 import type { Conversation } from "~/interfaces/conversation";
 import type { Message } from "~/interfaces/message";
-import type { Typing } from "~/interfaces/typing";
 import type { User } from "~/interfaces/user";
 
 const clickedId = ref("");
@@ -226,6 +232,7 @@ const sendFromTransfer = async (conv: Conversation) => {
         sender: "",
         conversation: "",
         referedMessage: "",
+        type: "message",
       },
       conv._id as string
     );
@@ -341,8 +348,19 @@ const getMessages = () => {
 let messagesContainer: HTMLDivElement;
 
 const goBottom = () => {
-  messagesContainer!.scrollTop =
-    messagesContainer!.scrollHeight + messagesContainer.clientHeight + 1;
+  if (messagesContainer == null) {
+    setTimeout(() => {
+      //set messages containrer
+      messagesContainer = document.getElementById(
+        "messagesContainer"
+      ) as HTMLDivElement;
+      messagesContainer!.scrollTop =
+        messagesContainer!.scrollHeight + messagesContainer.clientHeight + 1;
+    }, 4000);
+  } else {
+    messagesContainer!.scrollTop =
+      messagesContainer!.scrollHeight + messagesContainer.clientHeight + 1;
+  }
 };
 const goToMessage = async (messageId: string) => {
   const messageElement = document.getElementById(messageId);

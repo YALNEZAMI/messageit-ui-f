@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { eventBus } from "@/utils/eventBus";
 import type { Message } from "~/interfaces/message";
-import conversations from "~/middleware/conversations";
 import type { User } from "~/interfaces/user";
 import type { Recieving } from "~/interfaces/recieving";
 import type { Conversation } from "~/interfaces/conversation";
@@ -44,7 +43,10 @@ export const useMessagesStore = defineStore("messagesStore", {
       const exist = this.messages.find((message: Message) => {
         return message._id == msg._id;
       });
-      if (exist == undefined) {
+      if (
+        exist == undefined &&
+        useRoute().params.id == (msg.conversation as Conversation)._id
+      ) {
         this.messages.push(msg);
       }
     },
@@ -119,6 +121,10 @@ export const useMessagesStore = defineStore("messagesStore", {
     async populateMessages(messages: Message[]) {
       const res = [];
       for (const msg of messages) {
+        if (msg.type == "notification") {
+          res.push(msg);
+          continue;
+        }
         const refMessage = msg.referedMessage as Message;
         if (refMessage) {
           let refSender: any = refMessage.sender;
@@ -233,52 +239,68 @@ export const useMessagesStore = defineStore("messagesStore", {
         this.deleteMessageLocally(_id);
       }
     },
-
-    async onMessage() {
-      this.getService("messages").on("created", async (message: Message) => {
-        if ((message.sender as User)._id == useUsersStore().user._id) {
-          return;
-        }
-        const populating = await this.populateMessages([message]);
-        message = populating[0];
-        //set lastMessage
-        useConversationsStore().setLastMessage(
-          message,
-          (message.conversation as Conversation)._id as string
-        );
+    async handleMessageCreated(message: Message) {
+      //notification handling
+      if (this.isConversationNotification(message)) {
         this.addMessage(message);
-        //make event to scroll down
-        setTimeout(() => {
-          eventBus.emit("messageReceived", message);
-        }, 10);
-        //sort conversations
-        useConversationsStore().sortConversations();
-        //set message as seen
 
-        if (
-          useRoute().params.id &&
-          useRoute().params.id == (message.conversation as Conversation)._id
-        ) {
-          const messageSeen: MessageSeen = {
-            message: message._id as string,
-            conversation: (message.conversation as Conversation)._id as string,
-            viewer: useUsersStore().user._id as string,
-          };
-          const creatingMessageSeen = await this.getService(
-            "message-seen"
-          ).create(messageSeen);
-        }
-        //set message as recieved
-        const recieving: Recieving = {
+        return;
+      }
+      //basic message handling
+      if ((message.sender as User)._id == useUsersStore().user._id) {
+        return;
+      }
+      const populating = await this.populateMessages([message]);
+      message = populating[0];
+      //set lastMessage
+      useConversationsStore().setLastMessage(
+        message,
+        (message.conversation as Conversation)._id as string
+      );
+      this.addMessage(message);
+      //make event to scroll down
+      setTimeout(() => {
+        eventBus.emit("messageReceived", message);
+      }, 10);
+      //sort conversations
+      useConversationsStore().sortConversations();
+      //set message as seen
+
+      if (
+        useRoute().params.id &&
+        useRoute().params.id == (message.conversation as Conversation)._id
+      ) {
+        const messageSeen: MessageSeen = {
           message: message._id as string,
           conversation: (message.conversation as Conversation)._id as string,
-          recipient: useUsersStore().user._id as string,
+          viewer: useUsersStore().user._id as string,
         };
-        await this.getService("message-recieving").create(recieving);
+        const creatingMessageSeen = await this.getService(
+          "message-seen"
+        ).create(messageSeen);
+      }
+      //set message as recieved
+      const recieving: Recieving = {
+        message: message._id as string,
+        conversation: (message.conversation as Conversation)._id as string,
+        recipient: useUsersStore().user._id as string,
+      };
+      await this.getService("message-recieving").create(recieving);
 
-        // }
-        //update navItem number
-        eventBus.emit("notificationNumberChanged", message);
+      // }
+      //update navItem number
+      eventBus.emit("notificationNumberChanged", message);
+    },
+    isConversationNotification(message: any): boolean {
+      return !message.sender;
+    },
+    async onMessage() {
+      this.getService("messages").on("created", async (message: Message) => {
+        await this.handleMessageCreated(message);
+      });
+
+      this.getService("messages").on("created", async (message: Message) => {
+        await this.handleMessageCreated(message);
       });
       this.getService("messages").on("removed", async (message: Message) => {
         //set new lastMessage

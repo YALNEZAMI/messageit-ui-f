@@ -55,7 +55,11 @@ const getConversationsWithNewMessagesNumber = async () => {
   let res = 0;
   for (const conv of useConversationsStore().conversations) {
     const lastMessage: any = conv.lastMessage;
+
     if (lastMessage) {
+      if (lastMessage.type == "notification") {
+        continue;
+      }
       const isSeenBy = await useMessageStatusStore().isSeenBy(
         lastMessage._id,
         useUsersStore().user._id as string

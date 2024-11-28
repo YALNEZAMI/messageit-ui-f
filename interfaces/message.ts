@@ -3,10 +3,11 @@ import type { User } from "./user";
 
 export interface Message {
   _id?: string;
-  sender: string | User;
+  sender?: string | User;
   conversation: string | Conversation;
-  text?: string;
-  referedMessage: string | Message;
+  text: string;
+  type: "notification" | "message";
+  referedMessage?: string | Message;
   createdAt?: string;
   updatedAt?: string;
 }
