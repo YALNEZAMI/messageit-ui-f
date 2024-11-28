@@ -1,5 +1,5 @@
 <template>
-  <ContainersMain class="flex flex-wrap p-2 justify-center my-1">
+  <ContainersMain class="flex flex-wrap p-1 md:p-2 justify-center my-1">
     <ContainersTheme
       class="m-1 rounded hover:opacity-70"
       :style="{

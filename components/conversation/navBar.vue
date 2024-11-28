@@ -1,7 +1,7 @@
 <template>
-  <ContainersMain class="flex flex-wrap p-2 justify-center my-1">
+  <ContainersMain class="flex flex-wrap p-1 md:p-2 justify-center my-1">
     <ContainersConversationTheme
-      class="m-1 rounded mx-2 hover:bg-opacity-85"
+      class="m-1 rounded md:mx-2 hover:bg-opacity-85"
       v-for="nbi of navBarItems"
       :key="nbi.name"
       :style="{
