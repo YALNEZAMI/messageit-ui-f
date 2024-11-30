@@ -141,26 +141,27 @@
 
     <!--options-->
     <div
+      id="options"
       style="height: 35.5rem"
       v-if="isOptions"
       @click="toogleIsOptions(false)"
-      class="bg-black bg-opacity-80 fixed w-screen z-30 flex justify-center items-center"
+      class="bg-black bg-opacity-80 fixed w-screen z-30 flex justify-center items-end"
     >
-      <div class="z-40 relative w-3/4 h-max py-3 bg-white rounded p-4">
-        <h3 class="text-center text-black">
+      <div class="z-40 relative w-11/12 h-max p-0 bg-white rounded">
+        <h3 class="text-center text-black mb-1 m-0">
           Choisir l'opération à effectuer sur
         </h3>
-        <div class="flex flex-wrap justify-center">
+        <div class="flex flex-wrap justify-center w-full">
           <button
             @click="deleteForMe"
-            class="optionsButtons bg-orange-500 hover:bg-orange-600"
+            class="optionsButtons text-xs bg-orange-500 hover:bg-orange-600"
           >
             Supprimer pour moi
           </button>
           <button
             v-if="getSender()._id == useUsersStore().user._id"
             @click="deleteForAll"
-            class="optionsButtons bg-red-500 hover:bg-red-600"
+            class="optionsButtons text-xs bg-red-500 hover:bg-red-600"
           >
             Supprimer pour tous
           </button>
@@ -169,19 +170,19 @@
             @click="toogleSelectingMode()"
             class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
           >
-            Selection multiple
+            Select
           </button>
           <button
             @click="transferOne()"
             class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
           >
-            Transferer
+            Transfère
           </button>
           <button
             @click="copy"
             class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
           >
-            {{ copied ? "Copied ✔️" : "Copier le text" }}
+            {{ copied ? "Copié ✔️" : "Copier" }}
           </button>
         </div>
       </div>
@@ -202,7 +203,7 @@
 </template>
 <style lang="postcss" scoped>
 .optionsButtons {
-  @apply border-0  cursor-pointer p-2 rounded-md text-white m-1 min-w-36;
+  @apply border-0  cursor-pointer p-2 rounded-md text-white m-1 min-w-20;
 }
 .selectionButtons {
   @apply border-0  cursor-pointer p-2 rounded-md text-white m-1 max-w-40;
