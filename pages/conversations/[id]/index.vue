@@ -245,7 +245,7 @@ const sendFromTransfer = async (conv: Conversation) => {
 };
 const cancelTransfering = () => {
   transfering.value = false;
-  selectedMessages.value = [];
+  cancelSelection();
 };
 const transferOne = () => {
   selectedMessages.value.push(message);
