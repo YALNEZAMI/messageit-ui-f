@@ -14,7 +14,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     await useMessagesStore().getInitialMessages();
     //init viewers
     await useMessageStatusStore().initViewers();
-
+    useEmojisStore().onEmoji();
     eventBus.emit("conversationChanged", conv);
     eventBus.emit("notificationNumberChanged", true);
   }
