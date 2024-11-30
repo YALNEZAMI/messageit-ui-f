@@ -7,7 +7,6 @@ import type { Conversation } from "~/interfaces/conversation";
 import type { MessageSeen } from "~/interfaces/message-seen";
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
-    //TODO reactions and transfered
     //TODO group rights
     //TODO notification for conversations leaving , changing name or theme
     //TODO add member to group
