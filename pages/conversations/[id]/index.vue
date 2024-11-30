@@ -226,21 +226,19 @@ const sentToConversations = ref([] as string[]);
 const transfering = ref(false);
 const sendFromTransfer = async (conv: Conversation) => {
   for (const msg of selectedMessages.value) {
-    const sending = await useMessagesStore().send(
+    const sending = await useMessagesStore().transfer(
       {
         text: msg.text,
         sender: "",
         conversation: "",
         referedMessage: "",
         type: "message",
+        transfered: true,
       },
       conv._id as string
     );
-    if (conv.type == "ai") {
-      sentToConversations.value.push(sending.myMessage.conversation);
-    } else {
-      sentToConversations.value.push(sending.conversation);
-    }
+
+    sentToConversations.value.push(conv._id as string);
   }
   selectedMessages.value = [];
   selectingMode.value = false;

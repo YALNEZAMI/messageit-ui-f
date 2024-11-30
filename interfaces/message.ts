@@ -10,4 +10,5 @@ export interface Message {
   referedMessage?: string | Message;
   createdAt?: string;
   updatedAt?: string;
+  transfered?: boolean;
 }

@@ -103,7 +103,15 @@
                 </div>
               </div>
 
-              <div>{{ message.text }}</div>
+              <div class="flex flex-col">
+                <div
+                  v-if="message.transfered"
+                  class="font-serif text-xs text-gray-300"
+                >
+                  Transfered
+                </div>
+                <div>{{ message.text }}</div>
+              </div>
             </ContainersConversationTheme>
 
             <svg
