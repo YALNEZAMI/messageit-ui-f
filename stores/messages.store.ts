@@ -73,18 +73,12 @@ export const useMessagesStore = defineStore("messagesStore", {
       }, 50);
     },
     handleAiDelay(msg: Message) {
-      console.log("handle ai msg", msg);
       this.isAiTyping = true;
-      console.log("1");
-      console.log("useRoute().params.id ", useRoute().params.id);
-      console.log("        msg.conversation", msg.conversation);
       if (useRoute().params.id == msg.conversation) {
-        console.log("2");
         const conv = useConversationsStore().conversations.find((convfind) => {
           return convfind._id == msg.conversation;
         });
         if (conv?.type == "ai") {
-          console.log("message", msg);
           const aiUser = ((conv as Conversation).members as User[]).find(
             (mem: User) => {
               return mem._id != msg.sender;
@@ -92,10 +86,6 @@ export const useMessagesStore = defineStore("messagesStore", {
           ) as User;
           const interval = setInterval(() => {
             if (this.isAiTyping) {
-              console.log("emit", {
-                conversation: msg.conversation as string,
-                typer: aiUser,
-              });
               eventBus.emit("typing", {
                 conversation: msg.conversation as string,
                 typer: aiUser,
