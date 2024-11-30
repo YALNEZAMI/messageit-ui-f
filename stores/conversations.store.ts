@@ -7,7 +7,8 @@ export const useConversationsStore = defineStore("conversationsStore", {
   state: () => {
     return {
       robotImage:
-        "https://cdn.pixabay.com/photo/2016/12/13/21/20/alien-1905155_640.png",
+        "https://cdn.pixabay.com/photo/2014/04/03/11/55/robot-312566_1280.png",
+
       conversations: [] as Conversation[],
       currentConversation: {} as Conversation,
       themes: [
