@@ -1,5 +1,6 @@
 import mitt from "mitt";
 import type { Conversation } from "~/interfaces/conversation";
+import type { Emoji } from "~/interfaces/emoji";
 import type { Message } from "~/interfaces/message";
 import type { MessageSeen } from "~/interfaces/message-seen";
 import type { Recieving } from "~/interfaces/recieving";
@@ -15,6 +16,8 @@ type Events = {
   refereMessage: Message;
   typing: Typing;
   notificationNumberChanged: any;
+  emojiCreated: Emoji;
+  emojiRemoved: Emoji;
 };
 
 export const eventBus = mitt<Events>();
