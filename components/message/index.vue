@@ -134,7 +134,14 @@
         </div>
       </div>
       <!--message status-->
-      <MessageStatus :message="message"></MessageStatus>
+      <div class="flex justify-between">
+        <MessageEmojis class="w-1/2 flex" :message="message"></MessageEmojis>
+
+        <MessageStatus
+          class="w-1/2 flex justify-end"
+          :message="message"
+        ></MessageStatus>
+      </div>
     </div>
     <!--date-->
     <div
