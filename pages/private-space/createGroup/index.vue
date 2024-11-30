@@ -100,7 +100,7 @@
         <div class="flex justify-center my-1 text-red-500">
           <strong>OUPS !</strong>
         </div>
-        <div class="text-center">{{ alert.message }}</div>
+        <div class="text-center text-black">{{ alert.message }}</div>
         <div class="flex justify-center my-2">
           <button
             @click="alert.bool = false"
