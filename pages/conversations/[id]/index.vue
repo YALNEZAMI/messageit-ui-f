@@ -148,9 +148,25 @@
       class="bg-black bg-opacity-80 fixed w-screen z-30 flex justify-center items-end"
     >
       <div class="z-40 relative w-11/12 h-max p-0 bg-white rounded">
+        <div
+          class="flex justify-center space-x-2 bg-black bg-opacity-50 p-1 mb-1"
+        >
+          <div
+            @click="postEmoji(emoji)"
+            class="bg-white rounded-lg p-1 cursor-pointer hover:opacity-85"
+            :class="{
+              'bg-green-200': reaction == emoji,
+            }"
+            v-for="emoji of useEmojisStore().availableEmojis"
+            :key="emoji"
+          >
+            {{ emoji }}
+          </div>
+        </div>
         <h3 class="text-center text-black mb-1 m-0">
           Choisir l'opération à effectuer sur
         </h3>
+
         <div class="flex flex-wrap justify-center w-full">
           <button
             @click="deleteForMe"
@@ -322,8 +338,16 @@ const copy = () => {
     copied.value = false;
   }, 2000);
 };
-const messageOptions = (msg: any) => {
+const reaction = ref("");
+const messageOptions = async (msg: any) => {
+  const alreadyReacted = await useEmojisStore().alreadyReacted(msg._id);
+  if (alreadyReacted.length > 0) {
+    reaction.value = alreadyReacted[0].emoji;
+  } else {
+    reaction.value = "";
+  }
   message = msg;
+
   toogleIsOptions(true);
 };
 
@@ -381,7 +405,11 @@ const goToMessage = async (messageId: string) => {
 const isAtBottom = () => {
   return useMessagesStore().isAtBottom;
 };
-
+const postEmoji = async (emoji: string) => {
+  await useEmojisStore().postEmoji(message._id as string, emoji);
+  isOptions.value = false;
+  goBottom();
+};
 onMounted(async () => {
   //init messages
   await useMessagesStore().getInitialMessages();
