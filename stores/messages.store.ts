@@ -25,6 +25,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       isSearchMessagePulse: false,
       isAtBottom: true,
       temporaryMessagesIds: [] as number[],
+      isAiTyping: false,
     };
   },
   actions: {
@@ -71,9 +72,48 @@ export const useMessagesStore = defineStore("messagesStore", {
         eventBus.emit("messageReceived", temporaryMessage);
       }, 50);
     },
+    handleAiDelay(msg: Message) {
+      console.log("handle ai msg", msg);
+      this.isAiTyping = true;
+      console.log("1");
+      console.log("useRoute().params.id ", useRoute().params.id);
+      console.log("        msg.conversation", msg.conversation);
+      if (useRoute().params.id == msg.conversation) {
+        console.log("2");
+        const conv = useConversationsStore().conversations.find((convfind) => {
+          return convfind._id == msg.conversation;
+        });
+        if (conv?.type == "ai") {
+          console.log("message", msg);
+          const aiUser = ((conv as Conversation).members as User[]).find(
+            (mem: User) => {
+              return mem._id != msg.sender;
+            }
+          ) as User;
+          const interval = setInterval(() => {
+            if (this.isAiTyping) {
+              console.log("emit", {
+                conversation: msg.conversation as string,
+                typer: aiUser,
+              });
+              eventBus.emit("typing", {
+                conversation: msg.conversation as string,
+                typer: aiUser,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              });
+            } else {
+              clearInterval(interval);
+            }
+          }, 500);
+        }
+      }
+    },
     async send(msg: Message, conversationId: string) {
       msg.sender = useUsersStore().user._id as string;
       msg.conversation = conversationId;
+      this.handleAiDelay(msg);
+
       //set temporary message
       const temporaryId = this.temporaryMessagesIds.length;
 
@@ -81,6 +121,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       //if ai conversation message:{myMessage:Message,aiMessage:Message}
       const message = await this.getService("messages").create(msg);
       if (useConversationsStore().currentConversation.type == "ai") {
+        this.isAiTyping = false;
         this.popTemporaryMessage(temporaryId + "", message.myMessage);
         this.messages.push(message.aiMessage);
         eventBus.emit("messageReceived", message.myMessage);

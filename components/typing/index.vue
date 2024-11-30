@@ -22,7 +22,7 @@
 </template>
 <script lang="ts" setup>
 import type { Conversation } from "~/interfaces/conversation";
-import { Message } from "~/interfaces/message";
+import type { Message } from "~/interfaces/message";
 import type { Typing } from "~/interfaces/typing";
 import type { User } from "~/interfaces/user";
 const emits = defineEmits(["goBottom"]);
