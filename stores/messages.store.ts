@@ -7,6 +7,7 @@ import type { Conversation } from "~/interfaces/conversation";
 import type { MessageSeen } from "~/interfaces/message-seen";
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
+    //TODO reactions and transfered
     //TODO group rights
     //TODO notification for conversations leaving , changing name or theme
     //TODO add member to group
@@ -51,8 +52,12 @@ export const useMessagesStore = defineStore("messagesStore", {
       }
     },
     handleTemporaryMessage(temporaryId: number, msg: Message) {
+      const referedMessage = this.messages.find((msgfind) => {
+        return msgfind._id == msg.referedMessage;
+      });
       let temporaryMessage: any = {
         ...msg,
+        referedMessage,
         sender: useUsersStore().user,
         createdAt: new Date().toISOString(),
         conversation: useConversationsStore().getConversationLocally(
@@ -83,6 +88,12 @@ export const useMessagesStore = defineStore("messagesStore", {
       } else {
         this.popTemporaryMessage(temporaryId + "", message);
       }
+      return message;
+    },
+    async transfer(msg: Message, conversationId: string) {
+      msg.sender = useUsersStore().user._id as string;
+      msg.conversation = conversationId;
+      const message = await this.getService("messages").create(msg);
       return message;
     },
     popTemporaryMessage(_id: string, newMessage: Message) {
