@@ -1,7 +1,43 @@
 <template>
   <main style="height: 36rem" class="flex flex-col space-y-3 text-black">
     <div class="flex justify-center">
-      <img class="w-32 h-32" :src="useUsersStore().defaultUserImg" alt="" />
+      <div class="flex flex-col" v-if="userPhoto != null">
+        <div class="flex justify-center">
+          <NuxtImg
+            v-if="previewSrc"
+            @click="imageClicked"
+            class="w-32 h-32 cursor-pointer"
+            :src="previewSrc"
+            alt=""
+          />
+        </div>
+        <div class="flex space-x-2 justify-center my-2">
+          <div class="truncate w-1/2">{{ userPhoto.name }}</div>
+          <button
+            class="bg-red-500 hover:bg-red-600 cursor-pointer rounded text-white font-bold"
+            @click="userPhoto = null"
+          >
+            x
+          </button>
+        </div>
+      </div>
+      <ImagesProfile
+        v-else
+        @click="imageClicked"
+        class="w-32 h-32 cursor-pointer"
+        alt=""
+      />
+    </div>
+    <div class="justify-center hidden">
+      <form>
+        <input
+          @change="selectUserPhoto($event)"
+          id="profilePhotoInput"
+          type="file"
+          name="file"
+          accept="image/*"
+        />
+      </form>
     </div>
     <div class="flex justify-center">
       <input
@@ -110,7 +146,8 @@
   </main>
 </template>
 <script lang="ts" setup>
-const authStore = useAuthStore();
+import type { User } from "~/interfaces/user";
+
 const user = ref(useUsersStore().user);
 const auth = ref({
   email: user.value.email,
@@ -158,10 +195,15 @@ const updateUser = async () => {
   }
   auth.value.email = auth.value.email.toLowerCase();
   user.value.email = auth.value.email;
+  if (userPhoto.value != null) {
+    await useUsersStore().uploadProfilePhoto(userPhoto.value as File);
+  }
   const updating = await useUsersStore().updateUser(user.value);
   let emailIssu = false;
   if (updating._id) {
-    useUsersStore().setUserLocally(updating);
+    // useUsersStore().setUserLocally(updating);
+    userPhoto.value = null;
+    // eventBus.emit("userPatched", updating);
   } else {
     success = false;
     if (updating.inputId == "email") {
@@ -219,6 +261,30 @@ const allRequiredInputsFilled = (): boolean => {
     }
   });
   return res;
+};
+const userPhoto = ref<File | null>(null);
+const previewSrc = ref<string | null>(null);
+
+const selectUserPhoto = (e: Event) => {
+  previewSrc.value = null;
+  const input = e.target as HTMLInputElement;
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      if (e.target?.result) {
+        previewSrc.value = e.target.result as string; // Update the reactive source
+      }
+    };
+
+    reader.readAsDataURL(file);
+    userPhoto.value = file; // Save the file for uploading
+  }
+};
+const imageClicked = () => {
+  let input = document.getElementById("profilePhotoInput") as HTMLInputElement;
+  input.click();
 };
 definePageMeta({
   layout: "private-space",
