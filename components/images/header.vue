@@ -1,20 +1,33 @@
 <template>
   <main>
-    <NuxtImg class="w-16 h-16" :src="imgSrc" @error="handleError"></NuxtImg>
+    <NuxtImg
+      v-if="isShown"
+      class="w-16 h-16 rounded-md"
+      :src="imgSrc"
+      @error="handleError"
+    ></NuxtImg>
   </main>
 </template>
 
-<script setup>
-const props = defineProps({
-  src: String, // Fixed type definition
-});
+<script lang="ts" setup>
+import type { User } from "~/interfaces/user";
 
-const authStore = useAuthStore();
-const defaultUserImg = authStore.defaultUserImg;
+const defaultUserImg = useUsersStore().defaultUserImg;
 
-const imgSrc = ref(props.src); // Local reactive variable for the image source
+const imgSrc = ref(useUsersStore().user.image); // Local reactive variable for the image source
 
 const handleError = () => {
   imgSrc.value = defaultUserImg; // Set to default image on error
 };
+const isShown = ref(true);
+onMounted(async () => {
+  eventBus.on("userPatched", (user: User) => {
+    if (user._id == useUsersStore().user._id) {
+      isShown.value = false;
+      setTimeout(() => {
+        isShown.value = true;
+      }, 100);
+    }
+  });
+});
 </script>

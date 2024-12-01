@@ -1,7 +1,7 @@
 <template>
   <ContainersTheme class="flex items-center p-2 rounded">
     <div class="flex w-20 h-16">
-      <ImagesHeader :src="userStore.user.image"></ImagesHeader>
+      <ImagesHeader></ImagesHeader>
     </div>
     <div
       v-if="userStore.user.name"
