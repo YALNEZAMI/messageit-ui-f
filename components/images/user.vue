@@ -1,6 +1,10 @@
 <template>
   <main>
-    <NuxtImg class="w-16 h-16" :src="imgSrc" @error="handleError"></NuxtImg>
+    <NuxtImg
+      class="w-16 h-16 rounded-md"
+      :src="imgSrc"
+      @error="handleError"
+    ></NuxtImg>
   </main>
 </template>
 
