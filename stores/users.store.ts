@@ -24,8 +24,8 @@ export const useUsersStore = defineStore("usersStore", {
     };
   },
   actions: {
-    getService(name: string) {
-      return useNuxtApp().$feathers.service(name);
+    getService() {
+      return useNuxtApp().$feathers.service("my-users");
     },
     setUsers(users: any) {
       this.users = users;
@@ -34,28 +34,28 @@ export const useUsersStore = defineStore("usersStore", {
       this.searchedUsers = users;
     },
     async getUser(id: string) {
-      return await this.getService("my-users").get(id, {});
+      return await this.getService().get(id, {});
     },
     async setUserLocally(user: User) {
       this.user = user;
       localStorage.setItem("user", JSON.stringify(user));
     },
     async setUserFromApi(user: User) {
-      this.user = await this.getService("my-users").get(user._id as string, {});
+      this.user = await this.getService().get(user._id as string, {});
       localStorage.setItem("user", JSON.stringify(user));
     },
     async updateUser(user: any) {
-      return await this.getService("my-users").patch(user._id as string, user);
+      return await this.getService().patch(user._id as string, user);
     },
     async updateCurrentAuthUser(auth: any) {
       delete auth.password2;
-      return await this.getService("users").patch(
-        this.user._id as string,
-        auth
-      );
+      const feathers = useNuxtApp().$feathers;
+      return await feathers
+        .service("users")
+        .patch(this.user._id as string, auth);
     },
     async setCurrentUserStatus(isOnLine: boolean) {
-      await this.getService("my-users").patch(
+      await this.getService().patch(
         this.user._id as string,
         {
           onLine: isOnLine,
@@ -70,7 +70,7 @@ export const useUsersStore = defineStore("usersStore", {
     async search(name: string) {
       this.isSearchUsersPulse = true;
       try {
-        let response = await this.getService("my-users").find({
+        let response = await this.getService().find({
           query: {
             name,
           },
@@ -90,7 +90,10 @@ export const useUsersStore = defineStore("usersStore", {
       this.statusCheckingIntervalle = newIntervall;
     },
     onUser() {
-      this.getService("my-users").on("patched", (user: User) => {
+      this.getService().on("patched", (user: User) => {
+        if (this.user._id == user._id) {
+          this.setUserLocally(user);
+        }
         eventBus.emit("userPatched", user);
         //update friends
         useFriendsStore().setFriends(
@@ -130,6 +133,33 @@ export const useUsersStore = defineStore("usersStore", {
           );
         }
       });
+    },
+    async uploadProfilePhoto(file: File) {
+      const reader = new FileReader();
+
+      reader.onload = async () => {
+        const arrayBuffer = reader.result as ArrayBuffer;
+
+        // Convert ArrayBuffer to base64
+        const uint8Array = new Uint8Array(arrayBuffer);
+        const binaryString = uint8Array.reduce(
+          (acc, byte) => acc + String.fromCharCode(byte),
+          ""
+        );
+        const base64String = btoa(binaryString);
+
+        // Send base64-encoded file to the service
+        const response = await useNuxtApp()
+          .$feathers.service("users-photos")
+          .create({
+            file: {
+              buffer: base64String, // Base64-encoded buffer
+              originalname: file.name, // File name
+            },
+          });
+      };
+
+      reader.readAsArrayBuffer(file); // Read the file as ArrayBuffer
     },
   },
 });
