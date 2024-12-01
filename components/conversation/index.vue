@@ -25,11 +25,7 @@
           'flex justify-center': props.isSideBar,
         }"
       >
-        <ImagesConversation
-          :src="
-            conversation.type != 'ai' ? conversation.image : getRobotImage()
-          "
-        />
+        <ImagesConversation :src="getConversationImage()" />
         <!--user status-->
         <Status
           class="absolute top-0 right-0"
@@ -104,9 +100,7 @@ const isSideBar = props.isSideBar;
 const setConversation = async () => {
   useRouter().push("/conversations/" + conversation._id);
 };
-const getRobotImage = () => {
-  return useConversationsStore().robotImage;
-};
+
 const getName = () => {
   switch (conversation.type) {
     case "private":
@@ -161,9 +155,7 @@ const getSecondaryText = () => {
 const getConnectedFriend = () => {
   return useConversationsStore().getConnectedFriend(conversation);
 };
-const getPhoto = () => {
-  return useAuthStore().defaultUserImg;
-};
+
 const isCurrentConversation = () => {
   return conversation._id == useConversationsStore().currentConversation._id;
 };
@@ -190,4 +182,16 @@ onMounted(async () => {
     }
   });
 });
+const getConversationImage = () => {
+  switch (conversation.type) {
+    case "ai":
+      return useConversationsStore().robotImage;
+    case "group":
+      return conversation.image;
+    case "private":
+      return useConversationsStore().getOtherUser(conversation).image;
+    default:
+      break;
+  }
+};
 </script>
