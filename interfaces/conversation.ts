@@ -1,6 +1,7 @@
 import type { Message } from "postcss";
 import type { Theme } from "./theme";
 import type { User } from "./user";
+import type { GroupRights } from "./groupRights";
 
 export interface Conversation {
   _id?: string;
@@ -12,4 +13,5 @@ export interface Conversation {
   lastMessage?: Message;
   createdAt?: string;
   updatedAt?: string;
+  rights?: GroupRights;
 }
