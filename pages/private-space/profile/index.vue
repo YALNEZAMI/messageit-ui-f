@@ -1,32 +1,45 @@
 <template>
   <main style="height: 36rem" class="flex flex-col space-y-3 text-black">
     <div class="flex justify-center">
-      <div class="flex flex-col" v-if="userPhoto != null">
-        <div class="flex justify-center">
-          <NuxtImg
-            v-if="previewSrc"
-            @click="imageClicked"
-            class="w-32 h-32 cursor-pointer"
-            :src="previewSrc"
-            alt=""
+      <div class="relative w-max">
+        <div class="flex flex-col" v-if="userPhoto != null">
+          <div class="flex justify-center">
+            <NuxtImg
+              v-if="previewSrc"
+              class="w-32 h-32"
+              :src="previewSrc"
+              alt=""
+            />
+          </div>
+          <div class="flex space-x-2 justify-center my-2">
+            <div class="truncate w-1/2">{{ userPhoto.name }}</div>
+            <button
+              class="bg-red-500 hover:bg-red-600 cursor-pointer rounded text-white font-bold"
+              @click="userPhoto = null"
+            >
+              x
+            </button>
+          </div>
+        </div>
+        <ImagesProfile v-else class="w-32 h-32" alt="" />
+        <!--edit button-->
+        <svg
+          @click="imageClicked"
+          id="editPhotoProfileButton"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="size-6 absolute bottom-0 right-0 bg-green-500 hover:bg-green-400 p-1 rounded-md cursor-pointer"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
           />
-        </div>
-        <div class="flex space-x-2 justify-center my-2">
-          <div class="truncate w-1/2">{{ userPhoto.name }}</div>
-          <button
-            class="bg-red-500 hover:bg-red-600 cursor-pointer rounded text-white font-bold"
-            @click="userPhoto = null"
-          >
-            x
-          </button>
-        </div>
+        </svg>
       </div>
-      <ImagesProfile
-        v-else
-        @click="imageClicked"
-        class="w-32 h-32 cursor-pointer"
-        alt=""
-      />
     </div>
     <div class="justify-center hidden">
       <form>
