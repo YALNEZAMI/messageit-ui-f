@@ -62,8 +62,11 @@ export const useConversationsStore = defineStore("conversationsStore", {
           return "👍";
       }
     },
-    setCurrentConversation(newConv: Conversation) {
+    async setCurrentConversation(newConv: Conversation) {
       this.currentConversation = newConv;
+      if (newConv.type == "group") {
+        await useGroupRightsStore().fetchRights();
+      }
     },
     async getConversation(id: string) {
       return await this.getService("conversations").get(id);
