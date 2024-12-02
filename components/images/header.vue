@@ -22,7 +22,10 @@ const handleError = () => {
 const isShown = ref(true);
 onMounted(async () => {
   eventBus.on("userPatched", (user: User) => {
-    if (user._id == useUsersStore().user._id) {
+    if (
+      user._id == useUsersStore().user._id &&
+      user.image != useUsersStore().user.image
+    ) {
       isShown.value = false;
       setTimeout(() => {
         isShown.value = true;
