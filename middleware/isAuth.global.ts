@@ -22,7 +22,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       useUsersStore().onUser();
       await useFriendsStore().onFriendRequests();
       await useFriendsStore().onFriends();
-      useUsersStore().onUser();
       await useMessagesStore().onMessage();
       useMessageStatusStore().onMessageStatus();
       await useMessageStatusStore().setAllConversationsMessagesAsRecieved();
