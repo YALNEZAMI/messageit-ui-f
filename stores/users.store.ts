@@ -90,7 +90,7 @@ export const useUsersStore = defineStore("usersStore", {
       this.statusCheckingIntervalle = newIntervall;
     },
     onUser() {
-      this.getService().on("patched", (user: User) => {
+      this.getService().on("patched", async (user: User) => {
         if (this.user._id == user._id) {
           this.setUserLocally(user);
         }
@@ -128,7 +128,7 @@ export const useUsersStore = defineStore("usersStore", {
               return mem;
             }
           );
-          useConversationsStore().setCurrentConversation(
+          await useConversationsStore().setCurrentConversation(
             newCurrentConversation
           );
         }
