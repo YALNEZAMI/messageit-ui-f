@@ -248,5 +248,19 @@ export const useConversationsStore = defineStore("conversationsStore", {
         }
       );
     },
+    async toogleMembership(memberId: string) {
+      const convId = useRoute().params.id as string;
+      let res = await this.getService("conversations").patch(
+        convId,
+        {},
+        {
+          query: {
+            member: memberId,
+          },
+        }
+      );
+      eventBus.emit("conversationChanged", res);
+      return res;
+    },
   },
 });
