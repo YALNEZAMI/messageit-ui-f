@@ -10,6 +10,10 @@ export const useGroupRightsStore = defineStore("useGroupRightsStore", {
   actions: {
     setRightsLocally(rights: GroupRights) {
       this.rights = rights;
+      eventBus.emit(
+        "conversationChanged",
+        useConversationsStore().currentConversation
+      );
     },
     async fetchRights() {
       const res = await this.getService().find({
@@ -23,17 +27,31 @@ export const useGroupRightsStore = defineStore("useGroupRightsStore", {
     getService() {
       return useNuxtApp().$feathers.service("group-rights");
     },
-    async toogleAdmin(memberId: string): Promise<any> {
-      return await this.getService().patch(
+    async toogleAdmin(newAdminId: string): Promise<any> {
+      const rights = await this.getService().patch(
         null,
         {},
         {
           query: {
-            admin: memberId,
+            admin: newAdminId,
             conversation: useConversationsStore().currentConversation._id,
           },
         }
       );
+      this.setRightsLocally(rights[0] as GroupRights);
+    },
+    async upgradeToChef(newChefId: string) {
+      const rights = await this.getService().patch(
+        null,
+        {},
+        {
+          query: {
+            chef: newChefId,
+            conversation: useConversationsStore().currentConversation._id,
+          },
+        }
+      );
+      this.setRightsLocally(rights[0] as GroupRights);
     },
   },
 });
