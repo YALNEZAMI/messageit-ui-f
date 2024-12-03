@@ -1,5 +1,18 @@
 <template>
   <main style="min-height: 35.9rem">
+    <div class="flex justify-center items-center">
+      <button
+        @click="addingMembers = true"
+        class="p-2 text-white hover:bg-green-500 cursor-pointer rounded border-0 bg-green-400 w-full"
+      >
+        Add members +
+      </button>
+      <ConversationMembersAddMember
+        @finish="addingMembers = false"
+        @error="lanceAlert()"
+        v-if="addingMembers"
+      ></ConversationMembersAddMember>
+    </div>
     <div
       class="overflow-y-auto flex flex-wrap justify-center h-max"
       style="max-height: 35.9rem; scrollbar-width: thin"
@@ -12,11 +25,18 @@
         >
           {{ getRights(user) }}
         </div>
-        <div class="flex items-center p-1">
+        <div
+          class="flex items-center p-1"
+          :class="{
+            'mt-5': !hasRights(user._id + ''),
+          }"
+        >
           <User :noButtons="getConversationType() == 'ai'" :user="user"></User>
           <div
-            v-if="currentUser._id != user._id"
-            class="text-black text-xl cursor-pointer"
+            v-if="
+              currentUser._id != user._id && hasRights(currentUser._id + '')
+            "
+            class="text-black text-2xl cursor-pointer"
             @click="toogleMemberOptions(true, user)"
           >
             ...
@@ -44,14 +64,24 @@
       v-if="isMemeberOptions"
       :member="member"
     ></ConversationMembersOptions>
+    <!--alert-->
+    <PopupAlert
+      v-if="alerting"
+      @finish="alerting = false"
+      :alert="alert"
+    ></PopupAlert>
   </main>
 </template>
 <script lang="ts" setup>
-import type { GroupRights } from "~/interfaces/groupRights";
+import type { Alert } from "~/interfaces/alert";
+import type { Conversation } from "~/interfaces/conversation";
 import type { User } from "~/interfaces/user";
 const currentUser = useUsersStore().user;
+let rights = useGroupRightsStore().rights;
+const members = ref([] as User[]);
+const addingMembers = ref(false);
 const getMembers = (): User[] => {
-  return useConversationsStore().currentConversation.members as User[];
+  return members.value;
 };
 const isConversationPulse = () => {
   return useConversationsStore().isConversationsPulse;
@@ -59,6 +89,7 @@ const isConversationPulse = () => {
 const getConversationType = () => {
   return useConversationsStore().currentConversation.type;
 };
+
 const getRights = (user: User) => {
   const rights = useGroupRightsStore().rights;
   if (rights.chef == user._id) {
@@ -67,7 +98,12 @@ const getRights = (user: User) => {
   if (rights.admins.includes(user._id as string)) {
     return "Admin";
   }
+  return "";
 };
+const hasRights = (userId: string) => {
+  return rights.chef == userId || rights.admins.includes(userId as string);
+};
+
 const isMemeberOptions = ref(false);
 const member = ref<User>({} as User);
 const toogleMemberOptions = (bool: boolean, user: User) => {
@@ -76,6 +112,30 @@ const toogleMemberOptions = (bool: boolean, user: User) => {
 };
 const finishOptions = () => {
   isMemeberOptions.value = false;
+};
+
+onMounted(async () => {
+  members.value = useConversationsStore().currentConversation.members as User[];
+  //listen to conversation change event and scroll then
+  eventBus.on("conversationChanged", (conv: Conversation) => {
+    rights = useGroupRightsStore().rights;
+    console.log("rights", rights);
+    members.value = conv.members as User[];
+  });
+});
+const alert = ref<Alert>({
+  message: "error desc",
+  header: "error",
+});
+const alerting = ref(false);
+const lanceAlert = () => {
+  console.log("lance alert");
+  alerting.value = true;
+  addingMembers.value = false;
+  alert.value = {
+    header: "Aucun amis à ajouter",
+    message: "Tous vos amis sont déjà dans le groupe.",
+  };
 };
 definePageMeta({
   middleware: "conversations",
