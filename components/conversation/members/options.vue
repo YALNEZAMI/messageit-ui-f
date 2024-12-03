@@ -3,22 +3,54 @@
     <div class="text-center my-2 text-xl">
       Operation sur <span class="underline">{{ member.name }}</span>
     </div>
-    <div class="flex justify-center space-x-2 p-2">
-      <button v-if="isUpgradeAdmin()" @click="toogleAdmin()">
+    <div class="flex flex-col md:flex-row justify-center p-2">
+      <button
+        class="basicButton bg-yellow-500 hover:bg-yellow-400"
+        v-if="isUpgradeAdmin()"
+        @click="toogleAdmin()"
+      >
         Assigner status admin
       </button>
-      <button v-if="isDowngradeAdmin()" @click="toogleAdmin()">
+      <button
+        class="basicButton bg-orange-500 hover:bg-orange-400"
+        v-if="isDowngradeAdmin()"
+        @click="toogleAdmin()"
+      >
         Retirer status admin
       </button>
-      <button v-if="IsRemoveMember()">Retirer de la conversation</button>
-      <button v-if="IsUpgradeChef()">Assigner status chef</button>
+      <button
+        class="basicButton bg-red-500 hover:bg-red-400"
+        v-if="IsRemoveMember()"
+        @click="removeMember()"
+      >
+        Retirer de la conversation
+      </button>
+      <button
+        class="basicButton bg-black hover:bg-black"
+        v-if="IsUpgradeChef()"
+        @click="upgradeToChef()"
+      >
+        Assigner status chef
+      </button>
+      <button
+        @click="emits('finish')"
+        class="basicButton bg-indigo-500 hover:bg-indigo-400"
+      >
+        Fermer
+      </button>
     </div>
   </main>
 </template>
+<style scoped>
+button {
+  padding: 10px;
+  margin: 10px;
+  min-width: 10rem;
+}
+</style>
+
 <script lang="ts" setup>
-import type { GroupRights } from "~/interfaces/groupRights";
 import type { User } from "~/interfaces/user";
-const conv = useConversationsStore().currentConversation;
 const rights = useGroupRightsStore().rights;
 const currentUser = useUsersStore().user;
 const isUpgradeAdmin = () => {
@@ -27,6 +59,7 @@ const isUpgradeAdmin = () => {
     !rights?.admins.includes(member._id as string)
   );
 };
+
 const IsUpgradeChef = () => {
   return (
     currentUser._id == rights?.chef &&
@@ -41,8 +74,14 @@ const isDowngradeAdmin = () => {
 };
 const IsRemoveMember = () => {
   if (member._id == rights?.chef) {
+    //chef cant be removed
     return false;
   }
+  if (currentUser._id == rights.chef) {
+    //chef can remove any one
+    return true;
+  }
+
   return (
     (rights?.chef == currentUser._id ||
       rights?.admins.includes(currentUser._id as string)) &&
@@ -51,7 +90,14 @@ const IsRemoveMember = () => {
 };
 const toogleAdmin = async () => {
   let rights = await useGroupRightsStore().toogleAdmin(member._id as string);
-  useGroupRightsStore().setRightsLocally(rights[0] as GroupRights);
+  emits("finish");
+};
+const upgradeToChef = async () => {
+  await useGroupRightsStore().upgradeToChef(member._id as string);
+  emits("finish");
+};
+const removeMember = async () => {
+  await useConversationsStore().toogleMembership(member._id as string);
   emits("finish");
 };
 const props = defineProps({
