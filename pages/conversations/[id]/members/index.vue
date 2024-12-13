@@ -119,7 +119,6 @@ onMounted(async () => {
   //listen to conversation change event and scroll then
   eventBus.on("conversationChanged", (conv: Conversation) => {
     rights = useGroupRightsStore().rights;
-    console.log("rights", rights);
     members.value = conv.members as User[];
   });
 });
@@ -129,7 +128,6 @@ const alert = ref<Alert>({
 });
 const alerting = ref(false);
 const lanceAlert = () => {
-  console.log("lance alert");
   alerting.value = true;
   addingMembers.value = false;
   alert.value = {

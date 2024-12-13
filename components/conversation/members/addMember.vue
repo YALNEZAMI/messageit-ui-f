@@ -45,7 +45,6 @@ const getMembersToAdd = (conv: Conversation) => {
 };
 const addMember = async (memId: string) => {
   let res = await useConversationsStore().toogleMembership(memId);
-  console.log("res", res);
 };
 onMounted(async () => {
   membersToAdd.value = getMembersToAdd(
