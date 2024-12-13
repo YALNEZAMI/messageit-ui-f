@@ -24,7 +24,7 @@
         <select
           v-model="conversation.theme"
           name="theme"
-          class="p-1 mx-2 rounded"
+          class="p-1 mx-2 rounded cursor-pointer"
         >
           <option
             v-for="theme of useConversationsStore().themes"
@@ -48,7 +48,7 @@
     <div class="flex justify-center my-2 mb-10">
       <button
         @click="update"
-        class="bg-green-600 border-0 hover:bg-green-500 transition-all duration-500 ease-in-out flex space-x-2 items-center rounded text-white p-2"
+        class="bg-green-600 cursor-pointer border-0 hover:bg-green-500 transition-all duration-500 ease-in-out flex space-x-2 items-center rounded text-white p-2"
       >
         <div>Mettre à jour la conversation</div>
         <svg
