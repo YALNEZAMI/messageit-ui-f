@@ -3,16 +3,20 @@
     <!--emojis-->
     <div class="flex">
       <div
-        class="emoji relative cursor-pointer"
-        v-for="emoji of getEmojis()"
-        :title="getReacter(emoji).name"
-        :key="emoji._id"
+        class="emoji relative cursor-default"
+        v-for="emojiMap of getEmojisMap()"
+        :key="emojiMap.key"
       >
-        {{ emoji.emoji }}
+        {{ emojiMap.key }}
+        <span class="text-black text-xs absolute -bottom-1 right-0">{{
+          emojiMap.emojis.length
+        }}</span>
         <div
-          class="title absolute hidden left-full top-0 text-sm px-1 bg-black rounded-md text-white"
+          class="title absolute z-30 hidden left-full top-0 text-sm px-1 bg-black rounded-md text-white"
         >
-          {{ getReacter(emoji).name }}
+          <span v-for="emoji of emojiMap.emojis" :key="emoji._id">
+            {{ getReacter(emoji).name }}
+          </span>
         </div>
       </div>
     </div>
@@ -20,7 +24,8 @@
 </template>
 <style scoped>
 .emoji:hover .title {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 </style>
 
@@ -32,10 +37,35 @@ import type { User } from "~/interfaces/user";
 const props = defineProps({
   message: Object,
 });
+
 const message = props.message as Message;
 const emojis = ref([] as Emoji[]);
-const getEmojis = () => {
-  return emojis.value;
+interface EmojiMap {
+  emojis: Emoji[];
+  key: string; //string of emoji
+}
+const getEmojisMap = (): EmojiMap[] => {
+  let res: EmojiMap[] = [];
+  emojis.value.map((em: Emoji) => {
+    const emojiExist =
+      res.filter((emojiMap) => {
+        return emojiMap.key == em.emoji;
+      }).length > 0;
+    if (emojiExist) {
+      res = res.map((emojiMap) => {
+        if (emojiMap.key == em.emoji) {
+          emojiMap.emojis.push(em);
+        }
+        return emojiMap;
+      });
+    } else {
+      res.push({
+        key: em.emoji,
+        emojis: [em],
+      });
+    }
+  });
+  return res;
 };
 const getReacter = (emoji: Emoji): User => {
   return useConversationsStore().getMember(emoji.reacter as string);
