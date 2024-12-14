@@ -153,9 +153,10 @@
         >
           <div
             @click="postEmoji(emoji)"
-            class="bg-white rounded-lg p-1 cursor-pointer hover:opacity-85"
+            class="rounded-lg p-1 cursor-pointer hover:opacity-85"
             :class="{
-              'bg-green-200': reaction == emoji,
+              'bg-indigo-300': reaction == emoji,
+              'bg-white': reaction !== emoji,
             }"
             v-for="emoji of useEmojisStore().availableEmojis"
             :key="emoji"
