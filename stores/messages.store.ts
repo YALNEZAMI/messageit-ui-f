@@ -7,7 +7,6 @@ import type { Conversation } from "~/interfaces/conversation";
 import type { MessageSeen } from "~/interfaces/message-seen";
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
-    //TODO notification for conversations , changing name, photo or theme
     //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
     //TODO send photos and medias
 
