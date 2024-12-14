@@ -32,6 +32,13 @@ export const useConversationsStore = defineStore("conversationsStore", {
     setConversations(convs: Conversation[]) {
       this.conversations = convs;
     },
+    conversationExist(id: string): boolean {
+      return (
+        this.conversations.filter((conv) => {
+          return conv._id == id;
+        }).length > 0
+      );
+    },
     setLastMessage(message: any, conversationId: string) {
       const conv = this.conversations.find((conv: Conversation) => {
         return conv._id == conversationId;
@@ -222,6 +229,28 @@ export const useConversationsStore = defineStore("conversationsStore", {
         "patched",
         (conversation: Conversation) => {
           this.updateConversationLocally(conversation);
+          //remove current user from group
+          console.log("conv patched", conversation);
+          const currentUserOut =
+            conversation.members.filter((mem: any) => {
+              return mem._id == useUsersStore().user._id;
+            }).length == 0;
+          if (currentUserOut) {
+            this.conversations = this.conversations.filter((conv) => {
+              return conv._id != conversation._id;
+            });
+            if (useRoute().params.id == conversation._id) {
+              useRouter().push("/conversations");
+            }
+          }
+          //add current user to group
+          if (
+            !currentUserOut &&
+            !this.conversationExist(conversation._id as string)
+          ) {
+            this.setConversations([conversation, ...this.conversations]);
+            this.sortConversations();
+          }
         }
       );
       this.getService("conversations").on(
