@@ -135,7 +135,11 @@
       </div>
       <!--message status-->
       <div class="flex justify-between">
-        <MessageEmojis class="w-1/2 flex" :message="message"></MessageEmojis>
+        <MessageEmojis
+          @click="options()"
+          class="w-1/2 flex cursor-pointer"
+          :message="message"
+        ></MessageEmojis>
 
         <MessageStatus
           class="w-1/2 flex justify-end"

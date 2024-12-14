@@ -3,19 +3,25 @@
     <!--emojis-->
     <div class="flex">
       <div
-        class="emoji relative cursor-default"
+        class="emoji relative"
         v-for="emojiMap of getEmojisMap()"
         :key="emojiMap.key"
       >
         {{ emojiMap.key }}
-        <span class="text-black text-xs absolute -bottom-1 right-0">{{
-          emojiMap.emojis.length
-        }}</span>
+        <span
+          v-if="emojiMap.emojis.length > 1"
+          class="text-black text-xs absolute -bottom-1 right-0"
+          >{{ emojiMap.emojis.length }}</span
+        >
         <div
-          class="title absolute z-30 hidden left-full top-0 text-sm px-1 bg-black rounded-md text-white"
+          class="title absolute z-30 hidden left-full -bottom-2 text-sm px-1 bg-black rounded-md text-white"
         >
           <span v-for="emoji of emojiMap.emojis" :key="emoji._id">
-            {{ getReacter(emoji).name }}
+            {{
+              getReacter(emoji)._id != currentUser._id
+                ? getReacter(emoji).name
+                : "moi"
+            }}
           </span>
         </div>
       </div>
@@ -37,7 +43,7 @@ import type { User } from "~/interfaces/user";
 const props = defineProps({
   message: Object,
 });
-
+const currentUser = ref(useUsersStore().user);
 const message = props.message as Message;
 const emojis = ref([] as Emoji[]);
 interface EmojiMap {
