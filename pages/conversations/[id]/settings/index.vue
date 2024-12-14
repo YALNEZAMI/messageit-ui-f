@@ -167,6 +167,7 @@ const update = async () => {
     await useConversationsStore().uploadConversationPhoto(
       conversationPhoto.value as File
     );
+    conversationPhoto.value = null;
   }
   const response = await useConversationsStore().updateConversation(
     convToUpdate
