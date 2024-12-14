@@ -7,9 +7,9 @@ import type { Conversation } from "~/interfaces/conversation";
 import type { MessageSeen } from "~/interfaces/message-seen";
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
-    //TODO notification for conversations , changing name or theme
+    //TODO update memebers when modifying , and kik user out of conv when he is removed
+    //TODO notification for conversations , changing name, photo or theme
     //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
-    //TODO update and conversation photo
     //TODO send photos
 
     return {
