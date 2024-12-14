@@ -7,10 +7,9 @@ import type { Conversation } from "~/interfaces/conversation";
 import type { MessageSeen } from "~/interfaces/message-seen";
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
-    //TODO update memebers when modifying , and kik user out of conv when he is removed
     //TODO notification for conversations , changing name, photo or theme
     //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
-    //TODO send photos
+    //TODO send photos and medias
 
     return {
       paginationValue: 25,
@@ -39,12 +38,14 @@ export const useMessagesStore = defineStore("messagesStore", {
       this.messages = newVal;
     },
     addMessage(msg: Message) {
-      const exist = this.messages.find((message: Message) => {
-        return message._id == msg._id;
-      });
+      const exist =
+        this.messages.filter((message: Message) => {
+          return message._id == msg._id;
+        }).length > 0;
       if (
-        exist == undefined &&
-        useRoute().params.id == (msg.conversation as Conversation)._id
+        !exist &&
+        (useRoute().params.id == (msg.conversation as Conversation)._id ||
+          useRoute().params.id == msg.conversation)
       ) {
         this.messages.push(msg);
       }
@@ -280,7 +281,7 @@ export const useMessagesStore = defineStore("messagesStore", {
     },
     async handleMessageCreated(message: Message) {
       //notification handling
-      if (this.isConversationNotification(message)) {
+      if (message.type == "notification") {
         this.addMessage(message);
 
         return;
@@ -330,9 +331,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       //update navItem number
       eventBus.emit("notificationNumberChanged", message);
     },
-    isConversationNotification(message: any): boolean {
-      return !message.sender;
-    },
+
     async onMessage() {
       this.getService("messages").on("created", async (message: Message) => {
         await this.handleMessageCreated(message);
