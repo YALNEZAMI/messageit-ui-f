@@ -1,7 +1,61 @@
 <template>
   <main style="height: 36rem">
     <div class="flex justify-center">
-      <NuxtImg :src="conversation.image" class="w-28 h-28"></NuxtImg>
+      <div class="relative w-max">
+        <div class="flex flex-col" v-if="conversationPhoto != null">
+          <div class="flex justify-center">
+            <NuxtImg
+              v-if="previewSrc"
+              class="w-32 h-32 rounded-md"
+              :src="previewSrc"
+              alt=""
+            />
+          </div>
+          <div class="flex space-x-2 justify-center my-2">
+            <!--selected file name-->
+            <div class="truncate w-1/2 text-black">
+              {{ conversationPhoto.name }}
+            </div>
+            <!--cancel select button-->
+            <button
+              class="bg-red-500 hover:bg-red-600 cursor-pointer rounded text-white font-bold"
+              @click="conversationPhoto = null"
+            >
+              x
+            </button>
+          </div>
+        </div>
+        <NuxtImg :src="conversation.image" v-else class="w-32 h-32" alt="" />
+        <!--edit button-->
+        <svg
+          v-if="conversation.type == 'group'"
+          @click="imageClicked"
+          id="editPhotoProfileButton"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="size-6 absolute top-0 right-0 bg-green-500 hover:bg-green-400 p-1 rounded-md cursor-pointer"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+          />
+        </svg>
+      </div>
+    </div>
+    <div class="justify-center hidden">
+      <form>
+        <input
+          @change="selectConversationPhoto($event)"
+          id="profilePhotoInput"
+          type="file"
+          name="file"
+          accept="image/*"
+        />
+      </form>
     </div>
     <div class="flex my-2 flex-col md:flex-row text-black">
       <!--name-->
@@ -108,6 +162,12 @@ const update = async () => {
     }
     convToUpdate.name = conversation.value.name;
   }
+  //update group photo
+  if (conversationPhoto.value != null && conversation.value.type == "group") {
+    await useConversationsStore().uploadConversationPhoto(
+      conversationPhoto.value as File
+    );
+  }
   const response = await useConversationsStore().updateConversation(
     convToUpdate
   );
@@ -134,6 +194,29 @@ const lanceAlert = (msg: string) => {
 };
 const leave = async () => {
   await useConversationsStore().leave();
+};
+const conversationPhoto = ref<File | null>(null);
+const previewSrc = ref<string | null>(null);
+const imageClicked = () => {
+  let input = document.getElementById("profilePhotoInput") as HTMLInputElement;
+  input.click();
+};
+const selectConversationPhoto = (e: Event) => {
+  previewSrc.value = null;
+  const input = e.target as HTMLInputElement;
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      if (e.target?.result) {
+        previewSrc.value = e.target.result as string; // Update the reactive source
+      }
+    };
+
+    reader.readAsDataURL(file);
+    conversationPhoto.value = file; // Save the file for uploading
+  }
 };
 definePageMeta({
   middleware: "conversations",
