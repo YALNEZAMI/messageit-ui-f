@@ -230,7 +230,6 @@ export const useConversationsStore = defineStore("conversationsStore", {
         (conversation: Conversation) => {
           this.updateConversationLocally(conversation);
           //remove current user from group
-          console.log("conv patched", conversation);
           const currentUserOut =
             conversation.members.filter((mem: any) => {
               return mem._id == useUsersStore().user._id;
