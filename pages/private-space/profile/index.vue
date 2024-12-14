@@ -159,8 +159,6 @@
   </main>
 </template>
 <script lang="ts" setup>
-import type { User } from "~/interfaces/user";
-
 const user = ref(useUsersStore().user);
 const auth = ref({
   email: user.value.email,
