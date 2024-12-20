@@ -80,15 +80,7 @@
             </svg>
             <ContainersConversationTheme
               :title="'-msgid: ' + message._id"
-              :class="{
-                hidden: message.text == '',
-                'ml-12': !thereIsImage() && !isMyMessage(),
-                'mr-12': !thereIsImage() && isMyMessage(),
-                'mr-1': isMyMessage() && thereIsImage(),
-                'ml-1': thereIsImage() && !isMyMessage(),
-                'rounded-t-md rounded-bl-md': isMyMessage(),
-                'rounded-t-md rounded-br-md': !isMyMessage(),
-              }"
+              :class="getContainerClasses()"
               class="p-1 break-words w-max h-max md:max-w-52 max-w-40 shadow-md"
             >
               <div
@@ -175,8 +167,18 @@ const props = defineProps({
 });
 
 const message = props.message;
-const isConversationNotification = props.message.type == "notification";
 const emit = defineEmits(["options", "goToReferedMessage", "select"]);
+const getContainerClasses = () => {
+  return {
+    hidden: message.text == "",
+    "ml-12": !thereIsImage() && !isMyMessage(),
+    "mr-12": !thereIsImage() && isMyMessage(),
+    "mr-1": isMyMessage() && thereIsImage(),
+    "ml-1": thereIsImage() && !isMyMessage(),
+    "rounded-t-md rounded-bl-md": isMyMessage(),
+    "rounded-t-md rounded-br-md": !isMyMessage(),
+  };
+};
 const options = () => {
   if (!useMessagesStore().temporaryMessagesIds.includes(message._id)) {
     emit("options");
@@ -198,7 +200,12 @@ const isLastMessage = () => {
   );
 };
 const thereIsImage = () => {
-  if (isConversationNotification) {
+  if (
+    props.message.type == "notification" ||
+    !message.sender ||
+    !getNextMessage() ||
+    !getNextMessage().sender
+  ) {
     return false;
   }
   return (
