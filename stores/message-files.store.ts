@@ -57,8 +57,6 @@ export const useMessageFilesStore = defineStore("useMessageFilesStore", {
             },
           }
         );
-
-        console.log("response", response);
       } catch (error) {
         console.error("Error during file upload:", error);
       }
