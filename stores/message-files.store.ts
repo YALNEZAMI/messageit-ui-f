@@ -72,5 +72,13 @@ export const useMessageFilesStore = defineStore("useMessageFilesStore", {
       }
       return res.data[0].urls;
     },
+    async getFilesOfConversation(conversation: string) {
+      const res = await this.getService().find({
+        query: {
+          conversation,
+        },
+      });
+      return res.data;
+    },
   },
 });
