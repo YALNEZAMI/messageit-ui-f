@@ -81,6 +81,7 @@
             <ContainersConversationTheme
               :title="'-msgid: ' + message._id"
               :class="{
+                hidden: message.text == '',
                 'ml-12': !thereIsImage() && !isMyMessage(),
                 'mr-12': !thereIsImage() && isMyMessage(),
                 'mr-1': isMyMessage() && thereIsImage(),
@@ -133,6 +134,9 @@
           </div>
         </div>
       </div>
+      <!--files-->
+      <MessageFiles :message="message"></MessageFiles>
+
       <!--message status-->
       <div class="flex justify-between">
         <MessageEmojis
