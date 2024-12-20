@@ -92,7 +92,7 @@
         <button
           class="basicButton flex items-center bg-green-400 hover:bg-green-500"
           v-if="useConversationsStore().currentConversation.type != 'ai'"
-          @click="selectFiles = !selectFiles"
+          @click="selectFiles = true"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
