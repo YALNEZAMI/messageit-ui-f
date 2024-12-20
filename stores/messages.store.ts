@@ -9,7 +9,8 @@ export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
     //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
     //TODO send photos and medias
-    //TODO enter event
+    //TODO strem ai
+    //TODO medias page
 
     return {
       paginationValue: 25,
