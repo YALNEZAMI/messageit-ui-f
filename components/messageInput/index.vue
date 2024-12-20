@@ -20,6 +20,28 @@
         </button></ContainersMain
       >
     </div>
+    <!--photos preview-->
+    <div class="flex bg-black bg-opacity-25">
+      <div v-for="(file, index) of previewSrc" :key="file" class="relative">
+        <NuxtImg
+          v-if="index < 3"
+          class="w-16 h-16 rounded m-1 border-2 border-solid border-white"
+          :src="file"
+        ></NuxtImg>
+        <button
+          class="basicButton bg-red-500 absolute top-0 right-0"
+          @click="removeFile(index)"
+        >
+          x
+        </button>
+      </div>
+      <div
+        v-if="previewSrc.length > 3"
+        class="flex items-center text-xl font-bold"
+      >
+        ...
+      </div>
+    </div>
     <ContainersConversationTheme class="w-full flex justify-center">
       <div class="p-2 flex justify-center space-x-1 w-full md:w1/2">
         <textarea
@@ -37,7 +59,11 @@
             (getConversationType() == 'ai' && isGenerating) ||
             (getConversationType() == 'ai' && message.text == '')
           "
-          v-if="message.text != '' || getConversationType() == 'ai'"
+          v-if="
+            message.text != '' ||
+            getConversationType() == 'ai' ||
+            files.length > 0
+          "
           @click="send"
           class="bg-white text-black rounded border-0 px-2 cursor-pointer hover:bg-gray-200 transition-all duration-500 ease-in-out"
         >
@@ -63,6 +89,33 @@
         >
           {{ getEmoji() }}
         </button>
+        <button
+          class="basicButton flex items-center bg-green-400 hover:bg-green-500"
+          v-if="useConversationsStore().currentConversation.type != 'ai'"
+          @click="selectFiles = !selectFiles"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-4"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+            />
+          </svg>
+        </button>
+        <MessageInputFiles
+          @finish="finishFiles($event)"
+          @removeFile="removeFile($event)"
+          v-if="selectFiles"
+          :files="files"
+          :previewSrc="previewSrc"
+        ></MessageInputFiles>
       </div>
     </ContainersConversationTheme>
   </div>
@@ -71,8 +124,23 @@
 import { eventBus } from "@/utils/eventBus";
 import type { Message } from "~/interfaces/message";
 import type { User } from "~/interfaces/user";
-
+const selectFiles = ref(false);
 const referedMessage = ref({} as Message);
+const previewSrc = ref([]);
+const files = ref<File[]>([]);
+const finishFiles = (data: { previewSrc: string[]; files: File[] }) => {
+  selectFiles.value = false;
+  previewSrc.value = data.previewSrc;
+  files.value = data.files;
+};
+const removeFile = (index: number) => {
+  files.value = files.value.filter((file: File, i: any) => {
+    return index != i;
+  });
+  previewSrc.value = previewSrc.value.filter((file: File, i: any) => {
+    return index != i;
+  });
+};
 eventBus.on("refereMessage", (referedMsg: Message) => {
   referedMessage.value = referedMsg;
   message.value.referedMessage = referedMsg._id as string;
@@ -108,8 +176,12 @@ const send = async () => {
       text,
       type: "message",
     },
-    useConversationsStore().currentConversation._id as string
+    useConversationsStore().currentConversation._id as string,
+    files.value
   );
+
+  files.value = [];
+  previewSrc.value = [];
   cancelReply();
 };
 const typing = async () => {
