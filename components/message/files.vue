@@ -5,7 +5,7 @@
       'justify-end': isMyMessage(),
     }"
   >
-    <div v-if="files.length > 0" class="flex flex-col w-32 md:w-48" :class="{}">
+    <div v-if="files.length > 0" class="flex flex-col md:w-52 w-32" :class="{}">
       <div
         v-for="(file, index) of files"
         :key="file"
@@ -14,7 +14,7 @@
           'justify-end': index % 2 == 0,
         }"
       >
-        <NuxtImg :src="file" class="w-20 h-20 rounded shadow-md"></NuxtImg>
+        <ImagesMessageFile :src="file"></ImagesMessageFile>
       </div>
     </div>
   </main>
