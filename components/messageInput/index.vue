@@ -29,7 +29,7 @@
           :src="file"
         ></NuxtImg>
         <button
-          class="basicButton bg-red-500 absolute top-0 right-0"
+          class="p-1 cursor-pointer rounded border-0 text-white px-2 bg-red-500 absolute top-0 right-0"
           @click="removeFile(index)"
         >
           x
