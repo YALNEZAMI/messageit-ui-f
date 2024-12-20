@@ -9,6 +9,7 @@ export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
     //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
     //TODO send photos and medias
+    //TODO enter event
 
     return {
       paginationValue: 25,
@@ -96,7 +97,7 @@ export const useMessagesStore = defineStore("messagesStore", {
         }
       }
     },
-    async send(msg: Message, conversationId: string) {
+    async send(msg: Message, conversationId: string, files: File[]) {
       msg.sender = useUsersStore().user._id as string;
       msg.conversation = conversationId;
       this.handleAiDelay(msg);
@@ -107,6 +108,10 @@ export const useMessagesStore = defineStore("messagesStore", {
       this.handleTemporaryMessage(temporaryId, msg);
       //if ai conversation message:{myMessage:Message,aiMessage:Message}
       const message = await this.getService("messages").create(msg);
+      //files handling
+      if (files.length > 0) {
+        await useMessageFilesStore().uploadMessageFiles(files, message._id);
+      }
       if (useConversationsStore().currentConversation.type == "ai") {
         this.isAiTyping = false;
         this.popTemporaryMessage(temporaryId + "", message.myMessage);
@@ -190,7 +195,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       if (this.skip > this.paginationValue) {
         limit = this.paginationValue;
       }
-      let messages = await this.getService("messages").find({
+      const res = await this.getService("messages").find({
         query: {
           $limit: limit,
           $skip: this.skip,
@@ -198,9 +203,11 @@ export const useMessagesStore = defineStore("messagesStore", {
           conversation: useRoute().params.id,
         },
       });
+      let messages = res.data;
+
       messages = await this.populateMessages(messages);
 
-      this.messages = messages.data.concat(this.messages);
+      this.messages = messages.concat(this.messages);
       this.isAppendingMessages = false;
       //set new loaded messages as seen
       await useMessageStatusStore().setConversationMessagesAsSeen();
