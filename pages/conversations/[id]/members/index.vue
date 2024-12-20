@@ -3,6 +3,7 @@
     <div class="flex justify-center items-center">
       <button
         @click="addingMembers = true"
+        v-if="getConversationType() == 'group'"
         class="p-2 text-white hover:bg-green-500 cursor-pointer rounded border-0 bg-green-400 w-full"
       >
         Add members +
@@ -101,6 +102,9 @@ const getRights = (user: User) => {
   return "";
 };
 const hasRights = (userId: string) => {
+  if (getConversationType() != "group") {
+    return false;
+  }
   return rights.chef == userId || rights.admins.includes(userId as string);
 };
 
@@ -118,7 +122,9 @@ onMounted(async () => {
   members.value = useConversationsStore().currentConversation.members as User[];
   //listen to conversation change event and scroll then
   eventBus.on("conversationChanged", (conv: Conversation) => {
-    rights = useGroupRightsStore().rights;
+    if (conv.type == "group") {
+      rights = useGroupRightsStore().rights;
+    }
     members.value = conv.members as User[];
   });
 });
