@@ -92,4 +92,9 @@ definePageMeta({
   middleware: "conversations",
   layout: "conversations",
 });
+document.addEventListener("keydown", async (e) => {
+  if (e.key == "Enter") {
+    await search();
+  }
+});
 </script>

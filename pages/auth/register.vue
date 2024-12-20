@@ -181,6 +181,11 @@ const allRequiredInputsFilled = (): boolean => {
 };
 
 definePageMeta({ layout: "auth" });
+document.addEventListener("keydown", async (e) => {
+  if (e.key == "Enter") {
+    await register();
+  }
+});
 </script>
 <style scoped>
 input {

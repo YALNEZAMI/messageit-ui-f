@@ -102,6 +102,11 @@ const login = async () => {
     loading.value = false;
   }
 };
+document.addEventListener("keydown", async (e) => {
+  if (e.key == "Enter") {
+    await login();
+  }
+});
 </script>
 <style scoped>
 input {

@@ -142,4 +142,9 @@ definePageMeta({
   layout: "private-space",
   middleware: "private-space",
 });
+document.addEventListener("keydown", async (e) => {
+  if (e.key == "Enter") {
+    await search();
+  }
+});
 </script>
