@@ -28,6 +28,5 @@ onMounted(async () => {
   res.map((media: any) => {
     medias.value = medias.value.concat(media.urls);
   });
-  console.log("medas", medias.value);
 });
 </script>
