@@ -34,5 +34,6 @@ const isMyMessage = () => {
 const files = ref([]);
 onMounted(async () => {
   files.value = await useMessageFilesStore().getFiles(message._id);
+  console.log("");
 });
 </script>
