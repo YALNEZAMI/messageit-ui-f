@@ -8,9 +8,6 @@ import type { MessageSeen } from "~/interfaces/message-seen";
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
     //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
-    //TODO send photos and medias
-    //TODO strem ai
-    //TODO unlink files when message deleting
 
     return {
       paginationValue: 25,
