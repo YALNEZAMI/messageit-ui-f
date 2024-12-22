@@ -101,7 +101,7 @@
                   v-if="message.transfered"
                   class="font-serif text-xs text-gray-300"
                 >
-                  Transfered
+                  Transféré
                 </div>
                 <div>{{ message.text }}</div>
               </div>
@@ -157,9 +157,9 @@
   @apply text-black text-sm mx-2 cursor-pointer;
 }
 </style>
-<script setup>
+<script lang="ts" setup>
 import { eventBus } from "@/utils/eventBus";
-
+import { Message } from "~/interfaces/message";
 const props = defineProps({
   message: "Object",
   clickedId: "Boolean",
@@ -187,31 +187,26 @@ const options = () => {
 const select = () => {
   emit("select");
 };
-const reply = (msg) => {
+const reply = (msg: Message) => {
   eventBus.emit("refereMessage", msg);
 };
 const getRobotImage = () => {
   return useConversationsStore().robotImage;
 };
-const isLastMessage = () => {
-  return (
-    useMessagesStore().messages[useMessagesStore().messages.length - 1]._id ==
-    message._id
-  );
-};
+
 const thereIsImage = () => {
-  if (
-    props.message.type == "notification" ||
-    !message.sender ||
-    !getNextMessage() ||
-    !getNextMessage().sender
-  ) {
+  if (props.message.type == "notification" || !message.sender) {
     return false;
   }
-  return (
+  if (
     getNextMessage() == undefined ||
-    message.sender._id != getNextMessage().sender._id
-  );
+    !getNextMessage().sender ||
+    !getNextMessage().sender._id
+  ) {
+    //it is the last message(type==message)
+    return true;
+  }
+  return message.sender._id != getNextMessage().sender._id;
 };
 const isMyMessage = () => {
   return message.sender._id == useUsersStore().user._id;
@@ -227,15 +222,16 @@ const getMessages = () => {
 };
 const getNextMessage = () => {
   let i = 0;
-  getMessages().find((msg, index) => {
+  getMessages().find((msg: Message, index: number) => {
     i = index;
     return msg._id == message._id;
   });
+
   return getMessages()[i + 1];
 };
 const getPreviousMessage = () => {
   let i = 0;
-  getMessages().find((msg, index) => {
+  getMessages().find((msg: Message, index: number) => {
     i = index;
     return msg._id == message.id;
   });
