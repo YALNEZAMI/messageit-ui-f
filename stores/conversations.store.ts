@@ -189,6 +189,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
       });
       this.setSearchedConversations(res);
       this.isSearchedConversationsPulse = false;
+      return res;
     },
     getMember(_id: string): User {
       return (this.currentConversation.members as User[]).find((mem: User) => {
