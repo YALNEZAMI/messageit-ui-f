@@ -1,5 +1,32 @@
 <template>
-  <main class="bg-white p-1 py-2 rounded w-full sm:w-3/4">
+  <main class="bg-white p-1 py-4 rounded w-full sm:w-3/4 h-1/2">
+    <!--search bar-->
+    <div class="flex justify-center my-2">
+      <div class="relative w-3/4 md:w-1/2">
+        <input
+          v-model="req"
+          @input="search"
+          type="text"
+          class="rounded-md w-full p-2 bg-gray-100"
+          placeholder="Recherche..."
+        />
+        <!--search icon-->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="size-6 text-black absolute -right-1 top-1"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+          />
+        </svg>
+      </div>
+    </div>
     <div
       class="flex flex-col space-y-2 px-5 overflow-y-auto overflow-hidden h-3/4 max-h-96"
     >
@@ -68,8 +95,18 @@ const send = (conv: Conversation) => {
   emits("send", conv);
 };
 
-const getConvs = (): Conversation[] => {
-  return useConversationsStore().conversations.filter((conv: Conversation) => {
+const req = ref("");
+const searchedConversations = ref([] as any[]);
+const search = async () => {
+  const res = await useConversationsStore().searchConversations(req.value);
+  searchedConversations.value = res;
+};
+const getConvs = (): any[] => {
+  const res =
+    req.value == ""
+      ? useConversationsStore().conversations
+      : searchedConversations.value;
+  return res.filter((conv: Conversation) => {
     return conv._id != useConversationsStore().currentConversation._id;
   });
 };
