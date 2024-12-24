@@ -79,14 +79,14 @@
               />
             </svg>
             <ContainersConversationTheme
-              :title="'-msgid: ' + message._id"
               :class="getContainerClasses()"
               class="p-1 break-words w-max h-max md:max-w-52 max-w-40 shadow-md"
             >
+              <!--refered message-->
               <div
                 @click="emit('goToReferedMessage')"
                 v-if="message.referedMessage"
-                class="bg-gray-300 text-black p-1 truncate rounded border-l-4 border-solid border-0 border-red-600"
+                class="bg-gray-300 cursor-pointer text-black p-1 truncate rounded border-l-4 border-solid border-0 border-red-600"
               >
                 <div class="text-red-600">
                   {{ message.referedMessage.sender.name }}
@@ -95,7 +95,7 @@
                   {{ message.referedMessage.text }}
                 </div>
               </div>
-
+              <!--transfered mark-->
               <div class="flex flex-col">
                 <div
                   v-if="message.transfered"
@@ -103,6 +103,7 @@
                 >
                   Transféré
                 </div>
+                <!--message text content-->
                 <div>{{ message.text }}</div>
               </div>
             </ContainersConversationTheme>
@@ -129,13 +130,14 @@
       <!--files-->
       <MessageFiles :message="message"></MessageFiles>
 
-      <!--message status-->
       <div class="flex justify-between">
+        <!--message emojis-->
         <MessageEmojis
           @click="options()"
           class="w-1/2 flex cursor-pointer"
           :message="message"
         ></MessageEmojis>
+        <!--message status-->
 
         <MessageStatus
           class="w-1/2 flex justify-end"
