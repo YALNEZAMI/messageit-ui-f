@@ -1,14 +1,6 @@
 <template>
   <ContainersTheme
-    :class="{
-      'md:w-96': !isSideBar,
-      'md:w-72 ': isSideBar,
-      'border-b-4 bg-red-400 border-solid border-white':
-        isSideBar && isCurrentConversation(),
-      'w-11/12': !props.noSettings,
-      'w-3/4': props.noSettings,
-      'border-2 border-solid border-white': !isSeen,
-    }"
+    :class="getContainerClasses()"
     class="flex h-20 items-center shadow-md cursor-pointer p-2 py-1 rounded m-1"
   >
     <div
@@ -193,5 +185,16 @@ const getConversationImage = () => {
     default:
       break;
   }
+};
+const getContainerClasses = () => {
+  return {
+    "md:w-96": !isSideBar,
+    "md:w-72 ": isSideBar,
+    "border-b-4 bg-red-400 border-solid border-white":
+      isSideBar && isCurrentConversation(),
+    "w-11/12": !props.noSettings,
+    "w-3/4": props.noSettings,
+    "border-2 border-solid border-white": !isSeen,
+  };
 };
 </script>
