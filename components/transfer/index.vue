@@ -71,6 +71,20 @@
           </div>
         </button>
       </ContainersTheme>
+      <!--pulse effect-->
+      <div
+        class="w-11/12 md:w-1/3 m-1"
+        :class="{
+          hidden: !isPulse() && !isSearchConversationsPulse(),
+        }"
+        v-for="(pulse, index) in ([].length = 10)"
+        :key="index"
+      >
+        <Pulse
+          v-if="isPulse() || isSearchConversationsPulse()"
+          class="w-full overflow-hidden bg-gray-300 rounded"
+        ></Pulse>
+      </div>
     </div>
     <div class="flex justify-center my-2">
       <button
@@ -109,5 +123,11 @@ const getConvs = (): any[] => {
   return res.filter((conv: Conversation) => {
     return conv._id != useConversationsStore().currentConversation._id;
   });
+};
+const isSearchConversationsPulse = () => {
+  return useConversationsStore().isSearchedConversationsPulse;
+};
+const isPulse = () => {
+  return useConversationsStore().isConversationsPulse;
 };
 </script>

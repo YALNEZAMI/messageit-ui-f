@@ -38,16 +38,17 @@
           :conversation="conv"
           :isSideBar="false"
         />
+        <!--pulse effect-->
         <div
           class="w-11/12 md:w-1/3 m-1"
           :class="{
-            hidden: !isPulse(),
+            hidden: !isPulse() && !isSearchConversationsPulse(),
           }"
           v-for="(pulse, index) in ([].length = 10)"
           :key="index"
         >
           <Pulse
-            v-if="isPulse()"
+            v-if="isPulse() || isSearchConversationsPulse()"
             class="w-full overflow-hidden bg-gray-300 rounded"
           ></Pulse>
         </div>
@@ -68,6 +69,9 @@ const searchedConversations = ref([] as any[]);
 const search = async () => {
   const res = await useConversationsStore().searchConversations(req.value);
   searchedConversations.value = res;
+};
+const isSearchConversationsPulse = () => {
+  return useConversationsStore().isSearchedConversationsPulse;
 };
 const getConvs = (): any[] => {
   return req.value == ""
