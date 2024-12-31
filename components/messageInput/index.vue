@@ -185,9 +185,16 @@ const send = async () => {
   cancelReply();
 };
 const typing = async () => {
+  useMessagesStore().setMessagePendingMap({
+    conversation: useRoute().params.id,
+    message: message.value,
+  });
   await useTypingStore().createTyping();
 };
 onMounted(async () => {
+  message.value.text = useMessagesStore().getMessagePending(
+    useRoute().params.id
+  );
   const input = document.getElementById("textInput") as HTMLInputElement;
   input.focus();
 });

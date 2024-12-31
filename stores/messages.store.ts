@@ -5,10 +5,17 @@ import type { User } from "~/interfaces/user";
 import type { Recieving } from "~/interfaces/recieving";
 import type { Conversation } from "~/interfaces/conversation";
 import type { MessageSeen } from "~/interfaces/message-seen";
+
+type MessagePendingMap = {
+  conversation: string;
+  message: Message;
+};
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
     //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
-
+    //TODO message not read number bug
+    //TODO input memory text, timing of temporary messages?
+    //TODO last message on conversation when its a file is empty!
     return {
       paginationValue: 25,
       skip: 0,
@@ -20,9 +27,48 @@ export const useMessagesStore = defineStore("messagesStore", {
       isAtBottom: true,
       temporaryMessagesIds: [] as number[],
       isAiTyping: false,
+      messagePendingMap: (localStorage.getItem("messagePendingMap")
+        ? JSON.parse(localStorage.getItem("messagePendingMap") || "[]")
+        : []) as MessagePendingMap[],
     };
   },
   actions: {
+    setMessagePendingMap(body: MessagePendingMap) {
+      const exist =
+        this.messagePendingMap.filter((msgPending: MessagePendingMap) => {
+          return msgPending.conversation == body.conversation;
+        }).length > 0;
+      if (!exist) {
+        //adding
+        this.messagePendingMap.push(body);
+      } else {
+        //updating
+        this.messagePendingMap = this.messagePendingMap.map(
+          (msgPending: MessagePendingMap) => {
+            if (body.conversation == msgPending.conversation) {
+              return body;
+            }
+            return msgPending;
+          }
+        );
+      }
+      localStorage.setItem(
+        "messagePendingMap",
+        JSON.stringify(this.messagePendingMap)
+      );
+    },
+    getMessagePending(conversationId: string): string {
+      const elem = this.messagePendingMap.find(
+        (msgPending: MessagePendingMap) => {
+          return msgPending.conversation == conversationId;
+        }
+      );
+      if (elem == undefined) {
+        return "";
+      } else {
+        return elem.message.text;
+      }
+    },
     setIsAtBottom(nval: boolean) {
       this.isAtBottom = nval;
     },
