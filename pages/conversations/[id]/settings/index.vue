@@ -226,6 +226,7 @@ definePageMeta({
 document.addEventListener("keydown", async (e) => {
   if (e.key == "Enter") {
     await update();
+    return;
   }
 });
 </script>

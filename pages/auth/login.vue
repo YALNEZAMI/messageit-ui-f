@@ -105,6 +105,7 @@ const login = async () => {
 document.addEventListener("keydown", async (e) => {
   if (e.key == "Enter") {
     await login();
+    return;
   }
 });
 </script>

@@ -145,6 +145,7 @@ definePageMeta({
 document.addEventListener("keydown", async (e) => {
   if (e.key == "Enter") {
     await search();
+    return;
   }
 });
 </script>

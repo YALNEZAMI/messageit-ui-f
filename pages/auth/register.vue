@@ -184,6 +184,7 @@ definePageMeta({ layout: "auth" });
 document.addEventListener("keydown", async (e) => {
   if (e.key == "Enter") {
     await register();
+    return;
   }
 });
 </script>
