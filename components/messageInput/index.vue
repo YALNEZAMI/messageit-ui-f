@@ -185,7 +185,7 @@ const send = async () => {
   cancelReply();
 };
 const typing = async () => {
-  useMessagesStore().setMessagePendingMap({
+  useMessagesStore().setMessagePending({
     conversation: useRoute().params.id,
     message: message.value,
   });
