@@ -80,7 +80,7 @@
             </svg>
             <ContainersConversationTheme
               :class="getContainerClasses()"
-              class="p-1 break-words w-max h-max md:max-w-52 max-w-40 shadow-md"
+              class="p-1 break-words w-max h-max md:max-w-52 lg:max-w-96 max-w-40 shadow-md"
             >
               <!--refered message-->
               <div
