@@ -130,6 +130,9 @@ const getSecondaryText = () => {
     switch (conversation.type) {
       case "private":
       case "group":
+        if (lastMessage.text == "") {
+          return "Files";
+        }
         return lastMessage.sender._id == useUsersStore().user._id
           ? "Moi: " + lastMessage.text
           : lastMessage.sender.name + ": " + lastMessage.text;
