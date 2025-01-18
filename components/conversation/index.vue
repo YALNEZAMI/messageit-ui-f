@@ -1,7 +1,7 @@
 <template>
   <ContainersTheme
     :class="getContainerClasses()"
-    class="flex h-20 items-center shadow-md cursor-pointer p-2 py-1 rounded m-1"
+    class="flex h-20 items-center shadow-md hover:bg-gray-800 cursor-pointer p-2 py-1 rounded m-1"
   >
     <div
       class="flex w-11/12 items-center"
