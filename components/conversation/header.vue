@@ -6,7 +6,6 @@
       <div class="relative">
         <ImagesConversationHeader
           class="w-20 md:w-20 h-16"
-          :src="getConversationImage()"
         ></ImagesConversationHeader>
 
         <Status
@@ -74,18 +73,5 @@ const getImgSrc = () => {
 
 const goToConversations = () => {
   useRouter().push("/conversations");
-};
-const getConversationImage = () => {
-  const conversation = useConversationsStore().currentConversation;
-  switch (conversation.type) {
-    case "ai":
-      return useConversationsStore().robotImage;
-    case "group":
-      return conversation.image;
-    case "private":
-      return useConversationsStore().getOtherUser(conversation).image;
-    default:
-      break;
-  }
 };
 </script>
