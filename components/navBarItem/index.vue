@@ -1,6 +1,5 @@
 <template>
   <div
-    @click="goTo()"
     class="relative cursor-pointer flex md:min-w-20 lg:min-w-24 items-center justify-center sm:space-x-2 px-2 sm:px-1 sm:pr-3 m-1 sm:mx-2 rounded transition-all duration-500"
   >
     <div class="hidden md:block">
@@ -43,9 +42,6 @@ const props = defineProps({
 });
 const navBarItem = props.navBarItem;
 
-const goTo = () => {
-  useRouter().push(navBarItem.path);
-};
 onMounted(async () => {
   const svgDiv = document.getElementById(navBarItem.name + "svg");
   svgDiv.innerHTML = navBarItem.svg;

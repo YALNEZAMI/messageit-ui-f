@@ -7,7 +7,7 @@
       }"
       v-for="nbi of navBarItems"
       :key="nbi.name"
-      ><NavBarItem :navBarItem="nbi"></NavBarItem
+      ><NavBarItem @click="goToPath(nbi)" :navBarItem="nbi"></NavBarItem
     ></ContainersTheme>
   </ContainersMain>
 </template>
@@ -15,6 +15,9 @@
 const friendStore = useFriendsStore();
 const isSamePath = (nbi: any): boolean => {
   return useRoute().path == nbi.path;
+};
+const goToPath = (nbi: any) => {
+  useRouter().push(nbi.path);
 };
 onMounted(async () => {
   await friendStore.getFriendRequestsSentToMe();
