@@ -6,7 +6,7 @@ import type { Recieving } from "~/interfaces/recieving";
 import type { Conversation } from "~/interfaces/conversation";
 import type { MessageSeen } from "~/interfaces/message-seen";
 
-type MessagePendingMap = {
+type messagePending = {
   conversation: string;
   message: Message;
 };
@@ -14,7 +14,7 @@ export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
     //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
     //TODO message not read number bug
-    //TODO input memory text, timing of temporary messages?
+    //TODO timing of temporary messages?
     //TODO last message on conversation when its a file is empty!
     return {
       paginationValue: 25,
@@ -27,15 +27,16 @@ export const useMessagesStore = defineStore("messagesStore", {
       isAtBottom: true,
       temporaryMessagesIds: [] as number[],
       isAiTyping: false,
+      //Message memorized in every conversation text area
       messagePendingMap: (localStorage.getItem("messagePendingMap")
         ? JSON.parse(localStorage.getItem("messagePendingMap") || "[]")
-        : []) as MessagePendingMap[],
+        : []) as messagePending[],
     };
   },
   actions: {
-    setMessagePendingMap(body: MessagePendingMap) {
+    setMessagePending(body: messagePending) {
       const exist =
-        this.messagePendingMap.filter((msgPending: MessagePendingMap) => {
+        this.messagePendingMap.filter((msgPending: messagePending) => {
           return msgPending.conversation == body.conversation;
         }).length > 0;
       if (!exist) {
@@ -44,7 +45,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       } else {
         //updating
         this.messagePendingMap = this.messagePendingMap.map(
-          (msgPending: MessagePendingMap) => {
+          (msgPending: messagePending) => {
             if (body.conversation == msgPending.conversation) {
               return body;
             }
@@ -58,16 +59,25 @@ export const useMessagesStore = defineStore("messagesStore", {
       );
     },
     getMessagePending(conversationId: string): string {
-      const elem = this.messagePendingMap.find(
-        (msgPending: MessagePendingMap) => {
-          return msgPending.conversation == conversationId;
-        }
-      );
+      const elem = this.messagePendingMap.find((msgPending: messagePending) => {
+        return msgPending.conversation == conversationId;
+      });
       if (elem == undefined) {
         return "";
       } else {
         return elem.message.text;
       }
+    },
+    removeMessagePending(conversationId: string): void {
+      this.messagePendingMap = this.messagePendingMap.filter(
+        (msgPending: messagePending) => {
+          return msgPending.conversation != conversationId;
+        }
+      );
+      localStorage.setItem(
+        "messagePendingMap",
+        JSON.stringify(this.messagePendingMap)
+      );
     },
     setIsAtBottom(nval: boolean) {
       this.isAtBottom = nval;
@@ -142,6 +152,10 @@ export const useMessagesStore = defineStore("messagesStore", {
       }
     },
     async send(msg: Message, conversationId: string, files: File[]) {
+      //reset the text area of conversation from localstorage
+      this.removeMessagePending(conversationId);
+      //set some default values
+      msg.createdAt = new Date().toISOString();
       msg.sender = useUsersStore().user._id as string;
       msg.conversation = conversationId;
       this.handleAiDelay(msg);
