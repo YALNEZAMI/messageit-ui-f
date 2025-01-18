@@ -11,6 +11,11 @@
         :src="media"
       ></ImagesMessageFile>
     </div>
+    <NoResult
+      v-if="medias.length == 0"
+      class="mt-3"
+      :message="'Aucun media trouvé.'"
+    ></NoResult>
   </main>
 </template>
 <script lang="ts" setup>
