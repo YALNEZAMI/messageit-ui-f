@@ -57,39 +57,53 @@
         />
       </form>
     </div>
-    <div class="flex my-2 flex-col md:flex-row text-black">
-      <!--name-->
-      <div v-if="conversation.type == 'group'" class="flex space-x-2 my-1">
-        <div>Nom du groupe:</div>
-        <input
-          type="text"
-          v-model.trim="conversation.name"
-          class="rounded p-1 px-2"
-        />
-      </div>
-      <!--theme-->
-      <div
-        class="flex items-center my-2"
-        :class="{
-          'justify-center': conversation.type != 'group',
-        }"
-      >
-        <div>Thème:</div>
-        <select
-          v-model="conversation.theme"
-          name="theme"
-          class="p-1 mx-2 rounded cursor-pointer"
+    <div class="flex justify-center">
+      <div class="flex my-2 flex-col space-y-7 text-black">
+        <!--name-->
+        <div v-if="conversation.type == 'group'" class="flex space-x-2 my-1">
+          <div>Nom du groupe:</div>
+          <input
+            type="text"
+            v-model.trim="conversation.name"
+            class="rounded p-1 px-2"
+          />
+        </div>
+        <!--description field-->
+        <div class="flex space-x-2 my-1">
+          <div>Description:</div>
+          <textarea
+            id="descriptionField"
+            type="text"
+            v-model.trim="conversation.description"
+            class="rounded p-1 px-2 min-w-40 min-h-20 max-h-32 max-w-52"
+            style="field-sizing: content"
+          ></textarea>
+        </div>
+        <!--theme-->
+        <div
+          class="flex items-center my-2"
+          :class="{
+            'justify-center': conversation.type != 'group',
+          }"
         >
-          <option
-            v-for="theme of useConversationsStore().themes"
-            :key="theme._id"
-            :value="theme"
+          <div>Thème:</div>
+          <select
+            v-model="conversation.theme"
+            name="theme"
+            class="p-1 mx-2 rounded cursor-pointer"
           >
-            {{ theme.name }}
-          </option>
-        </select>
+            <option
+              v-for="theme of useConversationsStore().themes"
+              :key="theme._id"
+              :value="theme"
+            >
+              {{ theme.name }}
+            </option>
+          </select>
+        </div>
       </div>
     </div>
+
     <!--success message-->
     <div v-if="success" class="text-center bg-green-600 p-2">
       La conversation a été mise à jour avec success.
@@ -154,7 +168,9 @@ const update = async () => {
   const convToUpdate = {
     _id: conversation.value._id,
     theme: conversation.value.theme,
+    description: conversation.value.description,
   } as Conversation;
+  //group exeption
   if (conversation.value.type == "group") {
     if (conversation.value.name == "") {
       lanceAlert("Le nom du groupe est requis.");
@@ -224,7 +240,12 @@ definePageMeta({
   layout: "conversations",
 });
 document.addEventListener("keydown", async (e) => {
-  if (e.key == "Enter") {
+  const descriptionField = document.getElementById(
+    "descriptionField"
+  ) as HTMLTextAreaElement;
+  const isFocusedOnDescriptionField =
+    descriptionField === document.activeElement;
+  if (e.key == "Enter" && !isFocusedOnDescriptionField) {
     await update();
     return;
   }

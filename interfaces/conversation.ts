@@ -6,6 +6,7 @@ import type { GroupRights } from "./groupRights";
 export interface Conversation {
   _id?: string;
   name?: string;
+  description?: string;
   theme?: Theme;
   type: "private" | "group" | "ai";
   members: string[] | User[];
