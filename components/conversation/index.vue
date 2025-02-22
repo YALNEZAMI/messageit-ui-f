@@ -90,7 +90,7 @@ const props = defineProps({
 const conversation = props.conversation;
 const isSideBar = props.isSideBar;
 const setConversation = async () => {
-  useRouter().push("/conversations/" + conversation._id);
+  useRouter().push("/conversations/" + conversation._id + "/messages");
 };
 
 const getName = () => {

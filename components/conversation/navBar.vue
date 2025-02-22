@@ -13,8 +13,6 @@
   </ContainersMain>
 </template>
 <script lang="ts" setup>
-import { Conversation } from "~/interfaces/conversation";
-
 const friendStore = useFriendsStore();
 const navBarItems = ref([] as any[]);
 onMounted(async () => {
@@ -22,11 +20,14 @@ onMounted(async () => {
   await friendStore.getAcceptedFriendRequests();
   setNavBarItems();
 });
+const getCompletePath = (nbiPath: string): string => {
+  return "/conversations/" + getConvId() + nbiPath;
+};
 const goToPath = (nbi: any) => {
-  useRouter().push("/conversations/" + getConvId() + nbi.path);
+  useRouter().push(getCompletePath(nbi.path));
 };
 const isSamePath = (nbi: any): boolean => {
-  return useRoute().path == nbi.path;
+  return useRoute().path == getCompletePath(nbi.path);
 };
 
 const getConvId = () => {
@@ -34,14 +35,13 @@ const getConvId = () => {
   if (!idConv) {
     idConv = useConversationsStore().currentConversation._id as string;
   }
-  console.log("idconv", idConv);
   return idConv;
 };
 const setNavBarItems = () => {
   navBarItems.value = [
     {
       _id: "messages",
-      path: "/",
+      path: "/messages",
       name: "Messages",
       notificationsNumber: 0,
       svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">

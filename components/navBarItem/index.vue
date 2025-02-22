@@ -35,9 +35,10 @@
 <script setup>
 // import { NavBarItem } from "../../interfaces/navBarItem";
 const route = useRoute();
-const friendStore = useFriendsStore();
 const isCurrentRoute = () => {
-  return route.fullPath.split("?")[0] == navBarItem.path;
+  const match = route.fullPath.split("?")[0] == navBarItem.path;
+
+  return match ? true : route.fullPath.includes(navBarItem.path);
 };
 const props = defineProps({
   navBarItem: Object,
