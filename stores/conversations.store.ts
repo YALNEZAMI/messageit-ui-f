@@ -170,7 +170,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
       group.members.push(useUsersStore().user._id as any);
       const conv = await this.getService("conversations").create(group);
       this.conversations.push(conv);
-      useRouter().push(`/conversations/${conv._id}`);
+      useRouter().push(`/conversations/${conv._id}/messages`);
     },
     async deleteConversation(id: string) {
       const response = await this.getService("conversations").remove(id);
@@ -219,22 +219,29 @@ export const useConversationsStore = defineStore("conversationsStore", {
       this.getService("conversations").on(
         "removed",
         (conversation: Conversation) => {
-          this.setConversations(
-            this.conversations.filter((conv) => {
-              return conv._id != conversation._id;
-            })
-          );
+          const currentUserOut =
+            conversation.members.filter((mem: any) => {
+              return mem._id == useUsersStore().user._id;
+            }).length == 0;
+          if (currentUserOut) {
+            this.setConversations(
+              this.conversations.filter((conv) => {
+                return conv._id != conversation._id;
+              })
+            );
+          }
         }
       );
       this.getService("conversations").on(
         "patched",
         (conversation: Conversation) => {
           this.updateConversationLocally(conversation);
-          //remove current user from group
           const currentUserOut =
             conversation.members.filter((mem: any) => {
               return mem._id == useUsersStore().user._id;
             }).length == 0;
+          console.log("currentUserOut", currentUserOut);
+          //remove current user from group
           if (currentUserOut) {
             this.conversations = this.conversations.filter((conv) => {
               return conv._id != conversation._id;
