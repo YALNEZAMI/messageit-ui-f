@@ -69,7 +69,7 @@
           />
         </div>
         <!--description field-->
-        <div class="flex space-x-2 my-1">
+        <div v-if="conversation.type != 'ai'" class="flex space-x-2 my-1">
           <div>Description:</div>
           <textarea
             id="descriptionField"
