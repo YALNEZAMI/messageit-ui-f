@@ -8,14 +8,14 @@
           for="groupName"
           class="overflow-visible text-black rounded-md cursor-text absolute z-10 left-3 transition-all duration-300 ease-in-out"
           :class="{
-            'top-2 bg-white': !nameGroupInputIsFocused,
-            '-top-2': nameGroupInputIsFocused,
+            'top-2 bg-white': !nameGroupInputIsFocused && group.name == '',
+            '-top-2 ': nameGroupInputIsFocused || group.name != '',
           }"
         >
           <div class="relative z-10">Nom du groupe</div>
           <div
             class="absolute h-1 w-full bg-white top-2 z-0"
-            :class="{ hidden: !nameGroupInputIsFocused }"
+            :class="{ hidden: !nameGroupInputIsFocused && group.name == '' }"
           ></div>
         </label>
 
