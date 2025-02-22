@@ -1,34 +1,36 @@
 <template>
-  <div
-    class="relative cursor-pointer flex md:min-w-20 lg:min-w-24 items-center justify-center sm:space-x-2 px-2 sm:px-1 sm:pr-3 m-1 sm:mx-2 rounded transition-all duration-500"
-  >
-    <div class="hidden md:block">
-      {{ navBarItem.name }}
-    </div>
-    <!--svg and notifsnumber-->
-    <div class="relative">
-      <div
-        class="flex justify-center w-max"
-        :id="navBarItem.name + 'svg'"
-      ></div>
-      <!--notif number-->
-      <div
-        class="absolute -top-1 -right-2 sm:-right-3 text-white px-1 rounded-full"
-      >
-        <NavBarItemNotificationsNumber
-          :name="navBarItem._id"
-        ></NavBarItemNotificationsNumber>
+  <main class="relative">
+    <div
+      class="cursor-pointer flex md:min-w-20 lg:min-w-24 items-center justify-center sm:space-x-2 px-2 sm:px-1 sm:pr-3 m-1 sm:mx-2 rounded transition-all duration-500"
+    >
+      <div class="hidden md:block">
+        {{ navBarItem.name }}
+      </div>
+      <!--svg and notifsnumber-->
+      <div class="relative">
+        <div
+          class="flex justify-center w-max"
+          :id="navBarItem.name + 'svg'"
+        ></div>
+        <!--notif number-->
+        <div
+          class="absolute -top-1 -right-2 sm:-right-3 text-white px-1 rounded-full"
+        >
+          <NavBarItemNotificationsNumber
+            :name="navBarItem._id"
+          ></NavBarItemNotificationsNumber>
+        </div>
       </div>
     </div>
     <!--selector-->
     <div
       id="selector"
-      class="absolute rounded-lg w-full -left-0 sm:-left-1 -bottom-1 h-1 bg-white"
+      class="absolute rounded-lg left-0 -bottom-1 h-1 w-full mx-auto bg-white"
       :class="{
         hidden: !isCurrentRoute(),
       }"
     ></div>
-  </div>
+  </main>
 </template>
 <script setup>
 // import { NavBarItem } from "../../interfaces/navBarItem";
