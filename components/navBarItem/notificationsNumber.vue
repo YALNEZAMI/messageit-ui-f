@@ -56,7 +56,7 @@ const getConversationsWithNewMessagesNumber = async () => {
   for (const conv of useConversationsStore().conversations) {
     const lastMessage: any = conv.lastMessage;
 
-    if (lastMessage) {
+    if (lastMessage && lastMessage.sender._id != useUsersStore().user._id) {
       if (lastMessage.type == "notification") {
         continue;
       }
