@@ -8,7 +8,7 @@ export const useUsersStore = defineStore("usersStore", {
   state: () => {
     return {
       statusCheckingIntervalle: {} as NodeJS.Timeout,
-      statusCheckingIntervalleTime: 1000 * 60, //one minute
+      statusCheckingIntervalleTime: 5000 * 60 * 5, //check online status every 5 minutes
       users: [],
       searchedUsers: [],
       defaultUserImg:
@@ -63,6 +63,7 @@ export const useUsersStore = defineStore("usersStore", {
         {
           query: {
             statusChecking: true,
+            statusCheckingIntervalleTime: this.statusCheckingIntervalleTime,
           },
         }
       );
@@ -91,6 +92,7 @@ export const useUsersStore = defineStore("usersStore", {
     },
     onUser() {
       this.getService().on("patched", async (user: User) => {
+        console.log("userpatched", user.name);
         if (this.user._id == user._id) {
           this.setUserLocally(user);
         }
