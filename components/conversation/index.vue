@@ -32,13 +32,14 @@
         }"
       >
         <div class="w-3/4 truncate px-3">
-          <div class="font-bold text-xl">
+          <div class="font-bold text-2xl">
             {{ getName() }}
           </div>
           <div
-            class="text-sm truncate"
+            class="truncate"
             :class="{
-              'font-bold ': !isSeen,
+              'font-bold text-base text-white': !isSeen,
+              'text-sm text-gray-200': isSeen,
             }"
           >
             {{ getSecondaryText() }}
@@ -155,7 +156,11 @@ const isCurrentConversation = () => {
   return conversation._id == useConversationsStore().currentConversation._id;
 };
 const isSeen = ref(true);
+
 onMounted(async () => {
+  console.log(conversation);
+  console.log(useUsersStore().user._id);
+
   if (
     conversation.lastMessage &&
     conversation.lastMessage.sender._id != useUsersStore().user._id
@@ -165,7 +170,7 @@ onMounted(async () => {
       useUsersStore().user._id
     );
   } else {
-    isSeen.value = false;
+    isSeen.value = true;
   }
   eventBus.on("messageReceived", (message) => {
     if (
