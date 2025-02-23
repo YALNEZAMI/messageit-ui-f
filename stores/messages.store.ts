@@ -15,7 +15,7 @@ export const useMessagesStore = defineStore("messagesStore", {
     //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
     //TODO message not read number bug
     //TODO timing of temporary messages?
-    //TODO last message on conversation when its a file is empty!
+    //TODO audio effects
     return {
       paginationValue: 25,
       skip: 0,
