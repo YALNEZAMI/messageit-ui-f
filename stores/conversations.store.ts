@@ -154,7 +154,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
         type: "private",
       });
       this.conversations.push(conv);
-      useRouter().push(`/conversations/${conv._id}`);
+      useRouter().push(`/conversations/${conv._id}/messages`);
     },
     async createAIConversation() {
       const conv = await this.getService("conversations").create({
@@ -163,7 +163,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
         name: useUsersStore().user._id,
       });
       this.conversations.push(conv);
-      useRouter().push(`/conversations/${conv._id}`);
+      useRouter().push(`/conversations/${conv._id}/messages`);
     },
     async createGroup(group: Conversation) {
       //add current User
