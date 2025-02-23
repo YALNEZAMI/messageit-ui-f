@@ -27,7 +27,7 @@
         :key="msg._id"
         @click="
           $router.push(
-            `/conversations/${$route.params.id}?messageId=${msg._id}`
+            `/conversations/${$route.params.id}/messages?messageId=${msg._id}`
           )
         "
         class="bg-black cursor-pointer rounded w-full h-16 p-2 m-1 flex items-center text-white"
