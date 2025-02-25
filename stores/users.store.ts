@@ -92,7 +92,6 @@ export const useUsersStore = defineStore("usersStore", {
     },
     onUser() {
       this.getService().on("patched", async (user: User) => {
-        console.log("userpatched", user.name);
         if (this.user._id == user._id) {
           this.setUserLocally(user);
         }

@@ -240,7 +240,6 @@ export const useConversationsStore = defineStore("conversationsStore", {
             conversation.members.filter((mem: any) => {
               return mem._id == useUsersStore().user._id;
             }).length == 0;
-          console.log("currentUserOut", currentUserOut);
           //remove current user from group
           if (currentUserOut) {
             this.conversations = this.conversations.filter((conv) => {

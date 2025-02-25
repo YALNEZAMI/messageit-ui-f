@@ -158,9 +158,6 @@ const isCurrentConversation = () => {
 const isSeen = ref(true);
 
 onMounted(async () => {
-  console.log(conversation);
-  console.log(useUsersStore().user._id);
-
   if (
     conversation.lastMessage &&
     conversation.lastMessage.sender._id != useUsersStore().user._id
