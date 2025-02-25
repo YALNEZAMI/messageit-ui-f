@@ -312,6 +312,8 @@ const deleteForMe = async () => {
     return;
   }
   await useMessagesStore().deleteForMe(message._id as string);
+  useAudioStore().runWipeDelete();
+
   toogleIsOptions(false);
 };
 const deleteForAll = async () => {
@@ -323,6 +325,8 @@ const deleteForAll = async () => {
     return;
   }
   await useMessagesStore().deleteForAll(message._id as string);
+  useAudioStore().runWipeDelete();
+
   toogleIsOptions(false);
 };
 
