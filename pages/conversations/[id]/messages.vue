@@ -387,22 +387,27 @@ const goBottom = () => {
   }
 };
 const goToMessage = async (messageId: string) => {
-  const messageElement = document.getElementById(messageId);
-  if (!messageElement) {
-    messagesContainer.scrollTop = 0;
-    await useMessagesStore().appendHistoryMessages();
-  } else {
-    messageElement.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-    messageElement.classList.toggle("searchedMessage");
+  console.log("Going to message:", messageId);
 
-    setTimeout(() => {
-      messageElement.classList.toggle("searchedMessage");
-    }, 4000);
+  let messageElement = document.getElementById(messageId) as HTMLElement;
+
+  if (!messageElement) {
+    messagesContainer.scrollTop = 0; // Scroll to top to load older messages
+    await useMessagesStore().appendHistoryMessages(); // Load older messages
+    setTimeout(() => goToMessage(messageId), 500); // Retry after messages load
+    return;
   }
+
+  // Ensure the message is centered
+  messageElement.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  // Highlight the message
+  messageElement.classList.add("searchedMessage");
+  setTimeout(() => {
+    messageElement.classList.remove("searchedMessage");
+  }, 4000);
 };
+
 const isAtBottom = () => {
   return useMessagesStore().isAtBottom;
 };
