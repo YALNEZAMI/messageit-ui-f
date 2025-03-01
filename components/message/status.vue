@@ -1,5 +1,5 @@
 <template>
-  <main>
+  <main v-if="message.type == 'message'">
     <!--message status-->
     <!--viewers images-->
     <div
