@@ -155,6 +155,7 @@ const message = ref({
   text: "",
   conversation: "",
   referedMessage: "",
+  type: "message",
 });
 const getEmoji = (): string => {
   return useConversationsStore().getEmojiOfTheme();
@@ -186,7 +187,7 @@ const send = async () => {
 };
 const typing = async () => {
   useMessagesStore().setMessagePending({
-    conversation: useRoute().params.id,
+    conversation: useRoute().params.id as string,
     message: message.value,
   });
   await useTypingStore().createTyping();
