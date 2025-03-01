@@ -9,7 +9,7 @@
           'flex-row-reverse': isMyMessage(),
         }"
       >
-        <div class="flex items-end" v-if="thereIsImage()">
+        <div class="flex items-end" v-if="thereIsSenderImage()">
           <ImagesMessageSender
             :title="message.sender.name"
             :src="
@@ -162,6 +162,7 @@
 <script lang="ts" setup>
 import { eventBus } from "@/utils/eventBus";
 import { Message } from "~/interfaces/message";
+import type { User } from "~/interfaces/user";
 const props = defineProps({
   message: "Object",
   clickedId: "Boolean",
@@ -173,10 +174,10 @@ const emit = defineEmits(["options", "goToReferedMessage", "select"]);
 const getContainerClasses = () => {
   return {
     hidden: message.text == "",
-    "ml-12": !thereIsImage() && !isMyMessage(),
-    "mr-12": !thereIsImage() && isMyMessage(),
-    "mr-1": isMyMessage() && thereIsImage(),
-    "ml-1": thereIsImage() && !isMyMessage(),
+    "ml-12": !thereIsSenderImage() && !isMyMessage(),
+    "mr-12": !thereIsSenderImage() && isMyMessage(),
+    "mr-1": isMyMessage() && thereIsSenderImage(),
+    "ml-1": thereIsSenderImage() && !isMyMessage(),
     "rounded-t-md rounded-bl-md": isMyMessage(),
     "rounded-t-md rounded-br-md": !isMyMessage(),
   };
@@ -196,19 +197,19 @@ const getRobotImage = () => {
   return useConversationsStore().robotImage;
 };
 
-const thereIsImage = () => {
+const thereIsSenderImage = () => {
   if (props.message.type == "notification" || !message.sender) {
     return false;
   }
   if (
     getNextMessage() == undefined ||
     !getNextMessage().sender ||
-    !getNextMessage().sender._id
+    !(getNextMessage().sender as User)._id
   ) {
     //it is the last message(type==message)
     return true;
   }
-  return message.sender._id != getNextMessage().sender._id;
+  return message.sender._id != (getNextMessage().sender as User)._id;
 };
 const isMyMessage = () => {
   return message.sender._id == useUsersStore().user._id;
