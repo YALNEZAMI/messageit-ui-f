@@ -2,7 +2,7 @@
   <main style="height: 36rem">
     <!--input-->
     <div
-      class="flex justify-center flex-col space-y-2 sm:space-y-0 sm:flex-row sm:justify-between sm:px-10 bg-gray-200 p-2"
+      class="flex justify-between flex-col space-y-2 sm:space-y-0 sm:flex-row sm:justify-between sm:px-5 bg-gray-200 py-2"
     >
       <div class="flex justify-center sm:justify-normal w-full">
         <button
