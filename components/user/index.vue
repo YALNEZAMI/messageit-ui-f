@@ -2,7 +2,7 @@
   <ContainersTheme
     :id="user._id"
     style="min-width: 19rem"
-    class="flex items-center w-11/12 md:w-96 h-16 rounded p-2 m-1 shadow-md"
+    class="flex items-center w-11/12 sm:w-96 h-16 rounded p-2 m-1 shadow-md"
   >
     <div class="relative">
       <ImagesUser :src="user.image" />
@@ -12,15 +12,15 @@
         :user="getUser()"
       ></Status>
     </div>
-    <div class="mx-2 w-1/2 md:3/4 truncate">
+    <div class="mx-2 w-1/2 sm:3/4 truncate">
       {{ getUserName() }}
     </div>
     <div
-      id="btngroupe flex flex-end"
+      id="btngroupe  "
       v-if="user._id != useUsersStore().user._id && !noButtons"
     >
       <!--delete and chat-->
-      <div v-if="isMyFriend" class="flex flex-col sm:flex-row flex-end">
+      <div v-if="isMyFriend" class="flex flex-col sm:flex-row">
         <button
           type="button"
           @click="remove"
@@ -65,7 +65,7 @@
         </button>
       </div>
       <div
-        class="flex flex-end"
+        class="flex justify-end w-"
         v-else-if="
           !isMyFriend && !isISentFriendRequest && !isHeSentFriendRequest
         "
