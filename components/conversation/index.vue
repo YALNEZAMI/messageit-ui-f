@@ -1,7 +1,7 @@
 <template>
   <ContainersTheme
     :class="getContainerClasses()"
-    class="flex h-20 items-center shadow-md hover:bg-gray-800 cursor-pointer p-2 py-1 rounded m-1"
+    class="flex h-20 items-center shadow-md hover:bg-gray-300 cursor-pointer p-2 py-1 rounded m-1"
   >
     <div
       class="flex w-11/12 items-center"
@@ -38,8 +38,8 @@
           <div
             class="truncate"
             :class="{
-              'font-bold text-base text-white': !isSeen,
-              'text-sm text-gray-200': isSeen,
+              'font-bold text-base text-black': !isSeen,
+              'text-sm text-black': isSeen,
             }"
           >
             {{ getSecondaryText() }}
@@ -195,11 +195,9 @@ const getContainerClasses = () => {
   return {
     "md:w-96": !isSideBar,
     "md:w-72 ": isSideBar,
-    "border-b-4 bg-red-400 border-solid border-white":
-      isSideBar && isCurrentConversation(),
+    "opacity-80": isSideBar && !isCurrentConversation(),
     "w-11/12": !props.noSettings,
     "w-3/4": props.noSettings,
-    "border-2 border-solid border-white": !isSeen,
   };
 };
 </script>
