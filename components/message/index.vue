@@ -161,7 +161,7 @@
 </style>
 <script lang="ts" setup>
 import { eventBus } from "@/utils/eventBus";
-import { Message } from "~/interfaces/message";
+import type { Message } from "~/interfaces/message";
 import type { User } from "~/interfaces/user";
 const props = defineProps({
   message: "Object",
