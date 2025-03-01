@@ -2,7 +2,7 @@
 <template>
   <div
     :class="{
-      'bg-gray-700': true,
+      'bg-gray-700 text-white': true,
     }"
     v-bind="attrs"
   >
