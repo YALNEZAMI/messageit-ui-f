@@ -1,10 +1,10 @@
 <template>
   <ContainersTheme
     :class="getContainerClasses()"
-    class="flex h-20 items-center shadow-md hover:bg-gray-300 cursor-pointer p-2 py-1 rounded m-1"
+    class="relative flex h-20 items-center shadow-md hover:bg-gray-300 cursor-pointer p-1 rounded m-1"
   >
     <div
-      class="flex w-11/12 items-center"
+      class="flex w-full items-center"
       :class="{
         'justify-center md:justify-normal ': isSideBar,
       }"
@@ -56,7 +56,7 @@
     </div>
 
     <!--settings-->
-    <div v-if="!isSideBar && !noSettings">
+    <div class="absolute top-1/3 right-4 z-20" v-if="!isSideBar && !noSettings">
       <svg
         @click="
           $router.push('/conversations/' + conversation._id + '/settings')
