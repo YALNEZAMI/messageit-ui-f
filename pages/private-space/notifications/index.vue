@@ -6,19 +6,22 @@
         type="button"
         @click="categorie = 'FriendRequests'"
         :class="{
-          'border-2 border-red-500':
+          'border-2 border-solid border-red-500':
             useFriendsStore().friendRequests.length > 0,
+          'underline text-red-500': categorie == 'FriendRequests',
         }"
-        class="w-full sm:w-1/3 m-2 my-1 p-2 rounded bg-yellow-600 text-white border-0 cursor-pointer hover:bg-yellow-500 transition-all duration-500"
+        class="w-full sm:w-1/3 m-2 my-1 p-2 rounded bg-white shadow-md text-black border-0 cursor-pointer hover:bg-gray-300 transition-all duration-500"
       >
         {{ useFriendsStore().friendRequests.length }} demandes d'amitié reçues
       </button>
       <button
         type="button"
         @click="categorie = 'Acceptations'"
-        class="w-full sm:w-1/3 m-2 my-1 p-2 rounded bg-green-600 text-white border-0 cursor-pointer hover:bg-green-500 transition-all duration-500"
+        class="w-full shadow-md sm:w-1/3 m-2 my-1 p-2 rounded bg-white text-black border-0 cursor-pointer hover:bg-gray-300 transition-all duration-500"
         :class="{
-          'border-2 border-red-500': useFriendsStore().acceptations.length > 0,
+          'border-2 border-solid border-red-500':
+            useFriendsStore().acceptations.length > 0,
+          'underline text-red-500': categorie == 'Acceptations',
         }"
       >
         {{ useFriendsStore().acceptations.length }} demandes d'amitié acceptées
