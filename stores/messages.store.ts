@@ -112,7 +112,6 @@ export const useMessagesStore = defineStore("messagesStore", {
         ...msg,
         referedMessage,
         sender: useUsersStore().user,
-        createdAt: new Date().toISOString(),
         conversation: useConversationsStore().getConversationLocally(
           msg.conversation as string
         ),
@@ -382,6 +381,11 @@ export const useMessagesStore = defineStore("messagesStore", {
         const creatingMessageSeen = await this.getService(
           "message-seen"
         ).create(messageSeen);
+      } else {
+        //we are not in the conv
+        if ((message.sender as User)._id != useUsersStore().user._id) {
+          useAudioStore().runRecieving();
+        }
       }
       //set message as recieved
       const recieving: Recieving = {
