@@ -170,6 +170,7 @@ export const useFriendsStore = defineStore("friendsStore", {
       const id = useUsersStore().user._id;
       const myFriends: any = await this.getService("friends").find({
         query: { id },
+        paginate: false,
       });
       this.setFriends(myFriends as User[]);
       this.isFriendsPulse = false;
