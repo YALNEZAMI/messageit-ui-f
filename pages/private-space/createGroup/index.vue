@@ -1,39 +1,68 @@
 <template>
   <main style="min-height: 35.9rem">
-    <div class="flex justify-center items-center space-x-10">
-      <div class="relative my-4 w-1/2 md:w-1/3 lg:w-1/4">
-        <label
-          @click="nameGroupLabelClicked"
-          id="nameGroupLabel"
-          for="groupName"
-          class="overflow-visible text-black rounded-md cursor-text absolute z-10 left-3 transition-all duration-300 ease-in-out"
-          :class="{
-            'top-2 bg-white': !nameGroupInputIsFocused && group.name == '',
-            '-top-2 ': nameGroupInputIsFocused || group.name != '',
-          }"
-        >
-          <div class="relative z-10">Nom du groupe</div>
-          <div
-            class="absolute h-1 w-full bg-white top-2 z-0"
-            :class="{ hidden: !nameGroupInputIsFocused && group.name == '' }"
-          ></div>
-        </label>
-
-        <input
-          v-model="group.name"
-          id="nameGroupInput"
-          type="text"
-          placeholder="Les amis"
-          class="w-full pt-3 pb-2 px-3 rounded-2xl border-2 border-solid border-black"
-        />
+    <div class="flex justify-between items-center">
+      <!--filter input-->
+      <div class="flex justify-center mb-1">
+        <div class="relative w-full">
+          <input
+            placeholder="Recherche d'amis..."
+            class="w-full pt-3 pb-2 px-3 rounded-md border-2 border-solid border-black"
+            type="text"
+            v-model="key"
+          />
+          <!--search icon-->
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-6 text-black absolute -right-1 top-1"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+            />
+          </svg>
+        </div>
       </div>
-      <button
-        @click="createGroupe"
-        class="p-2 rounded cursor-pointer bg-indigo-400 hover:bg-indigo-500 transition-all duration-500 ease-in-out h-max text-white"
-      >
-        Create
-      </button>
+      <div class="w-1/2 flex justify-end pr-2 items-center space-x-10">
+        <div class="relative my-4 w-1/2 md:w-1/3 lg:w-1/4">
+          <label
+            @click="nameGroupLabelClicked"
+            id="nameGroupLabel"
+            for="groupName"
+            class="overflow-visible text-black rounded-md cursor-text absolute z-10 left-3 transition-all duration-300 ease-in-out"
+            :class="{
+              'top-2 bg-white': !nameGroupInputIsFocused && group.name == '',
+              '-top-2 ': nameGroupInputIsFocused || group.name != '',
+            }"
+          >
+            <div class="relative z-10">Nom du groupe</div>
+            <div
+              class="absolute h-1 w-full bg-white top-2 z-0"
+              :class="{ hidden: !nameGroupInputIsFocused && group.name == '' }"
+            ></div>
+          </label>
+
+          <input
+            v-model="group.name"
+            id="nameGroupInput"
+            type="text"
+            placeholder="Les amis"
+            class="w-full pt-3 pb-2 px-3 rounded-2xl border-2 border-solid border-black"
+          />
+        </div>
+        <button
+          @click="createGroupe"
+          class="p-2 rounded cursor-pointer bg-indigo-500 hover:bg-indigo-600 transition-all duration-500 ease-in-out h-max text-white"
+        >
+          Create
+        </button>
+      </div>
     </div>
+
     <!--friends-->
     <div
       style="max-height: 31rem"
@@ -115,12 +144,15 @@
 </template>
 <script lang="ts" setup>
 import type { Conversation } from "~/interfaces/conversation";
+import type { User } from "~/interfaces/user";
 
 const group: Ref<Conversation> = ref({
   name: "",
   members: [] as string[],
   type: "group",
 });
+const key = ref("");
+
 const alert = ref({
   bool: false,
   message: "",
@@ -144,7 +176,16 @@ const createGroupe = async () => {
   }
 };
 const getFriends = () => {
-  return useFriendsStore().friends;
+  if (key.value == "") {
+    return useFriendsStore().friends;
+  } else {
+    return useFriendsStore().friends.filter((user: User) => {
+      console.log("friend", user);
+      return (user.name as string)
+        .toLowerCase()
+        .includes(key.value.toLowerCase());
+    });
+  }
 };
 const select = (id: any) => {
   if (isSelected(id)) {
