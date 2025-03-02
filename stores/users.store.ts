@@ -75,6 +75,7 @@ export const useUsersStore = defineStore("usersStore", {
           query: {
             name,
           },
+          paginate: false,
         });
         this.setsearchedUsers(response);
         this.isSearchUsersPulse = false;

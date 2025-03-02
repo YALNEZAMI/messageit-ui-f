@@ -142,7 +142,10 @@ export const useConversationsStore = defineStore("conversationsStore", {
     },
     async getInitalConversations() {
       this.isConversationsPulse = true;
-      const conversations = await this.getService("conversations").find();
+      const conversations = await this.getService("conversations").find({
+        paginate: false,
+      });
+      console.log("convers", conversations);
 
       this.setConversations(conversations);
       this.isConversationsPulse = false;
@@ -186,6 +189,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
         query: {
           key,
         },
+        paginate: false,
       });
       this.setSearchedConversations(res);
       this.isSearchedConversationsPulse = false;
