@@ -27,10 +27,10 @@
         </svg>
       </div>
     </div>
-    <div style="min-height: 35rem" class="flex justify-center">
+    <div style="min-height: 32rem" class="flex justify-center pb-2">
       <div
-        style="max-height: 35rem; scrollbar-width: thin"
-        class="flex h-max w-full lg:w-3/4 justify-center flex-wrap overflow-y-auto p-2"
+        style="max-height: 32rem; scrollbar-width: thin"
+        class="flex pb-3 h-max w-full lg:w-3/4 justify-center flex-wrap overflow-y-auto p-2"
       >
         <Conversation
           v-for="conv of getConvs()"
