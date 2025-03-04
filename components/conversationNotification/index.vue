@@ -1,5 +1,7 @@
 <template>
-  <main class="text-center text-sm text-black">
+  <main
+    class="text-center text-sm text-black bg-gray-100 bg-opacity-75 rounded-md"
+  >
     <div>{{ message.text }}</div>
     <!--date-->
     <div
