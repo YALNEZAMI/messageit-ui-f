@@ -1,6 +1,6 @@
 <template>
   <main
-    class="text-center text-sm text-black bg-gray-100 bg-opacity-75 rounded-md"
+    class="text-center text-sm text-black bg-gray-100 bg-opacity-75 rounded-md my-1"
   >
     <div>{{ message.text }}</div>
     <!--date-->
