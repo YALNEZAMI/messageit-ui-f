@@ -5,7 +5,19 @@
       <ConversationSideBar></ConversationSideBar>
     </ContainersMain>
     <!--messages container and input-->
-    <div class="relative flex w-3/4 md:w-4/5 mr-4 flex-col h-full">
+    <div
+      style="
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+      "
+      :style="{
+        backgroundImage: `url(${
+          useConversationsStore().currentConversation.theme?.photo
+        })`,
+      }"
+      class="relative flex w-3/4 md:w-4/5 mr-4 flex-col h-full"
+    >
       <!--copied message-->
       <div
         v-if="copied"

@@ -126,7 +126,7 @@ import type { Message } from "~/interfaces/message";
 import type { User } from "~/interfaces/user";
 const selectFiles = ref(false);
 const referedMessage = ref({} as Message);
-const previewSrc = ref([]);
+const previewSrc = ref([] as string[]);
 const files = ref<File[]>([]);
 const finishFiles = (data: { previewSrc: string[]; files: File[] }) => {
   selectFiles.value = false;
@@ -137,7 +137,7 @@ const removeFile = (index: number) => {
   files.value = files.value.filter((file: File, i: any) => {
     return index != i;
   });
-  previewSrc.value = previewSrc.value.filter((file: File, i: any) => {
+  previewSrc.value = previewSrc.value.filter((file: any, i: any) => {
     return index != i;
   });
 };
@@ -158,7 +158,7 @@ const message = ref({
   type: "message",
 });
 const getEmoji = (): string => {
-  return useConversationsStore().getEmojiOfTheme();
+  return useConversationsStore().currentConversation.theme?.emoji as string;
 };
 const sendEmoji = async () => {
   message.value.text = getEmoji();
@@ -167,7 +167,9 @@ const sendEmoji = async () => {
 const getConversationType = () => {
   return useConversationsStore().currentConversation.type;
 };
+const isGenerating = ref(false);
 const send = async () => {
+  isGenerating.value = true;
   const text = message.value.text;
   message.value.text = "";
 
@@ -180,7 +182,7 @@ const send = async () => {
     useConversationsStore().currentConversation._id as string,
     files.value
   );
-
+  isGenerating.value = false;
   files.value = [];
   previewSrc.value = [];
   cancelReply();

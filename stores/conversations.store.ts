@@ -12,10 +12,34 @@ export const useConversationsStore = defineStore("conversationsStore", {
       conversations: [] as Conversation[],
       currentConversation: {} as Conversation,
       themes: [
-        { name: "Basique", _id: "basic" },
-        { name: "Printemps", _id: "spring" },
-        { name: "Amour", _id: "love" },
-        { name: "Panda", _id: "panda" },
+        {
+          name: "Basique",
+          _id: "basic",
+          emoji: "👍",
+          photo:
+            "https://media.istockphoto.com/id/1153938533/fr/photo/abstrait-flou-fond-bleu-avec-double-exposition-de-bokeh-cercle-glitter-pour-l%C3%A9l%C3%A9ment-de.jpg?s=612x612&w=0&k=20&c=CjVwzz6s6wQFNRmNzWw5sIQpLzxvdAeG43ydsQnjWXM=",
+        },
+        {
+          name: "Printemps",
+          _id: "spring",
+          emoji: "🌳",
+          photo:
+            "https://cdn.pixabay.com/photo/2019/02/21/22/17/crocus-4012433_1280.jpg",
+        },
+        {
+          name: "Amour",
+          _id: "love",
+          emoji: "❤️",
+          photo:
+            "https://cdn.pixabay.com/photo/2019/02/05/10/43/heart-3976636_1280.jpg",
+        },
+        {
+          name: "Panda",
+          _id: "panda",
+          emoji: "🐼",
+          photo:
+            "https://cdn.pixabay.com/photo/2019/08/21/16/03/panda-4421395_1280.jpg",
+        },
       ] as Theme[],
       isConversationsPulse: false,
       searchedConversations: [] as Conversation[],
@@ -55,20 +79,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
       })?.lastMessage;
       return res;
     },
-    getEmojiOfTheme(): string {
-      switch (this.currentConversation.theme?._id) {
-        case "basic":
-          return "👍";
-        case "love":
-          return "❤️";
-        case "spring":
-          return "🌳";
-        case "panda":
-          return "🐼";
-        default:
-          return "👍";
-      }
-    },
+
     async setCurrentConversation(newConv: Conversation) {
       this.currentConversation = newConv;
       if (newConv.type == "group") {
