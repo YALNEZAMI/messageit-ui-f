@@ -434,7 +434,7 @@ const postEmoji = async (emoji: string) => {
 };
 onMounted(async () => {
   //init messages
-  await useMessagesStore().getInitialMessages();
+  await useMessagesStore().getInitialMessages(useRoute().params.id as string);
   //set messages containrer
   messagesContainer = document.getElementById(
     "messagesContainer"

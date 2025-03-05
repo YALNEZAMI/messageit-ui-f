@@ -194,12 +194,12 @@ export const useMessagesStore = defineStore("messagesStore", {
         return msg;
       });
     },
-    async getInitialMessages() {
+    async getInitialMessages(idConv: string) {
       this.isMessagesPulse = true;
       const messagesCounting = await this.getService("messages").find({
         query: {
           $limit: 0,
-          conversation: useRoute().params.id,
+          conversation: idConv,
         },
       });
       this.setSkip(Math.max(0, messagesCounting.total - this.paginationValue));
@@ -208,7 +208,7 @@ export const useMessagesStore = defineStore("messagesStore", {
           $skip: this.skip,
           $limit: this.paginationValue,
           $sort: { createdAt: 1 },
-          conversation: useRoute().params.id,
+          conversation: idConv,
         },
       });
 
