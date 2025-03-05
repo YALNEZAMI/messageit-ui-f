@@ -26,12 +26,12 @@
       </div>
       <!--name + second text+ lastMessage status-->
       <div
-        class="w-3/4 flex h-full items-center justify-between"
+        class="md:w-3/4 w-2/3 flex h-full items-center justify-between"
         :class="{
           ' hidden md:block': props.isSideBar,
         }"
       >
-        <div class="w-3/4 truncate px-3">
+        <div class="sm:w-3/4 w-2/3 truncate px-3">
           <div class="font-bold text-2xl">
             {{ getName() }}
           </div>
