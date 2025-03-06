@@ -3,7 +3,8 @@
     <ContainersTheme
       class="m-1 rounded hover:opacity-70"
       :style="{
-        'background-color': isSamePath(nbi) ? 'gray' : '',
+        'background-color': isSamePath(nbi) ? 'black' : '',
+        color: isSamePath(nbi) ? 'white' : '',
       }"
       v-for="nbi of navBarItems"
       :key="nbi.name"
