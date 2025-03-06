@@ -5,7 +5,7 @@
         class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-90"
       ></span>
       <span
-        class="relative inline-flex rounded-full h-4 w-5 px-1 text-xs text-center bg-red-500 text-white opacity-80"
+        class="relative inline-flex rounded-full h-4 w-5 px-1 text-xs text-center bg-red-500 border-2 border-solid border-white text-white opacity-80"
       >
         {{ getDisplyedText() }}
       </span>
