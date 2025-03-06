@@ -2,7 +2,7 @@
 <template>
   <div
     :class="{
-      'bg-blue-400 text-white':
+      'bg-white text-black':
         useConversationsStore().currentConversation.theme?._id == 'basic',
       'bg-pink-400 text-white':
         useConversationsStore().currentConversation.theme?._id == 'love',
