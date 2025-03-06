@@ -5,7 +5,8 @@
       v-for="nbi of navBarItems"
       :key="nbi.name"
       :style="{
-        'background-color': isSamePath(nbi) ? 'gray' : '',
+        'background-color': isSamePath(nbi) ? 'black' : '',
+        color: isSamePath(nbi) ? 'white' : '',
       }"
     >
       <NavBarItem @click="goToPath(nbi)" :navBarItem="nbi"></NavBarItem
