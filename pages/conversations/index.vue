@@ -7,7 +7,7 @@
           v-model="req"
           @input="search"
           type="text"
-          class="rounded-md w-full p-2 bg-gray-200 transition-all duration-500 ease-in-out focus:bg-white"
+          class="rounded-md w-full p-2"
           placeholder="Recherche..."
         />
         <!--search icon-->

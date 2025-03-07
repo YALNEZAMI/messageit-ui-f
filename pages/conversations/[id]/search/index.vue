@@ -6,7 +6,7 @@
         @input="search"
         type="text"
         v-model="key"
-        class="p-2 rounded w-1/2 md:w-1/4"
+        class="p-2 w-1/2 md:w-1/4"
         placeholder="Jack"
       />
       <button
