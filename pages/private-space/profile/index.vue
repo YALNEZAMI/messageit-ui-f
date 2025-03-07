@@ -77,7 +77,11 @@
         placeholder="jack@gmail.com"
       />
       <label for="theme">Theme:</label>
-      <select v-model="user.theme" name="theme" class="p-1 mx-2 rounded">
+      <select
+        v-model="user.theme"
+        name="theme"
+        class="p-1 mx-2 rounded cursor-pointer"
+      >
         <option
           v-for="theme of useUsersStore().themes"
           :key="theme._id"
