@@ -43,13 +43,15 @@
       </div>
     </div>
     <ContainersConversationTheme class="w-full flex justify-center">
-      <div class="p-2 flex justify-center space-x-1 w-full md:w1/2">
+      <div
+        class="p-2 flex justify-center items-center space-x-1 w-full md:w1/2"
+      >
         <textarea
           @input="typing"
           id="textInput"
           type="text"
           v-model.trim="message.text"
-          class="scroll w-3/4 h-7 md:w-1/2 px-2 rounded border-transparent focus:border-black focus:border-2"
+          class="scroll border-solid border-2 border-gray-400 w-3/4 h-7 md:w-1/2 px-2 rounded border-transparent focus:border-black focus:border-2"
           placeholder="écrir..."
           rows="3"
           style="resize: none"
@@ -85,12 +87,12 @@
         <button
           v-else
           @click="sendEmoji"
-          class="bg-white text-lg text-black rounded border-0 p-1 px-2 cursor-pointer hover:bg-gray-200 transition-all duration-500 ease-in-out"
+          class="bg-white text-lg border-solid shadow-md text-black rounded cursor-pointer hover:bg-gray-200 transition-all duration-500 ease-in-out"
         >
           {{ getEmoji() }}
         </button>
         <button
-          class="basicButton flex items-center bg-green-400 hover:bg-green-500"
+          class="flex items-center bg-green-400 hover:bg-green-500 border-solid border-black border-2 text-white rounded"
           v-if="useConversationsStore().currentConversation.type != 'ai'"
           @click="selectFiles = true"
         >
@@ -100,7 +102,7 @@
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="currentColor"
-            class="size-4"
+            class="size-5 my-1"
           >
             <path
               stroke-linecap="round"
