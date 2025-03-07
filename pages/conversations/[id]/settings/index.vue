@@ -36,7 +36,7 @@
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-6 absolute top-0 right-0 bg-green-500 hover:bg-green-400 p-1 rounded-md cursor-pointer"
+          class="size-6 absolute top-0 right-0 bg-green-300 text-green-600 hover:bg-green-400 border-2 border-solid border-white p-1 rounded-md cursor-pointer"
         >
           <path
             stroke-linecap="round"
@@ -68,55 +68,64 @@
             class="rounded p-1 px-2"
           />
         </div>
-        <!--description field-->
-        <div v-if="conversation.type != 'ai'" class="flex space-x-2 my-1">
-          <div>Description:</div>
-          <textarea
-            id="descriptionField"
-            type="text"
-            v-model.trim="conversation.description"
-            class="rounded p-1 px-2 min-w-40 min-h-20 max-h-32 max-w-52"
-            style="field-sizing: content"
-          ></textarea>
-        </div>
-        <!--theme-->
-        <div
-          class="flex items-center my-2"
-          :class="{
-            'justify-center': conversation.type != 'group',
-          }"
-        >
-          <div>Thème:</div>
-          <select
-            v-model="conversation.theme"
-            name="theme"
-            class="p-1 mx-2 rounded cursor-pointer"
+        <!--description and theme-->
+        <div class="flex flex-col sm:flex-row sm:space-x-2">
+          <!--description field-->
+          <div
+            v-if="conversation.type != 'ai'"
+            class="flex items-center space-x-2 my-1"
           >
-            <option
-              v-for="theme of useConversationsStore().themes"
-              :key="theme._id"
-              :value="theme"
+            <div>Description:</div>
+            <textarea
+              id="descriptionField"
+              type="text"
+              v-model.trim="conversation.description"
+              class="rounded p-1 px-2 min-w-40 min-h-20 max-h-32 max-w-52"
+              style="field-sizing: content"
+            ></textarea>
+          </div>
+          <!--theme-->
+          <div
+            class="flex items-center my-2"
+            :class="{
+              'justify-center': conversation.type != 'group',
+            }"
+          >
+            <div>Thème:</div>
+            <select
+              v-model="conversation.theme"
+              name="theme"
+              class="p-1 mx-2 rounded cursor-pointer"
             >
-              {{ theme.name }}
-            </option>
-          </select>
+              <option
+                v-for="theme of useConversationsStore().themes"
+                :key="theme._id"
+                :value="theme"
+              >
+                {{ theme.name }}
+              </option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
 
     <!--success message-->
-    <div v-if="success" class="text-center bg-green-600 p-2">
+    <div
+      v-if="success"
+      class="text-center border-2 border-solid border-white bg-green-300 text-green-600 p-2"
+    >
       La conversation a été mise à jour avec success.
     </div>
     <!--alert-->
-    <div v-if="alert.bool" class="text-center bg-red-600 p-2">
+    <div v-if="alert.bool" class="text-center bg-red-300 text-red-700 p-2">
       {{ alert.message }}
     </div>
     <!--update conversation-->
     <div class="flex justify-center my-2 mb-10">
       <button
         @click="update"
-        class="bg-green-600 cursor-pointer border-0 hover:bg-green-500 transition-all duration-500 ease-in-out flex space-x-2 items-center rounded text-white p-2"
+        class="bg-green-300 text-green-700 border-2 border-solid border-white cursor-pointer hover:bg-green-500 transition-all duration-500 ease-in-out flex space-x-2 items-center rounded p-2"
       >
         <div>Mettre à jour la conversation</div>
         <svg
@@ -139,7 +148,7 @@
     <div class="flex justify-center my-2">
       <button
         @click="leave"
-        class="bg-red-600 cursor-pointer border-0 hover:bg-red-500 transition-all duration-500 ease-in-out flex space-x-2 items-center rounded text-white p-2"
+        class="bg-red-300 text-red-700 border-2 border-solid border-white cursor-pointer hover:bg-red-400 transition-all duration-500 ease-in-out flex space-x-2 items-center rounded p-2"
       >
         <div>Quitter la conversation</div>
         <svg
