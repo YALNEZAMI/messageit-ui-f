@@ -12,7 +12,7 @@
         :user="getUser()"
       ></Status>
     </div>
-    <div class="mx-2 w-1/2 sm:3/4 truncate">
+    <div class="mx-2 w-1/2 sm:3/4 truncate font-bold text-lg">
       {{ getUserName() }}
     </div>
     <div
