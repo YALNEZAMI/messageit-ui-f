@@ -16,7 +16,7 @@
           @input="search"
           type="text"
           v-model="req"
-          class="p-2 rounded w-1/2"
+          class="p-2 rounded-xl w-1/2 bg-gray-200 focus:bg-white transition-all duration-500 ease-in-out"
           placeholder="Jack"
         />
       </div>
