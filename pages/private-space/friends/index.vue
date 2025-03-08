@@ -1,5 +1,5 @@
 <template>
-  <main class="flex justify-center" style="min-height: 35rem">
+  <main class="flex justify-center p-2" style="min-height: 35rem">
     <div
       class="overflow-y-auto flex justify-center flex-wrap lg:w-3/4 h-max"
       style="max-height: 35rem; scrollbar-width: thin"
