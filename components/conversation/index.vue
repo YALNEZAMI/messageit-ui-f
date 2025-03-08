@@ -1,7 +1,7 @@
 <template>
   <ContainersTheme
     :class="getContainerClasses()"
-    class="relative flex h-20 items-center shadow-md hover:bg-gray-300 cursor-pointer p-1 rounded m-1"
+    class="relative flex h-20 items-center shadow-md hover:bg-opacity-50 transition-all duration-500 cursor-pointer p-1 rounded m-1"
   >
     <div
       class="flex w-full items-center"
@@ -38,8 +38,8 @@
           <div
             class="truncate"
             :class="{
-              'font-bold text-base text-black': !isSeen,
-              'text-sm text-black': isSeen,
+              'font-bold text-base ': !isSeen,
+              'text-sm ': isSeen,
             }"
           >
             {{ getSecondaryText() }}
