@@ -49,7 +49,7 @@
     <!--users result container-->
     <div
       v-if="getSearchedUsers().length > 0 && category == 'users'"
-      class="flex flex-wrap justify-center"
+      class="flex flex-wrap justify-center p-2"
     >
       <User
         v-for="user of getSearchedUsers()"
@@ -75,7 +75,7 @@
       v-if="
         getSearchedConversations().length > 0 && category == 'conversations'
       "
-      class="flex flex-wrap justify-center"
+      class="flex flex-wrap justify-center p-2"
     >
       <Conversation
         v-for="conv of getSearchedConversations()"
