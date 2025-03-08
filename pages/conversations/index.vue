@@ -1,5 +1,5 @@
 <template>
-  <main>
+  <main class="p-2">
     <!--search bar-->
     <div class="flex justify-center">
       <div class="relative w-3/4 md:w-1/2">
