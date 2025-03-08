@@ -25,7 +25,7 @@ const getClasses = () => {
     case "love":
       return "bg-pink-100 text-white";
     case "panda":
-      return "bg-black text-white";
+      return "bg-gray-600 text-white";
     case "spring":
       return "bg-green-100 text-white";
 
