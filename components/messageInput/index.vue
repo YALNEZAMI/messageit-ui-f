@@ -51,7 +51,7 @@
           id="textInput"
           type="text"
           v-model.trim="message.text"
-          class="scroll border-solid border-2 border-gray-400 w-3/4 h-7 md:w-1/2 px-2 rounded border-transparent focus:border-black focus:border-2"
+          class="scroll border-2 border-solid border-black w-3/4 h-7 md:w-1/2 px-2 rounded focus:border-black focus:border-2"
           placeholder="écrir..."
           rows="3"
           style="resize: none"
