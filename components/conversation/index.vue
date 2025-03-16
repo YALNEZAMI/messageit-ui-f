@@ -195,7 +195,7 @@ const getContainerClasses = () => {
   return {
     "md:w-96": !isSideBar,
     "md:w-72 ": isSideBar,
-    "opacity-80": isSideBar && !isCurrentConversation(),
+    "opacity-70": isSideBar && !isCurrentConversation(),
     "w-11/12": !props.noSettings,
     "w-3/4": props.noSettings,
   };
