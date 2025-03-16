@@ -3,6 +3,7 @@ import type { Conversation } from "~/interfaces/conversation";
 import type { Message } from "~/interfaces/message";
 import type { Theme } from "~/interfaces/theme";
 import type { User } from "~/interfaces/user";
+
 export const useConversationsStore = defineStore("conversationsStore", {
   state: () => {
     return {
@@ -44,6 +45,10 @@ export const useConversationsStore = defineStore("conversationsStore", {
       isConversationsPulse: false,
       searchedConversations: [] as Conversation[],
       isSearchedConversationsPulse: false,
+      //Message memorized in every conversation text area
+      draftMap: (localStorage.getItem("draftMap")
+        ? JSON.parse(localStorage.getItem("draftMap") || "[]")
+        : new Map()) as Map<string, Message>,
     };
   },
   actions: {
@@ -345,6 +350,18 @@ export const useConversationsStore = defineStore("conversationsStore", {
       };
 
       reader.readAsArrayBuffer(file); // Read the file as ArrayBuffer
+    },
+    setConversationDraft(idConversation: string, msg: Message) {
+      this.draftMap.set(idConversation, msg);
+
+      localStorage.setItem("messagePendingMap", JSON.stringify(this.draftMap));
+    },
+    getConversationDraft(conversationId: string): string {
+      return this.draftMap.get(conversationId)?.text as string;
+    },
+    removeConversationDraft(conversationId: string): void {
+      this.draftMap.delete(conversationId);
+      localStorage.setItem("messagePendingMap", JSON.stringify(this.draftMap));
     },
   },
 });

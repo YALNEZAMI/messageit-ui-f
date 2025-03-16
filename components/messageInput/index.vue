@@ -3,18 +3,18 @@
     <!--refered message-->
     <div
       v-if="referedMessage._id"
-      class="border-l-8 py-2 border-solid border-l-red-600 w-11/12 flex mx-auto bg-black bg-opacity-20"
+      class="border-l-8 py-2 border-solid border-l-red-600 w-11/12 flex mx-auto bg-black bg-opacity-40"
     >
       <div class="w-11/12">
         <div class="mx-2 font-bold text-red-600">
           {{ getReferedMessageSender().name }}
         </div>
-        <div class="truncate mx-2 text-black">{{ referedMessage.text }}</div>
+        <div class="truncate mx-2 text-white">{{ referedMessage.text }}</div>
       </div>
-      <ContainersMain class="h-max"
+      <ContainersMain class="h-max rounded-full"
         ><button
           @click="cancelReply()"
-          class="cursor-pointer bg-transparent text-white hover:opacity-80"
+          class="rounded-full cursor-pointer bg-transparent text-white hover:opacity-80"
         >
           x
         </button></ContainersMain
@@ -158,7 +158,7 @@ const message = ref({
   conversation: "",
   referedMessage: "",
   type: "message",
-});
+} as Message);
 const getEmoji = (): string => {
   return useConversationsStore().currentConversation.theme?.emoji as string;
 };
@@ -190,15 +190,15 @@ const send = async () => {
   cancelReply();
 };
 const typing = async () => {
-  useMessagesStore().setMessagePending({
-    conversation: useRoute().params.id as string,
-    message: message.value,
-  });
+  useConversationsStore().setConversationDraft(
+    useRoute().params.id as string,
+    message.value
+  );
   await useTypingStore().createTyping();
 };
 onMounted(async () => {
-  message.value.text = useMessagesStore().getMessagePending(
-    useRoute().params.id
+  message.value.text = useConversationsStore().getConversationDraft(
+    useRoute().params.id as string
   );
   const input = document.getElementById("textInput") as HTMLInputElement;
   input.focus();
