@@ -65,7 +65,10 @@ onMounted(async () => {
   //listen to typing event
   eventBus.on("typing", (t: Typing) => {
     // popTyper(t);
-    if (getTyper(t)._id != useUsersStore().user._id) {
+    if (
+      getTyper(t)._id != useUsersStore().user._id &&
+      t.conversation == useConversationsStore().currentConversation._id
+    ) {
       const isAtBotm: boolean = useMessagesStore().isAtBottom;
       const typerExist =
         typings.value.filter((typingFilter: Typing) => {
@@ -81,11 +84,11 @@ onMounted(async () => {
         }
       }
     }
-    eventBus.on("messageReceived", (msg: Message) => {
-      popTyper({
-        typer: msg.sender as User,
-        conversation: (msg.conversation as Conversation)._id as string,
-      });
+  });
+  eventBus.on("messageReceived", (msg: Message) => {
+    popTyper({
+      typer: msg.sender as User,
+      conversation: (msg.conversation as Conversation)._id as string,
     });
   });
 });
