@@ -36,7 +36,7 @@
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-6 absolute top-0 right-0 bg-green-300 text-green-600 hover:bg-green-400 border-2 border-solid border-white p-1 rounded-md cursor-pointer"
+          class="size-6 absolute top-0 right-0 bg-green-200 text-green-800 hover:bg-green-300 border-2 border-solid border-green-800 p-1 rounded-md cursor-pointer"
         >
           <path
             stroke-linecap="round"
@@ -125,7 +125,7 @@
     <div class="flex justify-center my-2 mb-10">
       <button
         @click="update"
-        class="bg-green-300 text-green-700 border-2 border-solid border-white cursor-pointer hover:bg-green-500 transition-all duration-500 ease-in-out flex space-x-2 items-center rounded p-2"
+        class="bg-green-200 text-green-800 border-2 border-solid border-green-800 cursor-pointer hover:bg-green-300 transition-all duration-500 ease-in-out flex space-x-2 items-center rounded p-2"
       >
         <div>Mettre à jour la conversation</div>
         <svg
@@ -148,7 +148,7 @@
     <div class="flex justify-center my-2">
       <button
         @click="leave"
-        class="bg-red-300 text-red-700 border-2 border-solid border-white cursor-pointer hover:bg-red-400 transition-all duration-500 ease-in-out flex space-x-2 items-center rounded p-2"
+        class="bg-red-200 text-red-800 border-2 border-solid border-red-800 cursor-pointer hover:bg-red-300 transition-all duration-500 ease-in-out flex space-x-2 items-center rounded p-2"
       >
         <div>Quitter la conversation</div>
         <svg
