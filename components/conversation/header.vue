@@ -19,7 +19,7 @@
       </div>
     </div>
     <ContainersMain
-      class="font-bold hover:bg-opacity-70 transition-all duration-300 rounded-full flex justify-center items-center p-1 w-max"
+      class="font-bold hover:bg-opacity-70 transition-all duration-300 rounded-full flex justify-center items-center p-1 w-max hover:px-2"
     >
       <svg
         @click="goToConversations"
