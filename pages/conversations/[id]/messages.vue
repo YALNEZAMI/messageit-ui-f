@@ -403,8 +403,6 @@ const goBottom = () => {
   }
 };
 const goToMessage = async (messageId: string) => {
-  console.log("Going to message:", messageId);
-
   let messageElement = document.getElementById(messageId) as HTMLElement;
 
   if (!messageElement) {

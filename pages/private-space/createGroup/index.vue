@@ -180,7 +180,6 @@ const getFriends = () => {
     return useFriendsStore().friends;
   } else {
     return useFriendsStore().friends.filter((user: User) => {
-      console.log("friend", user);
       return (user.name as string)
         .toLowerCase()
         .includes(key.value.toLowerCase());

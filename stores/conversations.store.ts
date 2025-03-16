@@ -161,7 +161,6 @@ export const useConversationsStore = defineStore("conversationsStore", {
       const conversations = await this.getService("conversations").find({
         paginate: false,
       });
-      console.log("convers", conversations);
 
       this.setConversations(conversations);
       this.isConversationsPulse = false;
