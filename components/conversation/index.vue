@@ -38,7 +38,7 @@
           <div
             class="truncate"
             :class="{
-              'font-bold text-base ': !isSeen,
+              'font-bold text-base underline': !isSeen,
               'text-sm ': isSeen,
             }"
           >
@@ -82,13 +82,17 @@
     </div>
   </ContainersTheme>
 </template>
-<script setup>
+<script lang="ts" setup>
+import type { Conversation } from "~/interfaces/conversation";
+import type { Message } from "~/interfaces/message";
+import type { Typing } from "~/interfaces/typing";
+import type { User } from "~/interfaces/user";
 const props = defineProps({
-  conversation: "Object",
-  isSideBar: "Boolean",
-  noSettings: "Boolean",
+  conversation: Object,
+  isSideBar: Boolean,
+  noSettings: Boolean,
 });
-const conversation = props.conversation;
+const conversation = props.conversation as Conversation;
 const isSideBar = props.isSideBar;
 const setConversation = async () => {
   useRouter().push("/conversations/" + conversation._id + "/messages");
@@ -106,10 +110,18 @@ const getName = () => {
       return "conversation";
   }
 };
+const typing: Ref<Typing> = ref({} as Typing);
 const getSecondaryText = () => {
-  const lastMessage = useConversationsStore().getLastMessage(conversation._id);
+  if (typing.value._id != undefined) {
+    const typer = typing.value.typer as User;
+    return typer!.name + " est en train d'écrire...";
+  }
+  const lastMessage = useConversationsStore().getLastMessage(
+    conversation._id!
+  ) as Message;
 
   if (lastMessage == undefined) {
+    //si pas de message encore
     if (conversation.members.length == 1) {
       return "Auto conversation";
     }
@@ -125,21 +137,23 @@ const getSecondaryText = () => {
         return "Posez une question à l'assistant Boby";
     }
   } else {
+    //si présence de message
     if (lastMessage.type == "notification") {
       return lastMessage.text;
     }
+    const sender = lastMessage.sender as User;
     switch (conversation.type) {
       case "private":
       case "group":
         if (lastMessage.text == "") {
           return "Files";
         }
-        return lastMessage.sender._id == useUsersStore().user._id
+        return sender._id == useUsersStore().user._id
           ? "Moi: " + lastMessage.text
-          : lastMessage.sender.name + ": " + lastMessage.text;
+          : sender.name + ": " + lastMessage.text;
 
       case "ai":
-        if (lastMessage.sender._id == useUsersStore().user._id) {
+        if (sender._id == useUsersStore().user._id) {
           return "Moi: " + lastMessage.text;
         } else {
           return "Boby: " + lastMessage.text;
@@ -164,19 +178,30 @@ onMounted(async () => {
   ) {
     isSeen.value = await useMessageStatusStore().isSeenBy(
       conversation.lastMessage._id,
-      useUsersStore().user._id
+      useUsersStore().user._id!
     );
   } else {
     isSeen.value = true;
   }
-  eventBus.on("messageReceived", (message) => {
+  eventBus.on("messageReceived", (message: Message) => {
+    const sender = message.sender as User;
+    const conversation = message.conversation as Conversation;
     if (
-      message.sender._id != useUsersStore().user._id &&
-      message.conversation._id == conversation._id &&
-      message.conversation._id != useRoute().params.id
+      sender._id != useUsersStore().user._id &&
+      conversation._id == conversation._id &&
+      conversation._id != useRoute().params.id
     ) {
       isSeen.value = false;
     }
+  });
+  eventBus.on("typing", (t: Typing) => {
+    if (t.conversation != conversation._id) {
+      return;
+    }
+    typing.value = t;
+    setTimeout(() => {
+      typing.value = {} as Typing;
+    }, 2000);
   });
 });
 const getConversationImage = () => {
