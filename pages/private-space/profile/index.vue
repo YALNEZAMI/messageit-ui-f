@@ -142,7 +142,7 @@
     <button
       @click="updateUser"
       type="button"
-      class="bg-green-400 w-max mx-auto px-2 rounded-md text-green-700 cursor-pointer font-bold hover:bg-green-400 p-1 border-0 flex justify-center space-x-2 items-center"
+      class="bg-green-200 hover:bg-green-300 w-max mx-auto px-2 rounded-md text-green-800 transition-all duration-300 ease-in-out cursor-pointer font-bold p-1 flex justify-center space-x-2 items-center border-2 border-solid border-green-800"
     >
       <div>Mettre à jour</div>
       <svg
