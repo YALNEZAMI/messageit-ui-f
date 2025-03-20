@@ -1,7 +1,7 @@
 <template>
   <ContainersTheme
     :class="getContainerClasses()"
-    class="relative flex h-20 items-center shadow-md hover:bg-opacity-50 transition-all duration-500 cursor-pointer p-1 rounded m-1"
+    class="relative flex h-20 items-center shadow-md hover:bg-opacity-70 transition-all duration-500 cursor-pointer p-1 rounded m-1"
   >
     <div
       class="flex w-full items-center"
@@ -32,14 +32,14 @@
         }"
       >
         <div class="sm:w-3/4 w-2/3 truncate px-3">
-          <div class="font-bold text-2xl">
+          <div class="font-bold text-2xl mb-1">
             {{ getName() }}
           </div>
           <div
             class="truncate"
             :class="{
-              'font-bold text-base underline': !isSeen,
-              'text-sm ': isSeen,
+              'font-bold text-base ': !isSeen,
+              'text-xs font-serif ': isSeen,
             }"
           >
             {{ getSecondaryText() }}
@@ -185,11 +185,11 @@ onMounted(async () => {
   }
   eventBus.on("messageReceived", (message: Message) => {
     const sender = message.sender as User;
-    const conversation = message.conversation as Conversation;
+    const msgConversation = message.conversation as Conversation;
     if (
       sender._id != useUsersStore().user._id &&
-      conversation._id == conversation._id &&
-      conversation._id != useRoute().params.id
+      msgConversation._id == conversation._id &&
+      msgConversation._id != useRoute().params.id
     ) {
       isSeen.value = false;
     }
