@@ -7,7 +7,7 @@ export interface User {
   password: string;
   password2?: string;
   name?: string;
-  strategy?: string;
+  lastConnection: string;
   image: string;
   onLine: boolean;
   aiUser?: boolean;
