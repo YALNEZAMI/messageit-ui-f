@@ -1,7 +1,7 @@
 <template>
   <main
     style="background: linear-gradient(40deg, white, brown)"
-    class="w-3/4 md:w-1/2 p-2 rounded flex flex-col space-y-2 shadow-md"
+    class="w-3/4 md:w-1/2 p-2 bg-opacity-30 rounded flex flex-col space-y-2 shadow-md"
   >
     <h3 class="text-center">Connexion à votre compte</h3>
     <div class="flex justify-center">
@@ -39,7 +39,8 @@
       <button
         type="button"
         @click="login"
-        class="min-w-20 bg-indigo-500 hover:bg-indigo-600 transition-all duration-500 rounded p-2 px-3 text-white cursor-pointer"
+        style="background: linear-gradient(40deg, purple, white)"
+        class="min-w-20 border-white font-bold transition-all duration-500 rounded-xl p-2 px-3 text-black cursor-pointer hover:rounded"
       >
         <span v-if="!loading">Se connecter</span>
         <span v-else class="flex items-center">
@@ -75,6 +76,13 @@
   </main>
 </template>
 <script lang="ts" setup>
+import type { User } from "~/interfaces/user";
+
+let alreadyConnectedUser = {} as User;
+if (useAuthStore().isAuthenticated()) {
+  alreadyConnectedUser = useUsersStore().user;
+  console.log("alreadyConnectedUser", alreadyConnectedUser);
+}
 const auth = ref({
   email: "yaser@gmail.com",
   password: "1234",
@@ -95,6 +103,14 @@ const lanceAlert = (msg: string) => {
 };
 definePageMeta({ layout: "auth" });
 const login = async () => {
+  //set status of already connected user to offline if the connecting user is different
+  if (
+    alreadyConnectedUser.email != undefined &&
+    alreadyConnectedUser.email != auth.value.email
+  ) {
+    alreadyConnectedUser.onLine = false;
+    useUsersStore().updateUser(alreadyConnectedUser);
+  }
   loading.value = true;
   const correctLogin = await authStore.login(auth.value);
   if (!correctLogin) {
