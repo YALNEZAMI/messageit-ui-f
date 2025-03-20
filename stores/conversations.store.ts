@@ -111,7 +111,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
       return otherUser ? otherUser : useUsersStore().user;
     },
     getConnectedFriend(conv: Conversation): User {
-      if (!conv.members || conv.type == "ai") {
+      if (conv.type == "ai") {
         return useUsersStore().user;
       }
 
