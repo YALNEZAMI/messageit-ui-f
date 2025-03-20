@@ -66,7 +66,8 @@
       <button
         type="button"
         @click="register"
-        class="bg-indigo-500 min-w-20 hover:bg-indigo-600 cursor-pointer transition-all duration-500 p-1 px-2 rounded text-white my-2 font-bold"
+        style="background: linear-gradient(40deg, purple, white)"
+        class="min-w-20 cursor-pointer transition-all duration-500 px-4 rounded-xl hover:rounded p-2 text-black my-2 font-bold"
       >
         <span v-if="!loading">S'inscrir</span>
         <span v-else class="flex items-center">
