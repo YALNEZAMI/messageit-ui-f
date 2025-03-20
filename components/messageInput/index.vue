@@ -59,15 +59,11 @@
         <button
           :disabled="
             (getConversationType() == 'ai' && isGenerating) ||
-            (getConversationType() == 'ai' && message.text == '')
+            (getConversationType() == 'ai' && message.text.trim() == '')
           "
-          v-if="
-            message.text != '' ||
-            getConversationType() == 'ai' ||
-            files.length > 0
-          "
+          v-if="isSendable()"
           @click="send"
-          class="bg-white text-black rounded border-0 px-2 cursor-pointer hover:bg-gray-200 transition-all duration-500 ease-in-out"
+          class="bg-white text-black rounded border-0 px-2 py-1 cursor-pointer hover:bg-gray-200 transition-all duration-500 ease-in-out"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -92,7 +88,7 @@
           {{ getEmoji() }}
         </button>
         <button
-          class="flex items-center bg-green-400 hover:bg-green-500 border-solid border-black border-2 text-white rounded"
+          class="flex cursor-pointer items-center bg-green-400 hover:bg-green-500 border-solid border-black border-2 text-white rounded"
           v-if="useConversationsStore().currentConversation.type != 'ai'"
           @click="selectFiles = true"
         >
@@ -203,6 +199,14 @@ onMounted(async () => {
   const input = document.getElementById("textInput") as HTMLInputElement;
   input.focus();
 });
+const isSendable = () => {
+  console.log(' getConversationType() != "ai"', getConversationType() != "ai");
+  return (
+    getConversationType() == "ai" ||
+    (message.value.text && message.value.text.trim() !== "") ||
+    files.value.length > 0
+  );
+};
 </script>
 <style scoped>
 .scroll::-webkit-scrollbar {
