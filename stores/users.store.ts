@@ -7,8 +7,6 @@ import { eventBus } from "@/utils/eventBus";
 export const useUsersStore = defineStore("usersStore", {
   state: () => {
     return {
-      statusCheckingIntervalle: {} as NodeJS.Timeout,
-      statusCheckingIntervalleTime: 5000 * 60 * 5, //check online status every 5 minutes
       users: [],
       searchedUsers: [],
       defaultUserImg:
@@ -61,10 +59,7 @@ export const useUsersStore = defineStore("usersStore", {
           onLine: isOnLine,
         },
         {
-          query: {
-            statusChecking: true,
-            statusCheckingIntervalleTime: this.statusCheckingIntervalleTime,
-          },
+          query: {},
         }
       );
     },
@@ -84,13 +79,7 @@ export const useUsersStore = defineStore("usersStore", {
         console.error("Error retrieving users:", error);
       }
     },
-    setStatusCheckingIntervalle() {
-      clearInterval(this.statusCheckingIntervalle);
-      const newIntervall = setInterval(async () => {
-        await useUsersStore().setCurrentUserStatus(true);
-      }, this.statusCheckingIntervalleTime);
-      this.statusCheckingIntervalle = newIntervall;
-    },
+
     onUser() {
       this.getService().on("patched", async (user: User) => {
         if (this.user._id == user._id) {
