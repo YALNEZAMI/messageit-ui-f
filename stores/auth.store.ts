@@ -55,7 +55,11 @@ export const useAuthStore = defineStore("authStore", {
     async logout() {
       try {
         //set as offline
-        await useUsersStore().setCurrentUserStatus(false);
+        await useUsersStore().updateUser({
+          onLine: false,
+          lastConnection: new Date().toISOString(),
+          _id: useUsersStore().user._id,
+        });
 
         localStorage.clear();
         this.setAccessToken("");
@@ -73,6 +77,7 @@ export const useAuthStore = defineStore("authStore", {
       }
     },
     async login(auth: any) {
+      console.log("LOGIN");
       localStorage.clear();
       this.initializeAuth();
       try {
