@@ -14,8 +14,11 @@
           :user="getConnectedFriend()"
         ></Status>
       </div>
-      <div class="w-3/4 text-2xl md:text-3xl px-3 font-bold">
-        {{ getType() != "ai" ? getName() : "Boby 🤖" }}
+      <div class="px-3">
+        <div class="w-3/4 text-2xl md:text-3xl font-bold">
+          {{ getType() != "ai" ? getName() : "Boby 🤖" }}
+        </div>
+        <span class="text-xs font-serif">{{ getSecondaryText() }}</span>
       </div>
     </div>
     <ContainersMain
@@ -40,10 +43,13 @@
   </ContainersConversationTheme>
 </template>
 <script lang="ts" setup>
+import { connected } from "process";
+
 const getConnectedFriend = () => {
-  return useConversationsStore().getConnectedFriend(
+  const connectedUser = useConversationsStore().getConnectedFriend(
     useConversationsStore().currentConversation
   );
+  return connectedUser;
 };
 const getName = () => {
   const currentConversation = useConversationsStore().currentConversation;
@@ -57,14 +63,52 @@ const getName = () => {
 const getType = () => {
   return useConversationsStore().currentConversation.type;
 };
-const getRobotImage = () => {
-  return useConversationsStore().robotImage;
-};
-const getImgSrc = () => {
-  return useConversationsStore().currentConversation.image;
-};
 
 const goToConversations = () => {
   useRouter().push("/conversations");
+};
+const getSecondaryText = () => {
+  const currentConversation = useConversationsStore().currentConversation;
+  switch (currentConversation.type) {
+    case "ai":
+      return "Tu peux demander ce que tu veux !";
+    case "group":
+      return "Groupe";
+    case "private":
+      if (currentConversation.members.length == 1) {
+        return "Je suis tout seul ici !";
+      } else {
+        const otherUser =
+          useConversationsStore().getOtherUser(currentConversation);
+        if (otherUser.onLine) {
+          return "En ligne";
+        } else {
+          return (
+            "Hors ligne depuis " +
+            getDurationSince(new Date(otherUser.lastConnection))
+          );
+        }
+      }
+
+    default:
+      break;
+  }
+};
+const getDurationSince = (date: Date) => {
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  if (days > 0) {
+    return days + " jours";
+  } else if (hours > 0) {
+    return hours + " heures";
+  } else if (minutes > 0) {
+    return minutes + " minutes";
+  } else {
+    return seconds + " secondes";
+  }
 };
 </script>
