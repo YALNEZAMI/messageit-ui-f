@@ -52,6 +52,11 @@ export const useConversationsStore = defineStore("conversationsStore", {
     };
   },
   actions: {
+    getEmojiOfTheme(themeId: string): string {
+      return this.themes.find((theme: Theme) => {
+        return theme._id == themeId;
+      })?.emoji as string;
+    },
     setSearchedConversations(convs: Conversation[]) {
       this.searchedConversations = convs;
     },
