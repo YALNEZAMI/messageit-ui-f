@@ -38,6 +38,10 @@
             class="w-6 h-6 mb-10 border-4 border-solid border-white border-t-transparent rounded-full animate-spin"
           ></div>
         </div>
+        <!--welcome to conversation-->
+        <ConversationWelcome
+          v-if="getMessages().length == 0"
+        ></ConversationWelcome>
         <!--messages-->
         <div v-for="message of getMessages()" :key="message._id">
           <Message
