@@ -30,7 +30,7 @@
             `/conversations/${$route.params.id}/messages?messageId=${msg._id}`
           )
         "
-        class="bg-black cursor-pointer rounded w-full h-16 p-2 m-1 flex items-center text-black"
+        class="bg-black hover:bg-opacity-80 transition-all duration-500 cursor-pointer rounded w-full h-16 p-2 m-1 flex items-center text-black"
       >
         <NuxtImg
           class="h-full w-16 rounded-full"
