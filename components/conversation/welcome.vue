@@ -1,6 +1,9 @@
 <template>
   <main class="flex justify-center">
-    <div class="rounded-md bg-white p-3">
+    <div
+      class="rounded-md p-3"
+      style="background: linear-gradient(0deg, cyan, pink, white)"
+    >
       <div class="flex justify-center">
         <ImagesConversationHeader></ImagesConversationHeader>
       </div>
