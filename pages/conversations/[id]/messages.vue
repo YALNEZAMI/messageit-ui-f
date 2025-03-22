@@ -242,7 +242,7 @@
   @apply border-0  cursor-pointer p-2 rounded-md text-white m-1 max-w-40;
 }
 .searchedMessage {
-  @apply animate-pulse bg-red-300 p-2 rounded;
+  @apply animate-pulse bg-red-300 bg-opacity-50 rounded;
 }
 </style>
 <script lang="ts" setup>
