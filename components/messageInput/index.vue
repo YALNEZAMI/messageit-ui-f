@@ -156,7 +156,11 @@ const message = ref({
   type: "message",
 } as Message);
 const getEmoji = (): string => {
-  return useConversationsStore().currentConversation.theme?.emoji as string;
+  return useConversationsStore().currentConversation.theme?.emoji != undefined
+    ? useConversationsStore().currentConversation.theme!.emoji
+    : useConversationsStore().getEmojiOfTheme(
+        useConversationsStore().currentConversation.theme?._id!
+      );
 };
 const sendEmoji = async () => {
   message.value.text = getEmoji();
