@@ -73,9 +73,9 @@ const navBarItems = ref([
 `,
   },
   {
-    _id: "Amis",
+    _id: "Friends",
     path: "/private-space/friends",
-    name: "Friends",
+    name: "Amis",
     notificationsNumber: 0,
 
     svg: ` <svg
