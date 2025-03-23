@@ -1,5 +1,10 @@
 <template>
-  <main style="height: 36rem">
+  <main
+    style="height: 36rem"
+    :style="{
+      color: conversation.theme?._id == 'panda' ? 'white' : 'black',
+    }"
+  >
     <div class="flex justify-center">
       <div class="relative w-max">
         <div class="flex flex-col" v-if="conversationPhoto != null">
@@ -36,7 +41,7 @@
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-6 absolute top-0 right-0 bg-green-200 text-green-800 hover:bg-green-300 border-2 border-solid border-green-800 p-1 rounded-md cursor-pointer"
+          class="size-6 absolute top-0 right-0 bg-green-500 hover:bg-green-300 border-2 border-solid border-white p-1 rounded-se-xl rounded-es-xl cursor-pointer text-white"
         >
           <path
             stroke-linecap="round"
@@ -58,7 +63,7 @@
       </form>
     </div>
     <div class="flex justify-center">
-      <div class="flex my-2 flex-col space-y-7 text-black">
+      <div class="flex my-2 flex-col space-y-7">
         <!--name-->
         <div v-if="conversation.type == 'group'" class="flex space-x-2 my-1">
           <div>Nom du groupe:</div>

@@ -31,7 +31,7 @@
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-6 absolute bottom-0 right-0 bg-green-500 hover:bg-green-400 p-1 rounded-md cursor-pointer"
+          class="size-6 absolute bottom-0 right-0 bg-green-500 hover:bg-green-400 p-1 rounded-se-xl rounded-es-xl cursor-pointer"
         >
           <path
             stroke-linecap="round"

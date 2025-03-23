@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div class="w-full">
     <!--refered message-->
     <div
       v-if="referedMessage._id"
-      class="border-l-8 py-2 border-solid border-l-red-600 w-11/12 flex mx-auto bg-black bg-opacity-40"
+      class="border-l-8 py-2 border-solid border-l-red-600 w-full flex mx-auto bg-black bg-opacity-40"
     >
-      <div class="w-11/12">
+      <div class="w-full">
         <div class="mx-2 font-bold text-red-600">
           {{ getReferedMessageSender().name }}
         </div>
@@ -57,10 +57,7 @@
           style="resize: none"
         ></textarea>
         <button
-          :disabled="
-            (getConversationType() == 'ai' && isGenerating) ||
-            (getConversationType() == 'ai' && message.text.trim() == '')
-          "
+          :disabled="isSendButtonDisabled()"
           v-if="isSendable()"
           @click="send"
           class="bg-white text-black rounded border-0 px-2 py-1 cursor-pointer hover:bg-gray-200 transition-all duration-500 ease-in-out"
@@ -209,6 +206,12 @@ const isSendable = () => {
     getConversationType() == "ai" ||
     (message.value.text && message.value.text.trim() !== "") ||
     files.value.length > 0
+  );
+};
+const isSendButtonDisabled = () => {
+  return (
+    (getConversationType() == "ai" && isGenerating.value) ||
+    (getConversationType() == "ai" && message.value.text.trim() == "")
   );
 };
 </script>

@@ -27,8 +27,8 @@
     </div>
     <!--conversations container-->
     <div
-      style="max-height: 28rem; direction: rtl; scrollbar-width: thin"
-      class="overflow-y-auto flex justify-center flex-wrap h-max"
+      style="max-height: 26rem; direction: rtl; scrollbar-width: thin"
+      class="overflow-y-auto flex justify-center flex-wrap h-max pb-2"
     >
       <Conversation
         style="direction: ltr"

@@ -1,5 +1,5 @@
 <template>
-  <main class="flex w-screen" style="height: 35.5rem">
+  <main class="flex w-screen" style="height: 36.8rem">
     <!--side conversations-->
     <ContainersMain style="min-height: 35.5rem" class="w-1/4 md:w-1/5 rounded">
       <ConversationSideBar></ConversationSideBar>
@@ -16,7 +16,7 @@
           useConversationsStore().currentConversation.theme?.photo
         })`,
       }"
-      class="relative flex w-3/4 md:w-4/5 mr-4 flex-col h-full"
+      class="relative flex w-full md:w-4/5 pr-3 flex-col h-full"
     >
       <!--copied message-->
       <div
@@ -29,7 +29,7 @@
       </div>
       <div
         id="messagesContainer"
-        class="p-2 flex flex-col overflow-y-auto overflow-x-hidden"
+        class="relativep-1 w-full flex flex-col overflow-y-auto overflow-x-hidden"
         style="height: 32rem; scrollbar-width: thin"
       >
         <!--load spinner-->
@@ -154,7 +154,7 @@
         </button>
       </div>
       <!-- input -->
-      <MessageInput></MessageInput>
+      <MessageInput class="absolute bottom-0 left-0 w-full"></MessageInput>
     </div>
 
     <!--options-->
