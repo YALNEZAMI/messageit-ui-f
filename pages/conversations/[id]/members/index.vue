@@ -29,7 +29,7 @@
         <div
           class="flex items-center p-1"
           :class="{
-            'mt-5': !hasRights(user._id + ''),
+            'mt-5': !hasRights(user._id + '') && !user.aiUser,
           }"
         >
           <User :noButtons="getConversationType() == 'ai'" :user="user"></User>
