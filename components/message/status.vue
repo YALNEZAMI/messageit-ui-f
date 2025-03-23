@@ -26,7 +26,7 @@
         class="bi bi-check-circle rounded-full"
         :class="{
           'bg-white text-black': !isRecieved || props.onConversation,
-          'bg-black': isRecieved,
+          'bg-blue-500 text-white': isRecieved,
         }"
         viewBox="0 0 16 16"
       >
