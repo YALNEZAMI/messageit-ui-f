@@ -129,7 +129,8 @@ const getSecondaryText = () => {
       case "private":
         return (
           "Dites bonjour à " +
-          useConversationsStore().getOtherUser(conversation).name
+          useConversationsStore().getOtherUser(conversation).name +
+          " !"
         );
       case "group":
         return "Nouveau Groupe.";
