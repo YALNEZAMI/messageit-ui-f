@@ -26,7 +26,11 @@
           }"
         >
           <div v-if="props.selectingMode">
-            <input type="checkbox" @change="select()" />
+            <input
+              :checked="props.isSelected"
+              type="checkbox"
+              @change="select()"
+            />
           </div>
           <div v-else class="text-black cursor-pointer" @click="options">
             <svg
@@ -164,12 +168,13 @@ import { eventBus } from "@/utils/eventBus";
 import type { Message } from "~/interfaces/message";
 import type { User } from "~/interfaces/user";
 const props = defineProps({
-  message: "Object",
-  clickedId: "Boolean",
-  selectingMode: "Boolean",
+  message: Object,
+  clickedId: String,
+  selectingMode: Boolean,
+  isSelected: Boolean,
 });
 
-const message = props.message;
+const message = props.message as Message;
 const emit = defineEmits(["options", "goToReferedMessage", "select"]);
 const getContainerClasses = () => {
   return {
