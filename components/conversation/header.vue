@@ -10,7 +10,7 @@
 
         <Status
           v-if="getType() != 'ai'"
-          class="absolute -top-1 right-3"
+          class="absolute -top-1 right-3 truncate"
           :user="getConnectedFriend()"
         ></Status>
       </div>
@@ -18,7 +18,9 @@
         <div class="w-3/4 text-2xl md:text-3xl font-bold">
           {{ getType() != "ai" ? getName() : "Boby 🤖" }}
         </div>
-        <span class="text-xs font-serif">{{ getSecondaryText() }}</span>
+        <span class="text-xs font-serif truncate">{{
+          getSecondaryText()
+        }}</span>
       </div>
     </div>
     <ContainersMain
