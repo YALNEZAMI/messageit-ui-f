@@ -52,6 +52,7 @@
             @goToReferedMessage="goToMessage(getReferedMessageId(message))"
             :message="message"
             :clickedId="clickedId"
+            :is-selected="isSelected(message._id + '')"
             :selectingMode="selectingMode"
             v-if="message.type == 'message'"
           ></Message>
@@ -118,6 +119,7 @@
           Supprimer pour moi
         </button>
         <button
+          v-if="allSeletedMessagesAreMine()"
           class="selectionButtons half bg-red-500 hover:bg-red-600"
           @click="deleteForAll"
         >
@@ -156,70 +158,78 @@
     </div>
 
     <!--options-->
-    <div
-      id="options"
-      style="height: 35.5rem"
-      v-if="isOptions"
-      @click="toogleIsOptions(false)"
-      class="bg-black bg-opacity-80 fixed w-screen z-30 flex justify-center items-end"
-    >
-      <div class="z-40 relative w-11/12 h-max p-0 bg-white rounded">
-        <div
-          class="flex justify-center space-x-2 bg-black bg-opacity-50 p-1 mb-1"
-        >
+    <transition name="slide-up">
+      <div
+        id="options"
+        style="height: 35.5rem"
+        v-if="isOptions"
+        @click="setIsOptions(false)"
+        class="bg-black bg-opacity-80 fixed w-screen z-30 flex justify-center items-end"
+      >
+        <div class="relative w-11/12">
           <div
-            @click="postEmoji(emoji)"
-            class="rounded-lg p-1 cursor-pointer hover:opacity-85"
-            :class="{
-              'bg-indigo-300': reaction == emoji,
-              'bg-white': reaction !== emoji,
-            }"
-            v-for="emoji of useEmojisStore().availableEmojis"
-            :key="emoji"
+            class="z-40 transition-all duration-1000 w-11/12 h-max p-0 bg-white rounded"
           >
-            {{ emoji }}
+            <!--emojis container-->
+            <div
+              class="flex justify-center space-x-2 bg-black bg-opacity-50 p-1 mb-1"
+            >
+              <div
+                @click="postEmoji(emoji)"
+                class="rounded-lg p-1 cursor-pointer hover:opacity-85"
+                :class="{
+                  'bg-indigo-300': reaction == emoji,
+                  'bg-white': reaction !== emoji,
+                }"
+                v-for="emoji of useEmojisStore().availableEmojis"
+                :key="emoji"
+              >
+                {{ emoji }}
+              </div>
+            </div>
+            <!--<h3 class="text-center text-black mb-1 m-0">
+          Choisir l'opération à effectuer sur
+        </h3>-->
+
+            <div class="flex flex-wrap justify-center w-full">
+              <button
+                @click="deleteForMe"
+                class="optionsButtons text-xs bg-orange-500 hover:bg-orange-600"
+              >
+                Supprimer pour moi
+              </button>
+              <button
+                v-if="getSender()._id == useUsersStore().user._id"
+                @click="deleteForAll"
+                class="optionsButtons text-xs bg-red-500 hover:bg-red-600"
+              >
+                Supprimer pour tous
+              </button>
+
+              <button
+                @click="toogleSelectingMode()"
+                class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
+              >
+                Select
+              </button>
+              <button
+                @click="transferOne()"
+                class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
+              >
+                Transfère
+              </button>
+              <button
+                @click="copy"
+                class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
+              >
+                {{ copied ? "Copié ✔️" : "Copier" }}
+              </button>
+            </div>
           </div>
         </div>
-        <h3 class="text-center text-black mb-1 m-0">
-          Choisir l'opération à effectuer sur
-        </h3>
-
-        <div class="flex flex-wrap justify-center w-full">
-          <button
-            @click="deleteForMe"
-            class="optionsButtons text-xs bg-orange-500 hover:bg-orange-600"
-          >
-            Supprimer pour moi
-          </button>
-          <button
-            v-if="getSender()._id == useUsersStore().user._id"
-            @click="deleteForAll"
-            class="optionsButtons text-xs bg-red-500 hover:bg-red-600"
-          >
-            Supprimer pour tous
-          </button>
-
-          <button
-            @click="toogleSelectingMode()"
-            class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
-          >
-            Select
-          </button>
-          <button
-            @click="transferOne()"
-            class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
-          >
-            Transfère
-          </button>
-          <button
-            @click="copy"
-            class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
-          >
-            {{ copied ? "Copié ✔️" : "Copier" }}
-          </button>
-        </div>
       </div>
-    </div>
+    </transition>
+
     <!--transfer component-->
     <div
       v-if="transfering"
@@ -258,6 +268,11 @@ let message = useMessagesStore().messages[0];
 const selectedMessages = ref([] as Message[]);
 const sentToConversations = ref([] as string[]);
 const transfering = ref(false);
+const allSeletedMessagesAreMine = (): boolean => {
+  return selectedMessages.value.every((msg: Message) => {
+    return (msg.sender as User)._id == useUsersStore().user._id;
+  });
+};
 const sendFromTransfer = async (conv: Conversation) => {
   for (const msg of selectedMessages.value) {
     const sending = await useMessagesStore().transfer(
@@ -286,17 +301,16 @@ const transferOne = () => {
   transfering.value = true;
 };
 const select = (msg: Message) => {
-  const isSelected =
-    selectedMessages.value.find((msgfind: Message) => {
-      return msg._id == msgfind._id;
-    }) != undefined;
+  const isSelected = selectedMessages.value.some((msgfind: Message) => {
+    return msg._id == msgfind._id;
+  });
   if (isSelected) {
     selectedMessages.value = selectedMessages.value.filter(
       (msgfilter: Message) => msgfilter._id != msg._id
     );
-    return;
+  } else {
+    selectedMessages.value.push(msg);
   }
-  selectedMessages.value.push(msg);
 };
 const cancelSelection = () => {
   selectedMessages.value = [];
@@ -304,10 +318,15 @@ const cancelSelection = () => {
 };
 const toogleSelectingMode = () => {
   selectingMode.value = !selectingMode.value;
-
   isOptions.value = false;
+  selectedMessages.value.push(message);
 };
-const toogleIsOptions = (newVal: boolean) => {
+const isSelected = (idMsg: string): boolean => {
+  return selectedMessages.value.some((msgfind: Message) => {
+    return idMsg == msgfind._id;
+  });
+};
+const setIsOptions = (newVal: boolean) => {
   isOptions.value = newVal;
 };
 
@@ -330,7 +349,7 @@ const deleteForMe = async () => {
   await useMessagesStore().deleteForMe(message._id as string);
   useAudioStore().runWipeDelete();
 
-  toogleIsOptions(false);
+  setIsOptions(false);
 };
 const deleteForAll = async () => {
   if (selectingMode.value) {
@@ -343,7 +362,7 @@ const deleteForAll = async () => {
   await useMessagesStore().deleteForAll(message._id as string);
   useAudioStore().runWipeDelete();
 
-  toogleIsOptions(false);
+  setIsOptions(false);
 };
 
 const copied = ref(false);
@@ -361,6 +380,7 @@ const copy = () => {
 };
 const reaction = ref("");
 const messageOptions = async (msg: any) => {
+  //handle reaction state
   const alreadyReacted = await useEmojisStore().alreadyReacted(msg._id);
   if (alreadyReacted.length > 0) {
     reaction.value = alreadyReacted[0].emoji;
@@ -368,8 +388,8 @@ const messageOptions = async (msg: any) => {
     reaction.value = "";
   }
   message = msg;
-
-  toogleIsOptions(true);
+  //display the options pannel
+  setIsOptions(true);
 };
 
 const isMessagesPulse = () => {
@@ -484,3 +504,22 @@ definePageMeta({
   middleware: "conversations",
 });
 </script>
+<style scoped>
+/* Slide-up transition */
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.3s ease-in-out;
+}
+
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.slide-up-enter-to,
+.slide-up-leave-from {
+  transform: translateY(0%);
+  opacity: 1;
+}
+</style>
