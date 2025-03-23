@@ -15,7 +15,7 @@
     </div>
     <div class="flex justify-end w-1/4">
       <ContainersMain
-        @click="useSideBarStore().toogleSideBar(true)"
+        @click="DisplaySideBar()"
         class="cursor-pointer rounded p-1 flex items-center hover:bg-opacity-80"
         ><svg
           xmlns="http://www.w3.org/2000/svg"
@@ -36,4 +36,7 @@
 </template>
 <script lang="ts" setup>
 const userStore = useUsersStore();
+const DisplaySideBar = () => {
+  eventBus.emit("sideBareToogled", true);
+};
 </script>

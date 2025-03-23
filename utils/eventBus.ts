@@ -18,6 +18,7 @@ type Events = {
   notificationNumberChanged: any;
   emojiCreated: Emoji;
   emojiRemoved: Emoji;
+  sideBareToogled: Boolean;
 };
 
 export const eventBus = mitt<Events>();
