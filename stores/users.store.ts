@@ -52,17 +52,7 @@ export const useUsersStore = defineStore("usersStore", {
         .service("users")
         .patch(this.user._id as string, auth);
     },
-    async setCurrentUserStatus(isOnLine: boolean) {
-      await this.getService().patch(
-        this.user._id as string,
-        {
-          onLine: isOnLine,
-        },
-        {
-          query: {},
-        }
-      );
-    },
+
     async search(name: string) {
       this.isSearchUsersPulse = true;
       try {

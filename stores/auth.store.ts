@@ -96,8 +96,6 @@ export const useAuthStore = defineStore("authStore", {
 
         //init friends requests
         await useFriendsStore().getFriendRequestsSentToMe();
-        //set onLine as true
-        await useUsersStore().setCurrentUserStatus(true);
 
         this.redirectTo("/private-space");
         return response;
