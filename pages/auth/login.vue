@@ -81,7 +81,6 @@ import type { User } from "~/interfaces/user";
 let alreadyConnectedUser = {} as User;
 if (useAuthStore().isAuthenticated()) {
   alreadyConnectedUser = useUsersStore().user;
-  console.log("alreadyConnectedUser", alreadyConnectedUser);
 }
 const auth = ref({
   email: "yaser@gmail.com",

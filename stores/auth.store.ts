@@ -77,7 +77,6 @@ export const useAuthStore = defineStore("authStore", {
       }
     },
     async login(auth: any) {
-      console.log("LOGIN");
       localStorage.clear();
       this.initializeAuth();
       try {

@@ -11,7 +11,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   ) {
     useRouter().push("/auth/login");
   }
-  console.log("useRoute().fullPath", useRoute().fullPath);
   if (authStore.isAuthenticated()) {
     try {
       //init data
