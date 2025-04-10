@@ -11,4 +11,5 @@ export interface Message {
   createdAt?: string;
   updatedAt?: string;
   transfered?: boolean;
+  files?: any[];
 }

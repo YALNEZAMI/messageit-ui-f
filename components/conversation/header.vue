@@ -10,7 +10,7 @@
 
         <Status
           v-if="getType() != 'ai'"
-          class="absolute -top-1 right-3 truncate"
+          class="absolute -top-1 right-3"
           :user="getConnectedFriend()"
         ></Status>
       </div>

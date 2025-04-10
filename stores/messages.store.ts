@@ -13,6 +13,7 @@ export const useMessagesStore = defineStore("messagesStore", {
     //TODO timing of temporary messages?
     //TODO audio effects
     //FIXME animation de la notif "est en train d'écrir"
+    //FIXME photo sending and ai media analyser
     return {
       paginationValue: 25,
       skip: 0,
@@ -98,7 +99,7 @@ export const useMessagesStore = defineStore("messagesStore", {
         }
       }
     },
-    async send(msg: Message, conversationId: string, files: File[]) {
+    async send(msg: Message, conversationId: string) {
       //reset the text area of conversation from localstorage
       useConversationsStore().removeConversationDraft(conversationId);
       //set some default values
@@ -111,12 +112,10 @@ export const useMessagesStore = defineStore("messagesStore", {
       const temporaryId = this.temporaryMessagesIds.length;
 
       this.handleTemporaryMessage(temporaryId, msg);
+      console.log("msg creating body", msg);
       //if ai conversation message:{myMessage:Message,aiMessage:Message}
       const message = await this.getService("messages").create(msg);
-      //files handling
-      if (files.length > 0) {
-        await useMessageFilesStore().uploadMessageFiles(files, message._id);
-      }
+
       if (useConversationsStore().currentConversation.type == "ai") {
         this.isAiTyping = false;
         this.popTemporaryMessage(temporaryId + "", message.myMessage);
