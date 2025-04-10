@@ -35,7 +35,12 @@
           <div class="font-bold text-2xl mb-1">
             {{ getName() }}
           </div>
+          <!--draft-->
+          <div v-if="getDraft()">
+            <span class="text-green-500">Brouillon: </span>{{ getDraft() }}
+          </div>
           <div
+            v-else
             class="truncate"
             :class="{
               'font-bold text-base ': !isSeen,
@@ -225,5 +230,10 @@ const getContainerClasses = () => {
     "w-11/12": !props.noSettings,
     "w-3/4": props.noSettings,
   };
+};
+const getDraft = () => {
+  return useConversationsStore().getConversationDraft(
+    conversation._id as string
+  );
 };
 </script>
