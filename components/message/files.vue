@@ -20,8 +20,8 @@
   </main>
 </template>
 <script lang="ts" setup>
-import { Message } from "~/interfaces/message";
-import { User } from "~/interfaces/user";
+import type { Message } from "~/interfaces/message";
+import type { User } from "~/interfaces/user";
 
 const props = defineProps({
   message: Object,

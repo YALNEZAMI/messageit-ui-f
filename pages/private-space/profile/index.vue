@@ -211,7 +211,10 @@ const updateUser = async () => {
   auth.value.email = auth.value.email.toLowerCase();
   user.value.email = auth.value.email;
   if (userPhoto.value != null) {
-    await useUsersStore().uploadProfilePhoto(userPhoto.value as File);
+    const uploading = await useUploadStore().uploadProfilePhoto(
+      userPhoto.value
+    );
+    user.value.image = uploading.path;
   }
   const updating = await useUsersStore().updateUser(user.value);
   let emailIssu = false;

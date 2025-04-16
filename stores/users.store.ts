@@ -115,32 +115,32 @@ export const useUsersStore = defineStore("usersStore", {
         }
       });
     },
-    async uploadProfilePhoto(file: File) {
-      const reader = new FileReader();
+    // async uploadProfilePhoto(file: File) {
+    //   const reader = new FileReader();
 
-      reader.onload = async () => {
-        const arrayBuffer = reader.result as ArrayBuffer;
+    //   reader.onload = async () => {
+    //     const arrayBuffer = reader.result as ArrayBuffer;
 
-        // Convert ArrayBuffer to base64
-        const uint8Array = new Uint8Array(arrayBuffer);
-        const binaryString = uint8Array.reduce(
-          (acc, byte) => acc + String.fromCharCode(byte),
-          ""
-        );
-        const base64String = btoa(binaryString);
+    //     // Convert ArrayBuffer to base64
+    //     const uint8Array = new Uint8Array(arrayBuffer);
+    //     const binaryString = uint8Array.reduce(
+    //       (acc, byte) => acc + String.fromCharCode(byte),
+    //       ""
+    //     );
+    //     const base64String = btoa(binaryString);
 
-        // Send base64-encoded file to the service
-        const response = await useNuxtApp()
-          .$feathers.service("users-photos")
-          .create({
-            file: {
-              buffer: base64String, // Base64-encoded buffer
-              originalname: file.name, // File name
-            },
-          });
-      };
+    //     // Send base64-encoded file to the service
+    //     const response = await useNuxtApp()
+    //       .$feathers.service("users-photos")
+    //       .create({
+    //         file: {
+    //           buffer: base64String, // Base64-encoded buffer
+    //           originalname: file.name, // File name
+    //         },
+    //       });
+    //   };
 
-      reader.readAsArrayBuffer(file); // Read the file as ArrayBuffer
-    },
+    //   reader.readAsArrayBuffer(file); // Read the file as ArrayBuffer
+    // },
   },
 });

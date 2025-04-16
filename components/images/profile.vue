@@ -1,11 +1,12 @@
 <template>
   <main>
-    <NuxtImg
-      v-if="isShown"
+    <img
+      id="profileImg"
+      v-if="true"
       class="w-32 h-32 rounded-md"
       :src="imgSrc"
       @error="handleError"
-    ></NuxtImg>
+    />
   </main>
 </template>
 
@@ -21,6 +22,8 @@ const handleError = () => {
 };
 const isShown = ref(true);
 onMounted(async () => {
+  // const img = document.getElementById("profileImg") as HTMLImageElement;
+  // img.src = " http://localhost:3000" + imgSrc.value;
   eventBus.on("userPatched", (user: User) => {
     if (
       user._id == useUsersStore().user._id &&

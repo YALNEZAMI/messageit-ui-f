@@ -81,8 +81,8 @@ const props = defineProps({
   previewSrc: Array,
   files: Array,
 });
-const previewSrc = ref<string[]>(props.previewSrc);
-const files = ref<File[]>(props.files);
+const previewSrc = ref<string[]>(props.previewSrc as string[]);
+const files = ref<File[]>(props.files as File[]);
 const emits = defineEmits(["finish", "removeFile"]);
 
 const triggerInput = async (id: string) => {
@@ -118,7 +118,7 @@ const removeFile = (index: number) => {
   files.value = files.value.filter((file: File, i: any) => {
     return index != i;
   });
-  previewSrc.value = previewSrc.value.filter((file: File, i: any) => {
+  previewSrc.value = previewSrc.value.filter((file: any, i: any) => {
     return index != i;
   });
   emits("removeFile", index);
