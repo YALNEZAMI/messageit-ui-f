@@ -321,40 +321,40 @@ export const useConversationsStore = defineStore("conversationsStore", {
       eventBus.emit("conversationChanged", res);
       return res;
     },
-    async uploadConversationPhoto(file: File) {
-      const reader = new FileReader();
+    // async uploadConversationPhoto(file: File) {
+    //   const reader = new FileReader();
 
-      reader.onload = async () => {
-        const arrayBuffer = reader.result as ArrayBuffer;
+    //   reader.onload = async () => {
+    //     const arrayBuffer = reader.result as ArrayBuffer;
 
-        // Convert ArrayBuffer to base64
-        const uint8Array = new Uint8Array(arrayBuffer);
-        const binaryString = uint8Array.reduce(
-          (acc, byte) => acc + String.fromCharCode(byte),
-          ""
-        );
-        const base64String = btoa(binaryString);
+    //     // Convert ArrayBuffer to base64
+    //     const uint8Array = new Uint8Array(arrayBuffer);
+    //     const binaryString = uint8Array.reduce(
+    //       (acc, byte) => acc + String.fromCharCode(byte),
+    //       ""
+    //     );
+    //     const base64String = btoa(binaryString);
 
-        // Send base64-encoded file to the service
-        const response = await useNuxtApp()
-          .$feathers.service("conversations-photos")
-          .create(
-            {
-              file: {
-                buffer: base64String, // Base64-encoded buffer
-                originalname: file.name, // File name
-              },
-            },
-            {
-              query: {
-                conversationId: this.currentConversation._id,
-              },
-            }
-          );
-      };
+    //     // Send base64-encoded file to the service
+    //     const response = await useNuxtApp()
+    //       .$feathers.service("conversations-photos")
+    //       .create(
+    //         {
+    //           file: {
+    //             buffer: base64String, // Base64-encoded buffer
+    //             originalname: file.name, // File name
+    //           },
+    //         },
+    //         {
+    //           query: {
+    //             conversationId: this.currentConversation._id,
+    //           },
+    //         }
+    //       );
+    //   };
 
-      reader.readAsArrayBuffer(file); // Read the file as ArrayBuffer
-    },
+    //   reader.readAsArrayBuffer(file); // Read the file as ArrayBuffer
+    // },
     setConversationDraft(idConversation: string, msg: Message) {
       this.draftMap.set(idConversation, msg);
 

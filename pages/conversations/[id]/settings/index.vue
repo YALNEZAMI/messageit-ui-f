@@ -41,7 +41,7 @@
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-6 absolute top-0 right-0 bg-green-500 hover:bg-green-300 border-2 border-solid border-white p-1 rounded-se-xl rounded-es-xl cursor-pointer text-white"
+          class="size-5 absolute top-0 right-0 bg-green-600 hover:bg-green-400 p-1 rounded-se-xl rounded-es-xl cursor-pointer"
         >
           <path
             stroke-linecap="round"
@@ -194,10 +194,11 @@ const update = async () => {
   }
   //update group photo
   if (conversationPhoto.value != null && conversation.value.type == "group") {
-    await useConversationsStore().uploadConversationPhoto(
+    const uploading = await useUploadStore().uploadConversationPhoto(
       conversationPhoto.value as File
     );
     conversationPhoto.value = null;
+    convToUpdate.image = uploading.path;
   }
   const response = await useConversationsStore().updateConversation(
     convToUpdate
