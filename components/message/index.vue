@@ -67,7 +67,11 @@
           <!--text and reply arrow-->
           <div class="flex items-center">
             <svg
-              v-if="isMyMessage() && clickedId == message._id"
+              v-if="
+                isMyMessage() &&
+                clickedId == message._id &&
+                useConversationsStore().currentConversation.type != 'ai'
+              "
               @click="reply(message)"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -83,6 +87,7 @@
               />
             </svg>
             <ContainersConversationTheme
+              v-if="message.text"
               :class="getContainerClasses()"
               class="p-1 break-words w-max h-max md:max-w-52 lg:max-w-96 max-w-40 shadow-md"
             >
@@ -113,7 +118,11 @@
             </ContainersConversationTheme>
 
             <svg
-              v-if="!isMyMessage() && clickedId == message._id"
+              v-if="
+                !isMyMessage() &&
+                clickedId == message._id &&
+                useConversationsStore().currentConversation.type != 'ai'
+              "
               @click="reply(message)"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
