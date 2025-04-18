@@ -1,25 +1,11 @@
 <template>
   <div class="w-full">
     <!--refered message-->
-    <div
+    <MessageInputReferedMessage
+      :refered-message="referedMessage"
+      @cancel-reply="cancelReply()"
       v-if="referedMessage._id"
-      class="border-l-8 py-2 border-solid border-l-red-600 w-full flex mx-auto bg-black bg-opacity-40"
-    >
-      <div class="w-full">
-        <div class="mx-2 font-bold text-red-600">
-          {{ getReferedMessageSender().name }}
-        </div>
-        <div class="truncate mx-2 text-white">{{ referedMessage.text }}</div>
-      </div>
-      <ContainersMain class="h-max rounded-full"
-        ><button
-          @click="cancelReply()"
-          class="rounded-full cursor-pointer bg-transparent text-white hover:opacity-80"
-        >
-          x
-        </button></ContainersMain
-      >
-    </div>
+    ></MessageInputReferedMessage>
     <!--photos preview-->
     <div class="flex bg-black bg-opacity-25">
       <div v-for="(file, index) of previewSrc" :key="file" class="relative">
@@ -42,10 +28,12 @@
         ...
       </div>
     </div>
+    <!--inputs-->
     <ContainersConversationTheme class="w-full flex justify-center">
       <div
         class="p-2 flex justify-center items-center space-x-1 w-full md:w1/2"
       >
+        <!--text main input-->
         <textarea
           @input="typing"
           id="textInput"
@@ -77,6 +65,7 @@
             />
           </svg>
         </button>
+        <!--emoji send button-->
         <button
           v-else
           @click="sendEmoji"
@@ -84,9 +73,9 @@
         >
           {{ getEmoji() }}
         </button>
+        <!--file form activater-->
         <button
           class="flex cursor-pointer items-center bg-green-400 hover:bg-green-500 border-solid border-black border-2 text-white rounded"
-          v-if="useConversationsStore().currentConversation.type != 'ai'"
           @click="selectFiles = true"
         >
           <svg
@@ -118,7 +107,6 @@
 <script lang="ts" setup>
 import { eventBus } from "@/utils/eventBus";
 import type { Message } from "~/interfaces/message";
-import type { User } from "~/interfaces/user";
 const selectFiles = ref(false);
 const referedMessage = ref({} as Message);
 const previewSrc = ref([] as string[]);
@@ -140,9 +128,7 @@ eventBus.on("refereMessage", (referedMsg: Message) => {
   referedMessage.value = referedMsg;
   message.value.referedMessage = referedMsg._id as string;
 });
-const getReferedMessageSender = (): User => {
-  return referedMessage.value.sender as User;
-};
+
 const cancelReply = () => {
   referedMessage.value = {} as Message;
 };
@@ -168,22 +154,26 @@ const getConversationType = () => {
 };
 const isGenerating = ref(false);
 const send = async () => {
+  previewSrc.value = [];
   isGenerating.value = true;
   const text = message.value.text;
   message.value.text = "";
-
+  let urls = [] as string[];
+  if (files.value.length > 0) {
+    const res = await useUploadStore().uploadMessageFiles(files.value);
+    urls = res.urls;
+  }
   const res = await useMessagesStore().send(
     {
       ...message.value,
       text,
       type: "message",
+      files: urls,
     },
-    useConversationsStore().currentConversation._id as string,
-    files.value
+    useConversationsStore().currentConversation._id as string
   );
   isGenerating.value = false;
   files.value = [];
-  previewSrc.value = [];
   cancelReply();
 };
 const typing = async () => {
@@ -201,7 +191,6 @@ onMounted(async () => {
   input.focus();
 });
 const isSendable = () => {
-  console.log(' getConversationType() != "ai"', getConversationType() != "ai");
   return (
     getConversationType() == "ai" ||
     (message.value.text && message.value.text.trim() !== "") ||
@@ -211,7 +200,7 @@ const isSendable = () => {
 const isSendButtonDisabled = () => {
   return (
     (getConversationType() == "ai" && isGenerating.value) ||
-    (getConversationType() == "ai" && message.value.text.trim() == "")
+    (getConversationType() == "ai" && message.value.text == "")
   );
 };
 </script>
