@@ -19,7 +19,7 @@
   </main>
 </template>
 <script lang="ts" setup>
-import { Message } from "~/interfaces/message";
+// import type { Message } from "~/interfaces/message";
 
 definePageMeta({
   middleware: "conversations",
@@ -28,7 +28,7 @@ definePageMeta({
 const medias = ref([] as string[]);
 onMounted(async () => {
   const res = await useMessageFilesStore().getFilesOfConversation(
-    useRoute().params.id
+    useRoute().params.id as string
   );
   res.map((media: any) => {
     medias.value = medias.value.concat(media.urls);
