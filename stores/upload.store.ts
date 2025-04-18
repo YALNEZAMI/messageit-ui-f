@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import type uploadMessageFiles from "~/server/api/uploadMessageFiles";
 export const useUploadStore = defineStore("upload", {
   state: () => {
     return {};
@@ -44,6 +45,30 @@ export const useUploadStore = defineStore("upload", {
         );
       }
       return { path: useUsersStore().defaultUserImg };
+    },
+    async uploadMessageFiles(files: File[]): Promise<{ urls: string[] }> {
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
+      formData.append(
+        "idConversation",
+        useConversationsStore().currentConversation._id as string
+      );
+      try {
+        const res = await fetch("/api/uploadMessageFiles", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await res.json();
+        return result;
+      } catch (err) {
+        console.log(
+          "Une erreur est survenue lors de l'upload de la photo de profil"
+        );
+      }
+      return { urls: [] };
     },
   },
 });
