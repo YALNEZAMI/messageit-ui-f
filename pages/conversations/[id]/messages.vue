@@ -29,7 +29,7 @@
       </div>
       <div
         id="messagesContainer"
-        class="relativep-1 w-full flex flex-col overflow-y-auto overflow-x-hidden"
+        class="relativep-1 px-1 w-full flex flex-col overflow-y-auto overflow-x-hidden"
         style="height: 32rem; scrollbar-width: thin"
       >
         <!--load spinner-->
@@ -470,13 +470,19 @@ onMounted(async () => {
 
   //listen to messages recieved event and scoll if the conversation is concerned
   eventBus.on("messageReceived", (msg: Message) => {
-    const msgConversation = msg.conversation as Conversation;
+    const msgConversationId = msg.conversation._id
+      ? msg.conversation._id
+      : msg.conversation;
+    console.log("convid", msgConversationId);
 
     if (
-      msgConversation._id == useConversationsStore().currentConversation._id &&
+      msgConversationId == useConversationsStore().currentConversation._id ||
       isAtBottom()
     ) {
       goBottom();
+      setTimeout(() => {
+        goBottom();
+      }, 500);
     }
   });
 
