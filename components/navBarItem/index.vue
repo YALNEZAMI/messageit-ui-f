@@ -1,7 +1,7 @@
 <template>
-  <main class="relative">
+  <main class="relative cursor-pointer">
     <div
-      class="cursor-pointer flex md:min-w-20 lg:min-w-24 items-center justify-center sm:space-x-2 px-2 sm:px-1 sm:pr-3 m-1 sm:mx-2 rounded transition-all duration-500"
+      class="flex md:min-w-20 lg:min-w-24 items-center justify-center sm:space-x-2 px-2 sm:px-1 sm:pr-3 m-1 sm:mx-2 rounded transition-all duration-500"
     >
       <div class="hidden md:block">
         {{ navBarItem.name }}
