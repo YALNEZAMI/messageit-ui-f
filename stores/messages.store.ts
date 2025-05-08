@@ -114,7 +114,6 @@ export const useMessagesStore = defineStore("messagesStore", {
       this.handleTemporaryMessage(temporaryId, msg);
       //if ai conversation message:{myMessage:Message,aiMessage:Message}
       const message = await this.getService("messages").create(msg);
-      console.log("MESSAGE", message);
       //ai response handling
       if (useConversationsStore().currentConversation.type == "ai") {
         this.isAiTyping = false;

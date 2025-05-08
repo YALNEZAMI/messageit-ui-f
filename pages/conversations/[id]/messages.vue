@@ -473,7 +473,6 @@ onMounted(async () => {
     const msgConversationId = msg.conversation._id
       ? msg.conversation._id
       : msg.conversation;
-    console.log("convid", msgConversationId);
 
     if (
       msgConversationId == useConversationsStore().currentConversation._id ||
