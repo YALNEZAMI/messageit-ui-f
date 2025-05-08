@@ -5,13 +5,14 @@
       'justify-end': isMyMessage(),
     }"
   >
-    <div v-if="files.length > 0" class="flex flex-col md:w-52 w-32" :class="{}">
+    <div v-if="files.length > 0" class="flex flex-col md:w-52 w-32 m-1 mx-2">
       <div
         v-for="(file, index) of files"
         :key="file"
-        class="flex w-full m-1"
+        class="flex w-full"
         :class="{
           'justify-end': index % 2 == 0,
+          '-mb-5': index != files.length - 1,
         }"
       >
         <ImagesMessageFile :src="file"></ImagesMessageFile>
