@@ -11,11 +11,15 @@ export default defineNuxtPlugin(() => {
     }
     return Array.from(uniqueObjects.values());
   }
-
+  function getFormatedDate(string: string): string {
+    const date = new Date(string);
+    return date.toISOString();
+  }
   // Provide the utility function to the Nuxt app context
   return {
     provide: {
       removeDuplicateById,
+      getFormatedDate,
     },
   };
 });

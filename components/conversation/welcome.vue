@@ -7,7 +7,7 @@
       <div class="flex justify-center">
         <ImagesConversationHeader></ImagesConversationHeader>
       </div>
-      <div class="font-bold my-2">{{ getSecondaryText() }}</div>
+      <div class="font-bold my-2 text-center">{{ getSecondaryText() }}</div>
     </div>
   </main>
 </template>
@@ -16,6 +16,7 @@ import type { Conversation } from "~/interfaces/conversation";
 
 const conversation = useConversationsStore()
   .currentConversation as Conversation;
+const otherUser = useConversationsStore().getOtherUser(conversation);
 const getSecondaryText = () => {
   switch (conversation.type) {
     case "ai":
@@ -27,13 +28,21 @@ const getSecondaryText = () => {
         ", lancez la conversation !"
       );
     case "private":
-      return (
-        "Vous êtes ami avec " +
-        useConversationsStore().getOtherUser(conversation).name +
-        ", envoyez-lui quelque chose !"
-      );
+      return `A rejoint le ${new Date(
+        otherUser.createdAt as string
+      ).toLocaleDateString()},
+       Vous êtes ami avec ${otherUser.name} depuis le ${
+        friendshipDate.value
+      }, envoyez-lui quelque chose !`;
     default:
       break;
   }
 };
+const friendshipDate = ref("");
+onMounted(async () => {
+  const friendshipdate = await useFriendsStore().getFriendshipDate(
+    otherUser._id as string
+  );
+  friendshipDate.value = new Date(friendshipdate).toLocaleDateString();
+});
 </script>

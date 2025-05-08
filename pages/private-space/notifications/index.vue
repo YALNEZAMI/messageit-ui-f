@@ -46,11 +46,21 @@
         v-if="categorie == 'FriendRequests'"
         class="overflow-y-auto lg:w-3/4 h-max w-full flex flex-wrap justify-center"
       >
-        <User
+        <div
           v-for="fr of getFriendRequests()"
           :key="fr._id"
-          :user="fr.sender"
-        ></User>
+          class="flex items-center bg-gray-300 bg-opacity-45 p-1 rounded"
+        >
+          <User :user="fr.sender"></User>
+          <span>{{
+            new Date(fr.createdAt).toLocaleDateString() +
+            " à " +
+            new Date(fr.createdAt).getHours() +
+            ":" +
+            new Date(fr.createdAt).getMinutes()
+          }}</span>
+        </div>
+
         <div
           class="w-11/12 md:w-1/3 m-1"
           v-for="(pulse, index) in ([].length = 10)"
@@ -84,24 +94,33 @@
             class="w-full overflow-hidden bg-gray-300 rounded"
           ></Pulse>
         </div>
-        <User
+        <div
           v-for="acc of getAcceptations()"
           :key="acc._id"
-          :user="acc.recipient"
-        ></User>
+          class="flex items-center bg-gray-300 bg-opacity-45 p-1 rounded"
+        >
+          <User :user="acc.recipient"></User>
+          <span class="text-sm">{{
+            new Date(acc.createdAt).toLocaleDateString() +
+            " à " +
+            new Date(acc.createdAt).getHours() +
+            ":" +
+            new Date(acc.createdAt).getMinutes()
+          }}</span>
+        </div>
       </div>
     </div>
   </main>
 </template>
 
 <script lang="ts" setup>
-//Ref<"FriendRequests" | "Acceptations">
 const isFriendRequestsPulse = () => {
   return useFriendsStore().isFriendRequestsPulse;
 };
 const isAcceptationsPulse = () => {
   return useFriendsStore().isAcceptationsPulse;
 };
+//Ref<"FriendRequests" | "Acceptations">
 const categorie = ref("Acceptations");
 const getFriendRequests = (): any[] => {
   return useFriendsStore().friendRequests;

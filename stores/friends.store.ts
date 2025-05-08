@@ -74,20 +74,55 @@ export const useFriendsStore = defineStore("friendsStore", {
     async getAcceptedFriendRequests() {
       this.isAcceptationsPulse = true;
 
-      const response = await this.getService("friend-acceptations").find();
-      const acceptations = response.data as Notification[];
+      const response = await this.getService("friend-acceptations").find({
+        query: { seen: false },
+      });
+      const acceptations = response.data.filter(
+        (acc: any) => !acc.seen
+      ) as Notification[];
       for (let acc of acceptations) {
         acc.recipient = await useUsersStore().getUser(acc.recipient as string);
       }
       this.setAcceptatons(acceptations);
       this.isAcceptationsPulse = false;
     },
+    async getFriendshipDate(userId: string): Promise<string> {
+      const response = await this.getService("friend-acceptations").find({
+        query: {
+          $or: [
+            {
+              sender: useUsersStore().user._id,
+              recipient: userId,
+            },
+            {
+              sender: userId,
+              recipient: useUsersStore().user._id,
+            },
+          ],
+          $limit: 1,
+        },
+
+        paginate: false,
+      });
+      return response.data[response.data.length - 1].createdAt;
+    },
     async clearAcceptations() {
-      const response = await this.getService("friend-acceptations").remove(
-        null
+      // for (const acc of this.acceptations) {
+      await this.getService("friend-acceptations").patch(
+        null,
+        {
+          seen: true,
+        },
+        {
+          query: {
+            sender: useUsersStore().user._id,
+          },
+        }
       );
+      // }
       this.setAcceptatons([]);
     },
+
     async isMyFriend(id: string): Promise<boolean> {
       const myFriends = await this.getMyFriends();
       let res = false;

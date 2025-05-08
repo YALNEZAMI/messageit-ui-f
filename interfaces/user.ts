@@ -11,4 +11,6 @@ export interface User {
   image: string;
   onLine: boolean;
   aiUser?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
