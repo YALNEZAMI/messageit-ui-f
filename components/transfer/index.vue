@@ -48,6 +48,7 @@
             'bg-indigo-500  hover:bg-indigo-700': !alreadyTransferedTo.includes(
               conv._id + ''
             ),
+            'bg-gray-400': alreadyTransferedTo.includes(conv._id + ''),
           }"
         >
           <div
