@@ -17,14 +17,15 @@
         </div>
         <div v-else>
           <div>
-            <div class="font-serif flex items-center justify-center space-x-2">
+            <!--register date-->
+            <div class="font-serif flex items-center justify-center text-sm">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke-width="1.5"
                 stroke="currentColor"
-                class="size-4"
+                class="size-4 mx-2"
               >
                 <path
                   stroke-linecap="round"
@@ -36,15 +37,17 @@
               A rejoint le
               {{ new Date(otherUser.createdAt + "").toLocaleDateString() }}
             </div>
-            <br />
-            <div class="font-serif flex items-center justify-center space-x-2">
+            <!--friendship date-->
+            <div
+              class="font-serif text-sm flex items-center justify-center space-x-2"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke-width="1.5"
                 stroke="currentColor"
-                class="size-6"
+                class="size-4 mx-2"
               >
                 <path
                   stroke-linecap="round"
@@ -56,7 +59,9 @@
               Ami depuis
               {{ friendshipDate }}
             </div>
-            <div class="text-center mt-3">Lancez la conversation !</div>
+            <div class="text-center mt-3 text-l uppercase text-blue-800">
+              Lancez la conversation !
+            </div>
           </div>
         </div>
       </div>
