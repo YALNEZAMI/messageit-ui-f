@@ -49,7 +49,9 @@
             @click="setClickedId(message._id)"
             @options="messageOptions(message)"
             @select="select(message)"
-            @goToReferedMessage="goToMessage(getReferedMessageId(message))"
+            @goToReferedMessage="
+              goToMessage(getReferedMessageId(message), true)
+            "
             :message="message"
             :clickedId="clickedId"
             :is-selected="isSelected(message._id + '')"
@@ -265,9 +267,12 @@ const clickedId = ref("");
 const isOptions = ref(false);
 const selectingMode = ref(false as boolean);
 let message = useMessagesStore().messages[0];
+let messagesContainer: HTMLDivElement;
 const selectedMessages = ref([] as Message[]);
 const sentToConversations = ref([] as string[]);
 const transfering = ref(false);
+const copied = ref(false);
+
 const allSeletedMessagesAreMine = (): boolean => {
   return selectedMessages.value.every((msg: Message) => {
     return (msg.sender as User)._id == useUsersStore().user._id;
@@ -283,6 +288,7 @@ const sendFromTransfer = async (conv: Conversation) => {
         referedMessage: "",
         type: "message",
         transfered: true,
+        createdAt: new Date().toISOString(),
       },
       conv._id as string
     );
@@ -329,7 +335,6 @@ const isSelected = (idMsg: string): boolean => {
 const setIsOptions = (newVal: boolean) => {
   isOptions.value = newVal;
 };
-
 const getSender = (): User => {
   return message.sender as User;
 };
@@ -364,8 +369,6 @@ const deleteForAll = async () => {
 
   setIsOptions(false);
 };
-
-const copied = ref(false);
 const copy = () => {
   copied.value = true;
   navigator.clipboard
@@ -391,7 +394,6 @@ const messageOptions = async (msg: any) => {
   //display the options pannel
   setIsOptions(true);
 };
-
 const isMessagesPulse = () => {
   return useMessagesStore().isMessagesPulse;
 };
@@ -405,12 +407,9 @@ const setClickedId = (val: any) => {
   }
   clickedId.value = val;
 };
-
 const getMessages = () => {
   return useMessagesStore().messages;
 };
-let messagesContainer: HTMLDivElement;
-
 const goBottom = () => {
   if (messagesContainer == null) {
     setTimeout(() => {
@@ -426,26 +425,27 @@ const goBottom = () => {
       messagesContainer!.scrollHeight + messagesContainer.clientHeight + 1;
   }
 };
-const goToMessage = async (messageId: string) => {
+const goToMessage = async (messageId: string, effect: boolean) => {
   let messageElement = document.getElementById(messageId) as HTMLElement;
 
   if (!messageElement) {
     messagesContainer.scrollTop = 0; // Scroll to top to load older messages
     await useMessagesStore().appendHistoryMessages(); // Load older messages
-    setTimeout(() => goToMessage(messageId), 500); // Retry after messages load
+    setTimeout(() => goToMessage(messageId, true), 500); // Retry after messages load
     return;
   }
 
   // Ensure the message is centered
   messageElement.scrollIntoView({ behavior: "smooth", block: "center" });
 
-  // Highlight the message
-  messageElement.classList.add("searchedMessage");
-  setTimeout(() => {
-    messageElement.classList.remove("searchedMessage");
-  }, 4000);
+  if (effect) {
+    // Highlight the message
+    messageElement.classList.add("searchedMessage");
+    setTimeout(() => {
+      messageElement.classList.remove("searchedMessage");
+    }, 4000);
+  }
 };
-
 const isAtBottom = () => {
   return useMessagesStore().isAtBottom;
 };
@@ -461,8 +461,7 @@ onMounted(async () => {
   messagesContainer = document.getElementById(
     "messagesContainer"
   ) as HTMLDivElement;
-  //initial scrolling
-  goBottom();
+
   //listen to conversation change event and scroll then
   eventBus.on("conversationChanged", (conv: Conversation) => {
     goBottom();
@@ -500,10 +499,31 @@ onMounted(async () => {
   let messageId = useRoute().query.messageId;
 
   if (messageId) {
-    await goToMessage(messageId as string);
+    await goToMessage(messageId as string, true);
   }
+  //not seen messages
+  let lastSeenMessageId = await useMessageStatusStore().getLastSeenMessageId(
+    useRoute().params.id as string
+  );
+  const msgs = useMessagesStore().messages;
+  if (
+    lastSeenMessageId == null ||
+    lastSeenMessageId == msgs[msgs.length - 1]._id
+  ) {
+    //initial scrolling
+    goBottom();
+  } else {
+    goToMessage(lastSeenMessageId, false);
+    const message = document.getElementById(lastSeenMessageId) as HTMLElement;
+    const elem = document.createElement("div");
+    elem.classList.add("text-center");
+    elem.innerHTML = "______Nouveaux messages______";
+    message.appendChild(elem);
+  }
+  //set messages as seen
+  //set conversation messages as seen
+  await useMessageStatusStore().setConversationMessagesAsSeen();
 });
-
 definePageMeta({
   layout: "conversations",
   middleware: "conversations",

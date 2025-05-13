@@ -11,9 +11,9 @@ export const useMessagesStore = defineStore("messagesStore", {
     //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
     //TODO message not read number bug
     //TODO timing of temporary messages?
-    //TODO audio effects
     //FIXME animation de la notif "est en train d'écrir"
     //FIXME photo sending and ai media analyser
+    //FIXME msgs paginations and last message seen coherence
     return {
       paginationValue: 25,
       skip: 0,
@@ -161,9 +161,6 @@ export const useMessagesStore = defineStore("messagesStore", {
       this.messages = await this.populateMessages(messages.data);
 
       this.isMessagesPulse = false;
-      //set messages as seen
-      //set conversation messages as seen
-      await useMessageStatusStore().setConversationMessagesAsSeen();
     },
     async populateMessages(messages: Message[]) {
       const res = [];

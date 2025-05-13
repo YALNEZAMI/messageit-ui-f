@@ -217,5 +217,21 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
       });
       return result;
     },
+    async getLastSeenMessageId(conversation: string): Promise<string | null> {
+      const res = await this.getService("message-seen").find({
+        query: {
+          conversation,
+          viewer: useUsersStore().user._id,
+          $sort: {
+            createdAt: -1,
+          },
+          $limit: 1,
+        },
+      });
+      if (res.total == 0) {
+        return null;
+      }
+      return res.data[0].message;
+    },
   },
 });

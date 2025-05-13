@@ -108,12 +108,12 @@
               <div class="flex flex-col">
                 <div
                   v-if="message.transfered"
-                  class="font-serif text-xs text-gray-300"
+                  class="font-serif text-xs text-gray-400"
                 >
                   Transféré
                 </div>
                 <!--message text content-->
-                <div>{{ message.text }}</div>
+                <div :title="message._id">{{ message.text }}</div>
               </div>
             </ContainersConversationTheme>
 
