@@ -13,12 +13,10 @@
 <script lang="ts" setup>
 import type { User } from "~/interfaces/user";
 
-const defaultUserImg = useUsersStore().defaultUserImg;
-
 const imgSrc = ref(useUsersStore().user.image); // Local reactive variable for the image source
 
 const handleError = () => {
-  imgSrc.value = defaultUserImg; // Set to default image on error
+  imgSrc.value = useUsersStore().defaultUserImg; // Set to default image on error
 };
 const isShown = ref(true);
 onMounted(async () => {
