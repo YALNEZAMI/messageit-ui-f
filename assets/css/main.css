@@ -19,7 +19,7 @@ body{
   width: 45%;
 }
 .basicButton{
-  @apply p-2 cursor-pointer rounded border-0 text-white
+  @apply p-2 cursor-pointer rounded border-0 
 }
 input{
   @apply bg-gray-200 focus:bg-white rounded-xl transition-all duration-500 ease-in-out

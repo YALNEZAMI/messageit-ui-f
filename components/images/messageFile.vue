@@ -13,15 +13,16 @@
       <div>
         <NuxtImg class="w-64 h-64 rounded shadow-md" :src="props.src"></NuxtImg>
         <div class="flex justify-center space-x-2">
-          <!-- <button
-            @click="download"
-            class="basicButton bg-indigo-500 hover:bg-opacity-80"
+          <a
+            :href="props.src"
+            download
+            class="bg-blue-300 text-blue-600 hover:bg-opacity-70 rounded no-underline p-2"
+            >Télécharger</a
           >
-            Télécharger
-          </button>-->
+
           <button
             @click="isBig = false"
-            class="basicButton bg-red-600 hover:opacity-80"
+            class="basicButton bg-red-300 text-red-600 hover:opacity-80"
           >
             Términer
           </button>
