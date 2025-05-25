@@ -120,6 +120,7 @@ const requiredInputs = ["name", "email", "password", "password2"];
 const inputInError = ref([] as string[]);
 
 onMounted(async () => {
+  localStorage.clear();
   requiredInputs.map((ri) => {
     const input = document.getElementById(ri) as HTMLInputElement;
     input.addEventListener("focus", () => {
