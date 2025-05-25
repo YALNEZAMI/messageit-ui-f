@@ -17,7 +17,10 @@
           'flex justify-center': props.isSideBar,
         }"
       >
-        <ImagesConversation :src="getConversationImage()" />
+        <ImagesConversation
+          :src="getConversationImage()"
+          :convType="conversation.type"
+        />
         <!--user status-->
         <Status
           class="absolute top-0 right-0"
@@ -38,6 +41,19 @@
           <!--draft-->
           <div v-if="getDraft()">
             <span class="text-green-500">Brouillon: </span>{{ getDraft() }}
+          </div>
+          <div v-else-if="showImagesAsSecondaryText()" class="flex space-x-1">
+            <div
+              v-for="(file, index) of conversation.lastMessage.files"
+              :key="file"
+            >
+              <NuxtImg
+                v-if="index < 3"
+                :src="file"
+                class="w-5 h-5 rounded"
+              ></NuxtImg>
+            </div>
+            <div v-if="conversation.lastMessage.files.length > 3">...</div>
           </div>
           <div
             v-else
@@ -117,6 +133,7 @@ const getName = () => {
 };
 const typing: Ref<Typing> = ref({} as Typing);
 const getSecondaryText = () => {
+  //if someone is typing
   if (typing.value._id != undefined) {
     const typer = typing.value.typer as User;
     return typer!.name + " est en train d'écrire...";
@@ -151,9 +168,6 @@ const getSecondaryText = () => {
     switch (conversation.type) {
       case "private":
       case "group":
-        if (lastMessage.text == "") {
-          return "Files";
-        }
         return sender._id == useUsersStore().user._id
           ? "Moi: " + lastMessage.text
           : sender.name + ": " + lastMessage.text;
@@ -234,6 +248,14 @@ const getContainerClasses = () => {
 const getDraft = () => {
   return useConversationsStore().getConversationDraft(
     conversation._id as string
+  );
+};
+const showImagesAsSecondaryText = (): boolean => {
+  return (
+    conversation.lastMessage != undefined &&
+    (conversation.lastMessage.text == "" ||
+      conversation.lastMessage.text == undefined) &&
+    conversation.lastMessage.files!.length > 0
   );
 };
 </script>
