@@ -7,7 +7,7 @@
       <div class="flex justify-center sm:justify-normal w-full">
         <button
           type="button"
-          class="cursor-pointer bg-green-500 hover:bg-green-600 rounded text-white border-0 md:p-2 p-1 mx-2 transition-all duration-500"
+          class="cursor-pointer rounded text-green-600 border-2 border-solid border-green-500 bg-green-50 hover:bg-green-100 md:p-2 p-1 mx-2 transition-all duration-500"
           @click="searchButton"
         >
           Rechercher
