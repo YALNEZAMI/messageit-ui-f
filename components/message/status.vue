@@ -65,7 +65,6 @@ const popViewer = (_id: string) => {
     return user._id != _id;
   });
   viewers.value = filtered;
-  viewers.value = filtered;
 };
 const getViewers = async () => {
   let res = [] as User[];
