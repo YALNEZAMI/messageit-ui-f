@@ -65,7 +65,10 @@
             </svg>
           </div>
           <!--text and reply arrow-->
-          <div class="flex items-center">
+          <div
+            class="flex items-center"
+            v-if="message.text || message.transfered"
+          >
             <svg
               v-if="
                 isMyMessage() &&
@@ -87,7 +90,6 @@
               />
             </svg>
             <ContainersConversationTheme
-              v-if="message.text"
               :class="getContainerClasses()"
               class="p-1 break-words w-max h-max md:max-w-52 lg:max-w-96 max-w-40 shadow-md"
             >
@@ -100,8 +102,14 @@
                 <div class="text-red-600">
                   {{ message.referedMessage.sender.name }}
                 </div>
-                <div class="truncate">
+                <div class="truncate" v-if="message.referedMessage.text != ''">
                   {{ message.referedMessage.text }}
+                </div>
+                <div v-else>
+                  <NuxtImg
+                    :src="message.referedMessage.files[0]"
+                    class="w-10 h-10 mt-1"
+                  ></NuxtImg>
                 </div>
               </div>
               <!--transfered mark-->
@@ -113,7 +121,9 @@
                   Transféré
                 </div>
                 <!--message text content-->
-                <div :title="message._id">{{ message.text }}</div>
+                <div :title="message._id">
+                  {{ message.text }}
+                </div>
               </div>
             </ContainersConversationTheme>
 
