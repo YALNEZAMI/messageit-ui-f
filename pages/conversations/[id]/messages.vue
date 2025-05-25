@@ -283,6 +283,7 @@ const sendFromTransfer = async (conv: Conversation) => {
     const sending = await useMessagesStore().transfer(
       {
         text: msg.text,
+        files: msg.files,
         sender: "",
         conversation: "",
         referedMessage: "",
@@ -516,6 +517,15 @@ onMounted(async () => {
     goToMessage(lastSeenMessageId, false);
     const message = document.getElementById(lastSeenMessageId) as HTMLElement;
     const elem = document.createElement("div");
+    elem.classList.add(
+      "bg-black",
+      "rounded",
+      "px-2",
+      "py-1",
+      "bg-opacity-50",
+      "w-max",
+      "mx-auto"
+    );
     elem.classList.add("text-center");
     elem.innerHTML = "______Nouveaux messages______";
     message.appendChild(elem);
