@@ -6,6 +6,8 @@ export const useAuthStore = defineStore("authStore", {
     return {
       accessToken: "",
       authentication: { payload: { exp: 1 } },
+      authBackgroud:
+        useRuntimeConfig().public.BASE_URL + "/images-ui/authBackgroud.png",
     };
   },
   actions: {
