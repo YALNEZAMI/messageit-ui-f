@@ -22,8 +22,9 @@
         </button>
       </div>
       <div
+        @click="selectFiles = true"
         v-if="previewSrc.length > 3"
-        class="flex items-center text-xl font-bold"
+        class="flex items-center text-xl font-bold cursor-pointer"
       >
         ...
       </div>
@@ -136,6 +137,7 @@ const message = ref({
   text: "",
   conversation: "",
   referedMessage: "",
+  transfered: false,
   type: "message",
 } as Message);
 const getEmoji = (): string => {
