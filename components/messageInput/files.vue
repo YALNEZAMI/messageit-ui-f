@@ -1,27 +1,68 @@
 <template>
   <main
-    class="fixed top-0 left-0 z-30 bg-black bg-opacity-50 w-screen h-screen flex justify-center items-center"
+    class="fixed top-0 left-0 z-30 bg-black bg-opacity-70 w-screen h-screen flex justify-center items-center"
   >
-    <div>
-      <div class="flex">
+    <!--cancel-->
+    <div class="flex justify-end fixed z-20 w-screen h-max top-0 left-0">
+      <button
+        @click="emits('finish', { files, previewSrc })"
+        class="text-green-500 border-2 border-solid border-green-500 bg-green-50 hover:bg-green-100 cursor-pointer rounded-md p-2 m-2"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="size-4"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="m4.5 12.75 6 6 9-13.5"
+          />
+        </svg>
+      </button>
+      <button
+        @click="emits('finish', { files: [], previewSrc: [] })"
+        class="text-red-500 border-2 border-solid border-red-500 bg-red-50 hover:bg-red-100 cursor-pointer rounded-md p-2 px-3 m-2"
+      >
+        X
+      </button>
+    </div>
+    <div class="w-11/12">
+      <div
+        class="flex w-1/2 justify-center mb-2 m-auto h-max max-h-36 overflow-y-auto flex-wrap"
+      >
+        <!--loading-->
+        <div
+          v-if="loading"
+          class="w-20 h-20 animate-pulse rounded bg-gray-300 flex justify-between px-1 items-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-6 animate-spin"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
+          </svg>
+          <span>{{ loadedIndex + "/" + loadedTotal }}</span>
+        </div>
         <div v-for="(file, index) of previewSrc" :key="file" class="relative">
-          <NuxtImg
-            v-if="index < 3"
-            class="w-20 h-20 rounded m-1"
-            :src="file"
-          ></NuxtImg>
+          <NuxtImg class="w-20 h-20 rounded m-1" :src="file"></NuxtImg>
           <button
-            class="p-1 cursor-pointer rounded border-0 text-white px-2 bg-red-500 absolute top-0 right-0"
+            class="p-1 hover:text-black cursor-pointer rounded border-0 text-white px-2 bg-red-500 absolute top-0 right-0"
             @click="removeFile(index)"
           >
             x
           </button>
-        </div>
-        <div
-          v-if="previewSrc.length > 3"
-          class="flex items-center text-xl font-bold"
-        >
-          ...
         </div>
       </div>
       <div class="flex flex-wrap justify-center">
@@ -64,14 +105,6 @@
           multiple
         />-->
       </div>
-      <div class="flex justify-center">
-        <button
-          @click="emits('finish', { files, previewSrc })"
-          class="basicButton bg-yellow-500 m-1 mx-auto"
-        >
-          Terminer
-        </button>
-      </div>
     </div>
   </main>
 </template>
@@ -90,7 +123,9 @@ const triggerInput = async (id: string) => {
   files.value = [];
   previewSrc.value = [];
 };
-
+const loading = ref(false);
+const loadedIndex = ref(0);
+const loadedTotal = ref(0);
 const readFile = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -103,15 +138,20 @@ const readFile = (file: File): Promise<string> => {
 const selectFiles = async (e: Event) => {
   const input = e.target as HTMLInputElement;
   if (input.files && input.files.length > 0) {
+    loading.value = true;
+
+    loadedTotal.value = input.files.length;
     for (const file of input.files) {
       try {
         const fileData = await readFile(file); // Wait for each file to be processed
         previewSrc.value.push(fileData); // Save the preview source
         files.value.push(file); // Save the file for uploading
+        loadedIndex.value = files.value.length;
       } catch (error) {
         console.error("Error reading file:", error);
       }
     }
+    loading.value = false;
   }
 };
 const removeFile = (index: number) => {
@@ -122,5 +162,6 @@ const removeFile = (index: number) => {
     return index != i;
   });
   emits("removeFile", index);
+  loadedTotal.value = files.value.length;
 };
 </script>
