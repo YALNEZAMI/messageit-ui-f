@@ -10,7 +10,7 @@ export const useUsersStore = defineStore("usersStore", {
       users: [],
       searchedUsers: [],
       defaultUserImg:
-        "https://cdn.pixabay.com/photo/2012/04/13/21/07/user-33638_640.png",
+        useRuntimeConfig().public.BASE_URL + "/images-ui/user.png",
       user: {} as User,
       themes: [
         { name: "Basique", _id: "basic" },
@@ -115,32 +115,14 @@ export const useUsersStore = defineStore("usersStore", {
         }
       });
     },
-    // async uploadProfilePhoto(file: File) {
-    //   const reader = new FileReader();
 
-    //   reader.onload = async () => {
-    //     const arrayBuffer = reader.result as ArrayBuffer;
-
-    //     // Convert ArrayBuffer to base64
-    //     const uint8Array = new Uint8Array(arrayBuffer);
-    //     const binaryString = uint8Array.reduce(
-    //       (acc, byte) => acc + String.fromCharCode(byte),
-    //       ""
-    //     );
-    //     const base64String = btoa(binaryString);
-
-    //     // Send base64-encoded file to the service
-    //     const response = await useNuxtApp()
-    //       .$feathers.service("users-photos")
-    //       .create({
-    //         file: {
-    //           buffer: base64String, // Base64-encoded buffer
-    //           originalname: file.name, // File name
-    //         },
-    //       });
-    //   };
-
-    //   reader.readAsArrayBuffer(file); // Read the file as ArrayBuffer
-    // },
+    async deleteUser() {
+      const id = this.user._id as string;
+      await this.getService().remove(id);
+      await useNuxtApp().$feathers.service("users").remove(id);
+      localStorage.clear();
+      useRouter().push("/auth/login");
+      window.location.reload();
+    },
   },
 });
