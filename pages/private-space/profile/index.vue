@@ -160,6 +160,13 @@
         />
       </svg>
     </button>
+    <button
+      type="button"
+      @click="deleteUser"
+      class="text-red-500 bg-red-50 hover:bg-red-100 border-2 border-solid border-red-500 mt-32 mx-10 p-1 rounded-md cursor-pointer"
+    >
+      Supprimer mon compte
+    </button>
   </main>
 </template>
 <script lang="ts" setup>
@@ -314,4 +321,7 @@ document.addEventListener("keydown", async (e) => {
     return;
   }
 });
+const deleteUser = async () => {
+  return await useUsersStore().deleteUser();
+};
 </script>
