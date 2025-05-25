@@ -130,11 +130,17 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
             viewer: useUsersStore().user._id,
             conversation: conversationId,
           };
-          const creating = await this.getService("message-seen").create(
-            viewBody
-          );
+          return await this.getService("message-seen").create(viewBody);
         }
       }
+    },
+    async setMessageAsSeen(msgId: string, convId: string) {
+      const viewBody = {
+        message: msgId,
+        viewer: useUsersStore().user._id,
+        conversation: convId,
+      };
+      return await this.getService("message-seen").create(viewBody);
     },
     updateMessageViewersLocally(messageSeen: MessageSeen) {
       //ignore current user
