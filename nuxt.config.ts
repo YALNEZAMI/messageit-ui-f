@@ -27,12 +27,11 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     // Private environment variables (only available on the server side)
-    secretApiKey: process.env.NUXT_SECRET_API_KEY,
+    // secretApiKey: process.env.NUXT_SECRET_API_KEY,
 
     // Public environment variables (exposed to the client)
     public: {
       FEATHERS_URL: "http://localhost:3030",
-      publicApiKey: process.env.NUXT_PUBLIC_API_KEY,
       BASE_URL: `http://localhost:${port}`,
     },
   },
