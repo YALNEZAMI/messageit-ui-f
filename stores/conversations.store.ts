@@ -7,9 +7,6 @@ import type { User } from "~/interfaces/user";
 export const useConversationsStore = defineStore("conversationsStore", {
   state: () => {
     return {
-      robotImage:
-        "https://cdn.pixabay.com/photo/2014/04/03/11/55/robot-312566_1280.png",
-
       conversations: [] as Conversation[],
       currentConversation: {} as Conversation,
       themes: [
@@ -18,28 +15,28 @@ export const useConversationsStore = defineStore("conversationsStore", {
           _id: "basic",
           emoji: "👍",
           photo:
-            "https://media.istockphoto.com/id/1153938533/fr/photo/abstrait-flou-fond-bleu-avec-double-exposition-de-bokeh-cercle-glitter-pour-l%C3%A9l%C3%A9ment-de.jpg?s=612x612&w=0&k=20&c=CjVwzz6s6wQFNRmNzWw5sIQpLzxvdAeG43ydsQnjWXM=",
+            useRuntimeConfig().public.BASE_URL + "/images-ui/themes/basic.png",
         },
         {
           name: "Printemps",
           _id: "spring",
           emoji: "🌳",
           photo:
-            "https://cdn.pixabay.com/photo/2019/02/21/22/17/crocus-4012433_1280.jpg",
+            useRuntimeConfig().public.BASE_URL + "/images-ui/themes/spring.png",
         },
         {
           name: "Amour",
           _id: "love",
           emoji: "❤️",
           photo:
-            "https://cdn.pixabay.com/photo/2019/02/05/10/43/heart-3976636_1280.jpg",
+            useRuntimeConfig().public.BASE_URL + "/images-ui/themes/love.png",
         },
         {
           name: "Panda",
           _id: "panda",
           emoji: "🐼",
           photo:
-            "https://cdn.pixabay.com/photo/2019/08/21/16/03/panda-4421395_1280.jpg",
+            useRuntimeConfig().public.BASE_URL + "/images-ui/themes/panda.png",
         },
       ] as Theme[],
       isConversationsPulse: false,
@@ -52,6 +49,18 @@ export const useConversationsStore = defineStore("conversationsStore", {
     };
   },
   actions: {
+    getDefaultImage(convType: string): string {
+      switch (convType) {
+        case "ai":
+          return useRuntimeConfig().public.BASE_URL + "/images-ui/robot.png";
+        case "group":
+          return useRuntimeConfig().public.BASE_URL + "/images-ui/group.png";
+        case "private":
+          return useRuntimeConfig().public.BASE_URL + "/images-ui/user.png";
+        default:
+          return useRuntimeConfig().public.BASE_URL + "/images-ui/user.png";
+      }
+    },
     getEmojiOfTheme(themeId: string): string {
       return this.themes.find((theme: Theme) => {
         return theme._id == themeId;
@@ -146,7 +155,12 @@ export const useConversationsStore = defineStore("conversationsStore", {
     },
     async leave() {
       await this.getService("conversations").remove(
-        this.currentConversation._id as string
+        this.currentConversation._id as string,
+        {
+          query: {
+            conversation: this.currentConversation._id,
+          },
+        }
       );
       useRouter().push("/conversations");
     },
@@ -155,7 +169,8 @@ export const useConversationsStore = defineStore("conversationsStore", {
     ): Promise<Conversation> {
       return await this.getService("conversations").patch(
         conversation._id as string,
-        conversation
+        conversation,
+        { query: { conversation: conversation._id } }
       );
     },
     getService(name: string) {
@@ -315,6 +330,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
         {
           query: {
             member: memberId,
+            conversation: convId,
           },
         }
       );
