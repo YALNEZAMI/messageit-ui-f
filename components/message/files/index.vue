@@ -62,7 +62,7 @@
           </div>
         </div>
         <!--files-->
-        <div class="flex flex-wrap justify-center">
+        <div class="flex flex-wrap justify-center h-screen overflow-y-auto">
           <div
             v-for="file of files"
             :key="file"
@@ -122,9 +122,8 @@
                 class="flex justify-center items-center fixed z-0 w-full h-full top-0 left-0 bg-black bg-opacity-50"
               >
                 <Transfer
-                  @send="sendFromTransfer($event)"
                   @finish="cancelTransfering"
-                  :sentToConversations="sentToConversations"
+                  :messagesToSend="[messageWithTheFileToShare]"
                   class="relative z-10"
                 ></Transfer>
               </div>
@@ -147,7 +146,6 @@ const shownFilesSection = ref(false);
 const message: Message = props.message as Message;
 const transfering = ref(false);
 const sentToConversations = ref([]);
-const fileToShare = ref("");
 const isMyMessage = () => {
   return ((message as Message).sender as User)._id == useUsersStore().user._id;
 };
@@ -170,24 +168,17 @@ const goToFile = (file: string) => {
 const cancelTransfering = () => {
   transfering.value = false;
 };
-const sendFromTransfer = async (conv: Conversation) => {
-  await useMessagesStore().send(
-    {
-      text: "",
-      files: [fileToShare.value],
-      sender: "",
-      conversation: "",
-      referedMessage: "",
-      type: "message",
-      transfered: false,
-      createdAt: new Date().toISOString(),
-    },
-    conv._id
-  );
-  sentToConversations.value.push(conv._id);
-};
+const messageWithTheFileToShare = ref({
+  text: "",
+  files: [],
+  referedMessage: "",
+  type: "message",
+  transfered: false,
+  createdAt: new Date().toISOString(),
+});
+
 const share = (file: string) => {
-  fileToShare.value = file;
+  messageWithTheFileToShare.value.files[0] = file;
   transfering.value = true;
 };
 </script>
