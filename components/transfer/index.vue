@@ -41,25 +41,18 @@
           :conversation="conv"
         ></Conversation>
         <button
-          :disabled="alreadyTransferedTo.includes(conv._id + '')"
+          :disabled="sentTab.includes(conv._id + '')"
           @click="send(conv)"
           class="basicButton h-max text-white"
           :class="{
-            'bg-indigo-500  hover:bg-indigo-700': !alreadyTransferedTo.includes(
+            'bg-indigo-500  hover:bg-indigo-700': !sentTab.includes(
               conv._id + ''
             ),
-            'bg-gray-400': alreadyTransferedTo.includes(conv._id + ''),
+            'bg-gray-400': sentTab.includes(conv._id + ''),
           }"
         >
-          <div
-            v-if="
-              !alreadyTransferedTo.includes(conv._id + '') ||
-              props.sentToConversations?.includes(conv._id)
-            "
-          >
-            {{
-              alreadyTransferedTo.includes(conv._id + "") ? "envoyé" : "envoyer"
-            }}
+          <div v-if="!sendingTab.includes(conv._id + '')">
+            {{ sentTab.includes(conv._id + "") ? "envoyé" : "envoyer" }}
           </div>
           <!--load spinner-->
 
@@ -101,12 +94,28 @@
 import type { Conversation } from "~/interfaces/conversation";
 const emits = defineEmits(["send", "finish"]);
 const props = defineProps({
-  sentToConversations: Array,
+  messagesToSend: Array,
 });
+const sentTab = ref([] as string[]);
+const sendingTab = ref([] as string[]);
+const send = async (conv: Conversation) => {
+  sendingTab.value.push(conv._id as string);
+  for (const msg of props.messagesToSend) {
+    const sending = await useMessagesStore().transfer(
+      {
+        text: msg.text,
+        files: msg.files,
+        referedMessage: "",
+        type: "message",
+        transfered: true,
+        createdAt: new Date().toISOString(),
+      },
+      conv._id as string
+    );
+  }
+  sendingTab.value = sendingTab.value.filter((id: string) => id != conv._id);
+  sentTab.value.push(conv._id as string);
 
-const alreadyTransferedTo = ref([] as string[]);
-const send = (conv: Conversation) => {
-  alreadyTransferedTo.value.push(conv._id as string);
   emits("send", conv);
 };
 
