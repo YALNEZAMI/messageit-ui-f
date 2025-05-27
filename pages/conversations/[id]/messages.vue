@@ -240,7 +240,7 @@
       <Transfer
         @send="sendFromTransfer($event)"
         @finish="cancelTransfering"
-        :sentToConversations="sentToConversations"
+        :messagesToSend="selectedMessages"
         class="relative z-10"
       ></Transfer>
     </div>
@@ -265,11 +265,10 @@ import type { User } from "~/interfaces/user";
 
 const clickedId = ref("");
 const isOptions = ref(false);
-const selectingMode = ref(false as boolean);
+const selectingMode = ref(false);
 let message = useMessagesStore().messages[0];
 let messagesContainer: HTMLDivElement;
 const selectedMessages = ref([] as Message[]);
-const sentToConversations = ref([] as string[]);
 const transfering = ref(false);
 const copied = ref(false);
 
@@ -279,23 +278,23 @@ const allSeletedMessagesAreMine = (): boolean => {
   });
 };
 const sendFromTransfer = async (conv: Conversation) => {
-  for (const msg of selectedMessages.value) {
-    const sending = await useMessagesStore().transfer(
-      {
-        text: msg.text,
-        files: msg.files,
-        sender: "",
-        conversation: "",
-        referedMessage: "",
-        type: "message",
-        transfered: true,
-        createdAt: new Date().toISOString(),
-      },
-      conv._id as string
-    );
+  // for (const msg of selectedMessages.value) {
+  //   const sending = await useMessagesStore().transfer(
+  //     {
+  //       text: msg.text,
+  //       files: msg.files,
+  //       sender: "",
+  //       conversation: "",
+  //       referedMessage: "",
+  //       type: "message",
+  //       transfered: true,
+  //       createdAt: new Date().toISOString(),
+  //     },
+  //     conv._id as string
+  //   );
 
-    sentToConversations.value.push(conv._id as string);
-  }
+  //   sentToConversations.value.push(conv._id as string);
+  // }
   selectedMessages.value = [];
   selectingMode.value = false;
 };
