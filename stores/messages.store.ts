@@ -118,14 +118,6 @@ export const useMessagesStore = defineStore("messagesStore", {
       const message = await this.getService("messages").create(msg, {
         query: { conversation: conversationId },
       });
-      //mark message as seen if it is relative to current conversation
-      if (conversationId == useRoute().params.id) {
-        await useMessageStatusStore().setMessageAsSeen(
-          message._id,
-          conversationId
-        );
-      }
-
       //ai response handling
       if (useConversationsStore().currentConversation.type == "ai") {
         this.isAiTyping = false;
