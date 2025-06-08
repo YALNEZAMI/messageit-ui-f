@@ -8,12 +8,6 @@ import type { MessageSeen } from "~/interfaces/message-seen";
 
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
-    //TODO handle pagination in users search, conversations friendReq,friendAcc,members,searchedMessages
-    //TODO message not read number bug
-    //TODO timing of temporary messages?
-    //FIXME animation de la notif "est en train d'écrir"
-    //FIXME photo sending and ai media analyser
-    //FIXME msgs paginations and last message seen coherence
     return {
       paginationValue: 25,
       skip: 0,
