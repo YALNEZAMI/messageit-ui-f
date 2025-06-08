@@ -517,15 +517,18 @@ onMounted(async () => {
     const message = document.getElementById(lastSeenMessageId) as HTMLElement;
     const elem = document.createElement("div");
     elem.classList.add(
-      "bg-black",
+      "bg-gray-300",
+      "border-2",
+      "border-double",
+      "border-indigo-400",
       "rounded",
-      "px-2",
+      "px-5",
       "py-1",
       "bg-opacity-50",
       "w-max",
-      "mx-auto"
+      "mx-auto",
+      "text-center"
     );
-    elem.classList.add("text-center");
     elem.innerHTML = "______Nouveaux messages______";
     message.appendChild(elem);
   }
