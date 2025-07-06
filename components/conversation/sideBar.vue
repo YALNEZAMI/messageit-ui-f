@@ -1,14 +1,11 @@
 <template>
   <main>
-    <div class="w-full flex justify-center flex-col space-y-2 my-1">
-      <div class="flex justify-center">
-        <input
-          @input="filter()"
-          v-model="key"
+    <div class="w-full justify-center flex-col space-y-2 my-1 flex">
+      <div class="w-11/12 hidden sm:block">
+        <ElementsInputsText
           type="text"
-          class="p-2 w-full mx-1"
-          placeholder="Search..."
-        />
+          @onInput="onInput($event)"
+        ></ElementsInputsText>
       </div>
 
       <div class="flex flex-wrap">
@@ -131,5 +128,9 @@ onMounted(async () => {
 });
 const isConversationPulse = () => {
   return useConversationsStore().isConversationsPulse;
+};
+const onInput = async (reqParam: string) => {
+  key.value = reqParam;
+  await filter();
 };
 </script>
