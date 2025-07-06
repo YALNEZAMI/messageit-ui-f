@@ -22,6 +22,9 @@ export const useMessagesStore = defineStore("messagesStore", {
     };
   },
   actions: {
+    setSearchedMessages(nval: Message[]) {
+      this.searchedMessages = nval;
+    },
     setIsAtBottom(nval: boolean) {
       this.isAtBottom = nval;
     },
@@ -30,6 +33,9 @@ export const useMessagesStore = defineStore("messagesStore", {
     },
     getService(name: string) {
       return useNuxtApp().$feathers.service(name);
+    },
+    getThisService() {
+      return useNuxtApp().$feathers.service("messages");
     },
     setMessages(newVal: Message[]) {
       this.messages = newVal;
@@ -100,6 +106,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       useConversationsStore().removeConversationDraft(conversationId);
       //set some default values
       msg.createdAt = new Date().toISOString();
+      msg.updatedAt = new Date().toISOString();
       msg.sender = useUsersStore().user._id as string;
       msg.conversation = conversationId;
       this.handleAiDelay(msg);
@@ -109,7 +116,7 @@ export const useMessagesStore = defineStore("messagesStore", {
 
       this.handleTemporaryMessage(temporaryId, msg);
       //if ai conversation-> message:{myMessage:Message,aiMessage:Message}
-      const message = await this.getService("messages").create(msg, {
+      const message = await this.getThisService().create(msg, {
         query: { conversation: conversationId },
       });
       //ai response handling
@@ -142,14 +149,14 @@ export const useMessagesStore = defineStore("messagesStore", {
     },
     async getInitialMessages(idConv: string) {
       this.isMessagesPulse = true;
-      const messagesCounting = await this.getService("messages").find({
+      const messagesCounting = await this.getThisService().find({
         query: {
           $limit: 0,
           conversation: idConv,
         },
       });
       this.setSkip(Math.max(0, messagesCounting.total - this.paginationValue));
-      const messages = await this.getService("messages").find({
+      const messages = await this.getThisService().find({
         query: {
           $skip: this.skip,
           $limit: this.paginationValue,
@@ -195,7 +202,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       if (this.skip > this.paginationValue) {
         limit = this.paginationValue;
       }
-      const res = await this.getService("messages").find({
+      const res = await this.getThisService().find({
         query: {
           $limit: limit,
           $skip: this.skip,
@@ -213,14 +220,14 @@ export const useMessagesStore = defineStore("messagesStore", {
       await useMessageStatusStore().setConversationMessagesAsSeen();
     },
     async getMessages(idConv: string) {
-      return await this.getService("messages").find({
+      return await this.getThisService().find({
         query: {
           conversation: idConv,
         },
       });
     },
     async getLastMessage(idConv: string) {
-      const result = await this.getService("messages").find({
+      const result = await this.getThisService().find({
         query: {
           conversation: idConv,
           $sort: { createdAt: -1 }, // Sort by `createdAt` in descending order
@@ -231,7 +238,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       return result.data.length ? result.data[0] : undefined; // Return the last document or null if no documents exist
     },
     async getMessage(id: string) {
-      return await this.getService("messages").get(id);
+      return await this.getThisService().get(id);
     },
     async search(key: string) {
       this.isSearchMessagePulse = true;
@@ -240,7 +247,7 @@ export const useMessagesStore = defineStore("messagesStore", {
         this.searchedMessages = [];
         return;
       }
-      const res = await this.getService("messages").find({
+      const res = await this.getThisService().find({
         query: {
           key,
           conversation: useConversationsStore().currentConversation._id,
@@ -281,7 +288,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       }
     },
     async deleteForAll(_id: string) {
-      const res = await this.getService("messages").remove(_id, {
+      const res = await this.getThisService().remove(_id, {
         query: {
           conversation: useConversationsStore().currentConversation._id,
         },
@@ -347,16 +354,37 @@ export const useMessagesStore = defineStore("messagesStore", {
       //update navItem number
       eventBus.emit("notificationNumberChanged", message);
     },
-
+    async modify(id: string, text: string) {
+      const currentConversation = useConversationsStore().currentConversation;
+      const newMsg = await this.getThisService().patch(
+        id,
+        { text },
+        {
+          query: {
+            conversation: currentConversation._id,
+          },
+        }
+      );
+      //update locally
+      this.messages = this.messages.map((msg: Message) => {
+        if (msg._id == id) {
+          return newMsg;
+        } else {
+          return msg;
+        }
+      });
+      eventBus.emit("messageUpdated", newMsg);
+      return newMsg;
+    },
     async onMessage() {
-      this.getService("messages").on("created", async (message: Message) => {
+      this.getThisService().on("created", async (message: Message) => {
         await this.handleMessageCreated(message);
       });
 
-      this.getService("messages").on("created", async (message: Message) => {
+      this.getThisService().on("created", async (message: Message) => {
         await this.handleMessageCreated(message);
       });
-      this.getService("messages").on("removed", async (message: Message) => {
+      this.getThisService().on("removed", async (message: Message) => {
         //set new lastMessage
         let conversationId: any = message.conversation;
         if (conversationId._id) {
