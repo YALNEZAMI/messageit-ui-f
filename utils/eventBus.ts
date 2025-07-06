@@ -19,6 +19,7 @@ type Events = {
   emojiCreated: Emoji;
   emojiRemoved: Emoji;
   sideBareToogled: Boolean;
+  messageUpdated: Message;
 };
 
 export const eventBus = mitt<Events>();
