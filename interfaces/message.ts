@@ -12,4 +12,5 @@ export interface Message {
   updatedAt?: string;
   transfered?: boolean;
   files?: any[];
+  originalText?: string;
 }
