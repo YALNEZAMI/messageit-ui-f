@@ -88,7 +88,7 @@
         <!--scroll down button-->
         <div class="flex justify-center sticky bottom-0 left-0 w-full">
           <button
-            v-if="!isAtBottom()"
+            v-if="!isAtBottom() && useMessagesStore().messages.length > 10"
             class="animate-bounce bg-transparent border-0 cursor-pointer"
             @click="goBottom"
           >
@@ -127,6 +127,7 @@
         >
           Supprimer pour tous
         </button>
+
         <button
           class="selectionButtons w-1/2 bg-yellow-500 hover:bg-yellow-600"
           @click="cancelSelection()"
@@ -207,6 +208,13 @@
               >
                 Supprimer pour tous
               </button>
+              <button
+                v-if="isModifiable()"
+                @click="isModifyMessage = true"
+                class="optionsButtons text-xs bg-green-500 hover:bg-green-600"
+              >
+                Modifier
+              </button>
 
               <button
                 @click="toogleSelectingMode()"
@@ -231,7 +239,12 @@
         </div>
       </div>
     </transition>
-
+    <!--modify form-->
+    <MessageModify
+      v-if="isModifyMessage"
+      :message="message"
+      @cancel="cancelModify($event)"
+    ></MessageModify>
     <!--transfer component-->
     <div
       v-if="transfering"
@@ -271,7 +284,11 @@ let messagesContainer: HTMLDivElement;
 const selectedMessages = ref([] as Message[]);
 const transfering = ref(false);
 const copied = ref(false);
-
+const isModifyMessage = ref(false);
+const cancelModify = (e: any) => {
+  isModifyMessage.value = false;
+  message = {} as Message;
+};
 const allSeletedMessagesAreMine = (): boolean => {
   return selectedMessages.value.every((msg: Message) => {
     return (msg.sender as User)._id == useUsersStore().user._id;
@@ -382,9 +399,11 @@ const copy = () => {
   }, 2000);
 };
 const reaction = ref("");
-const messageOptions = async (msg: any) => {
+const messageOptions = async (msg: Message) => {
   //handle reaction state
-  const alreadyReacted = await useEmojisStore().alreadyReacted(msg._id);
+  const alreadyReacted = await useEmojisStore().alreadyReacted(
+    msg._id as string
+  );
   if (alreadyReacted.length > 0) {
     reaction.value = alreadyReacted[0].emoji;
   } else {
@@ -454,6 +473,17 @@ const postEmoji = async (emoji: string) => {
   isOptions.value = false;
   goBottom();
 };
+const isModifiable = (): boolean => {
+  const isSeen = useMessageStatusStore().isSeen(message._id as string);
+  let res =
+    getSender()._id == useUsersStore().user._id &&
+    !isSeen &&
+    useConversationsStore().currentConversation.type != "ai" &&
+    !message.transfered &&
+    message.originalText == undefined;
+
+  return res;
+};
 onMounted(async () => {
   //init messages
   await useMessagesStore().getInitialMessages(useRoute().params.id as string);
@@ -469,10 +499,8 @@ onMounted(async () => {
 
   //listen to messages recieved event and scoll if the conversation is concerned
   eventBus.on("messageReceived", (msg: Message) => {
-    const msgConversationId = msg.conversation._id
-      ? msg.conversation._id
-      : msg.conversation;
-
+    const conv = msg.conversation as Conversation;
+    const msgConversationId = conv._id ? conv._id : msg.conversation;
     if (
       msgConversationId == useConversationsStore().currentConversation._id ||
       isAtBottom()
@@ -483,6 +511,7 @@ onMounted(async () => {
       }, 500);
     }
   });
+  //refresh message event
 
   messagesContainer.addEventListener("scroll", async (e) => {
     // update isAtBottom
