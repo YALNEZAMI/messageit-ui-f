@@ -75,10 +75,9 @@ const getViewers = async () => {
   } else {
     res = useMessageStatusStore().getViewers(message!._id as string);
   }
-  res = res.filter((user: User) => {
+  return res.filter((user: User) => {
     return user != undefined;
   });
-  return res;
 };
 const getConversationType = () => {
   return conversation.type;
