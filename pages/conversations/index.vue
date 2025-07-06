@@ -1,31 +1,11 @@
 <template>
   <main class="p-2">
     <!--search bar-->
-    <div class="flex justify-center">
-      <div class="relative w-3/4 md:w-1/2">
-        <input
-          v-model="req"
-          @input="search"
-          type="text"
-          class="rounded-md w-full p-2"
-          placeholder="Recherche..."
-        />
-        <!--search icon-->
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="size-6 text-black absolute -right-1 top-1"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-          />
-        </svg>
-      </div>
+    <div class="flex justify-center w-3/4 mx-auto">
+      <ElementsInputsText
+        type="text"
+        @onInput="onInput($event)"
+      ></ElementsInputsText>
     </div>
     <div style="min-height: 32rem" class="flex justify-center pb-2">
       <div
@@ -83,6 +63,10 @@ const isPulse = () => {
 };
 const isNoConversations = (): boolean => {
   return getConvs().length == 0;
+};
+const onInput = async (reqParam: string) => {
+  req.value = reqParam;
+  await search();
 };
 definePageMeta({
   layout: "private-space",
