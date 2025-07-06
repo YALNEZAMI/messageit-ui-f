@@ -4,21 +4,18 @@
     <div
       class="flex justify-between flex-col space-y-2 sm:space-y-0 sm:flex-row sm:justify-between sm:px-5 bg-gray-200 py-2"
     >
-      <div class="flex justify-center sm:justify-normal w-full">
+      <div class="flex justify-center sm:justify-normal w-3/4 mx-auto">
         <button
           type="button"
-          class="cursor-pointer rounded text-green-600 border-2 border-solid border-green-500 bg-green-50 hover:bg-green-100 md:p-2 p-1 mx-2 transition-all duration-500"
+          class="cursor-pointer rounded text-indigo-600 border-2 border-solid border-indigo-500 bg-indigo-50 hover:bg-indigo-100 md:p-2 p-1 mx-2 transition-all duration-500"
           @click="searchButton"
         >
           Rechercher
         </button>
-        <input
-          @input="search"
+        <ElementsInputsText
           type="text"
-          v-model="req"
-          class="p-2 rounded-xl w-1/2"
-          placeholder="Jack"
-        />
+          @onInput="onInput($event)"
+        ></ElementsInputsText>
       </div>
       <div class="flex justify-center text-black space-x-2">
         <label>
@@ -148,4 +145,8 @@ document.addEventListener("keydown", async (e) => {
     return;
   }
 });
+const onInput = async (reqParam: string) => {
+  req.value = reqParam;
+  await search();
+};
 </script>
