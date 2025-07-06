@@ -50,6 +50,24 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
       });
       return res.data.length > 0;
     },
+    isSeen(messageId: string) {
+      let indexOfLastMsgSeenByOthers = 0;
+      let messageIndex = 0;
+      this.messagesViewers.map((v) => {
+        useMessagesStore().messages.map((m, index) => {
+          if (m._id == v.message) {
+            if (indexOfLastMsgSeenByOthers < index) {
+              indexOfLastMsgSeenByOthers = index;
+            }
+          }
+          if (m._id == messageId) {
+            messageIndex = index;
+          }
+        });
+      });
+
+      return messageIndex <= indexOfLastMsgSeenByOthers;
+    },
     async setAllConversationsMessagesAsRecieved() {
       for (const conv of useConversationsStore().conversations) {
         const alreadySetAsRecieved = await this.getService(
@@ -72,7 +90,7 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
         await this.getService("message-recieving").create({
           conversation: conv._id,
           recipient: useUsersStore().user._id,
-          message: "noMessage",
+          message: "noMessage", //noMessage because we mark the conv as recieved not a certain msg
         });
       }
     },
@@ -148,10 +166,9 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
         return;
       }
       //check if user is maped
-      const notMaped =
-        this.messagesViewers.filter((view: any) => {
-          return view.viewer == messageSeen.viewer;
-        }).length == 0;
+      const notMaped = !this.messagesViewers.some((view: any) => {
+        return view.viewer == messageSeen.viewer;
+      });
       if (notMaped) {
         this.messagesViewers.push(messageSeen);
         return;
@@ -171,9 +188,6 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
         return msgView.viewer == user;
       })?.message;
       return messageId as string;
-    },
-    setAtt(newVal: string) {
-      this.att = newVal;
     },
 
     onMessageStatus() {
