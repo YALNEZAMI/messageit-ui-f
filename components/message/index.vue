@@ -89,6 +89,7 @@
                 d="m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3"
               />
             </svg>
+
             <ContainersConversationTheme
               :class="getContainerClasses()"
               class="p-1 break-words w-max h-max md:max-w-52 lg:max-w-96 max-w-40 shadow-md"
@@ -114,15 +115,35 @@
               </div>
               <!--transfered mark-->
               <div class="flex flex-col">
-                <div
-                  v-if="message.transfered"
-                  class="font-serif text-xs text-gray-400"
-                >
-                  Transféré
+                <div class="flex">
+                  <div
+                    v-if="message.transfered"
+                    class="font-serif text-xs text-gray-400"
+                  >
+                    Transféré
+                  </div>
+                  <div
+                    @click="displayOriginalText = !displayOriginalText"
+                    v-if="message.originalText"
+                    class="font-serif m-1 text-xs text-gray-400 underline cursor-pointer"
+                  >
+                    Modifié
+                  </div>
                 </div>
                 <!--message text content-->
                 <div :title="message._id">
                   {{ message.text }}
+                </div>
+                <!--original text-->
+                <div
+                  @click="displayOriginalText = false"
+                  v-if="displayOriginalText"
+                  :class="getContainerClasses()"
+                  class="p-1 break-words border-0 border-solid border-black w-max h-max md:max-w-52 lg:max-w-96 max-w-40 text-gray-500"
+                >
+                  <div class="text-center">___________</div>
+                  <br />
+                  Text original : {{ " " + message.originalText }}
                 </div>
               </div>
             </ContainersConversationTheme>
@@ -194,6 +215,7 @@ const props = defineProps({
 });
 
 const message = props.message as Message;
+const displayOriginalText = ref(false);
 const emit = defineEmits(["options", "goToReferedMessage", "select"]);
 const getContainerClasses = () => {
   return {
@@ -256,13 +278,21 @@ const getNextMessage = () => {
 
   return getMessages()[i + 1];
 };
-const getPreviousMessage = () => {
-  let i = 0;
-  getMessages().find((msg: Message, index: number) => {
-    i = index;
-    return msg._id == message.id;
+// const getPreviousMessage = () => {
+//   let i = 0;
+//   getMessages().find((msg: Message, index: number) => {
+//     i = index;
+//     return msg._id == message.id;
+//   });
+//   return getMessages()[i - 1];
+// };
+onMounted(async () => {
+  eventBus.on("messageUpdated", (msg: Message) => {
+    if (msg._id == message._id) {
+      message.text = msg.text;
+      message.originalText = msg.originalText;
+      message.updatedAt = msg.updatedAt;
+    }
   });
-  return getMessages()[i - 1];
-};
-onMounted(async () => {});
+});
 </script>
