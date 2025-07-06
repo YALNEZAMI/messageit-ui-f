@@ -1,26 +1,17 @@
 <template>
   <main style="height: 36rem">
     <!--input-->
-    <div class="flex justify-center bg-gray-200 p-2">
-      <input
-        @input="search"
+    <div class="flex justify-center bg-gray-200 p-1 space-x-2 w-11/12 mx-auto">
+      <ElementsInputsText
         type="text"
-        v-model="key"
-        class="p-2 w-1/2 md:w-1/4"
-        placeholder="Jack"
-      />
-      <button
-        type="button"
-        class="cursor-pointer bg-green-500 hover:bg-green-600 rounded text-white border-0 p-2 mx-2 transition-all duration-500"
-        @click="searchButton"
-      >
-        Rechercher
-      </button>
+        @onInput="onInput($event)"
+      ></ElementsInputsText>
     </div>
     <!--result container-->
     <div
       v-if="getSearchedMessages().length > 0"
-      class="flex flex-wrap justify-center"
+      style="max-height: 70vh"
+      class="flex flex-wrap justify-center overflow-y-auto"
     >
       <ContainersConversationTheme
         v-for="msg of getSearchedMessages()"
@@ -36,12 +27,14 @@
           class="h-full w-16 rounded-full"
           :src="getSender(msg).image"
         ></NuxtImg>
-        <div class="w-3/4 ml-3">
+        <div class="w-full ml-3">
           <div class="text-xl font-bold">{{ getSender(msg).name }}</div>
-          <div>{{ msg.text }}</div>
-        </div>
-        <div class="text-xs">
-          {{ useMessagesStore().getDate(msg.createdAt + "") }}
+          <div class="flex">
+            <div class="truncate w-40 md:w-1/2">{{ msg.text }}</div>
+            <div class="text-xs w-1/2 flex justify-end">
+              {{ useMessagesStore().getDate(msg.createdAt + "") }}
+            </div>
+          </div>
         </div>
       </ContainersConversationTheme>
 
@@ -76,9 +69,7 @@ const key = ref("");
 const search = async () => {
   await useMessagesStore().search(key.value);
 };
-const searchButton = async () => {
-  await search();
-};
+
 const getSearchedMessages = () => {
   return useMessagesStore().searchedMessages;
 };
@@ -97,5 +88,12 @@ document.addEventListener("keydown", async (e) => {
     await search();
     return;
   }
+});
+const onInput = async (reqParam: string) => {
+  key.value = reqParam;
+  await search();
+};
+onBeforeUnmount(() => {
+  useMessagesStore().setSearchedMessages([]);
 });
 </script>
