@@ -124,32 +124,41 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
       }
       return res;
     },
-    async setConversationMessagesAsSeen() {
-      const messagesAlreadySeen = await this.getService("message-seen").find({
+    async setConversationMessagesAsSeen(idConv?: string) {
+      let conversationId = idConv;
+      if (!conversationId) conversationId = useRoute().params.id as string;
+      const userId = useUsersStore().user._id;
+
+      const { data } = await useMessagesStore()
+        .getThisService()
+        .find({ query: { conversation: conversationId } });
+      const allMessages = data;
+      if (!conversationId || !userId) return;
+
+      // Récupérer les messages déjà marqués comme vus
+      const { data: seenData } = await this.getService("message-seen").find({
         query: {
-          conversation: useConversationsStore().currentConversation._id,
-          viewer: useUsersStore().user._id,
+          conversation: conversationId,
+          viewer: userId,
         },
         paginate: false,
       });
-      const seenMessagesIds = messagesAlreadySeen.data.map((view: any) => {
-        return view.message;
-      });
-      const messageNotMarkedAsSeen = useMessagesStore().messages.filter(
-        (msg) => {
-          return !seenMessagesIds.includes(msg._id);
-        }
+
+      const seenMessageIds = new Set(seenData.map((view: any) => view.message));
+      // Identifier les messages non encore vus
+      const unseenMessages = allMessages.filter(
+        (msg: Message) => !seenMessageIds.has(msg._id)
       );
-      for (const msgNotSeen of messageNotMarkedAsSeen) {
-        const conversationId = useRoute().params.id;
-        if (conversationId) {
-          const viewBody = {
-            message: msgNotSeen._id,
-            viewer: useUsersStore().user._id,
-            conversation: conversationId,
-          };
-          return await this.getService("message-seen").create(viewBody);
-        }
+
+      // Marquer les messages comme vus
+      const service = this.getService("message-seen");
+      for (const msg of unseenMessages) {
+        const viewPayload = {
+          message: msg._id,
+          viewer: userId,
+          conversation: conversationId,
+        };
+        await service.create(viewPayload);
       }
     },
     async setMessageAsSeen(msgId: string, convId: string) {

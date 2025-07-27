@@ -216,8 +216,6 @@ export const useMessagesStore = defineStore("messagesStore", {
 
       this.messages = messages.concat(this.messages);
       this.isAppendingMessages = false;
-      //set new loaded messages as seen
-      await useMessageStatusStore().setConversationMessagesAsSeen();
     },
     async getMessages(idConv: string) {
       return await this.getThisService().find({

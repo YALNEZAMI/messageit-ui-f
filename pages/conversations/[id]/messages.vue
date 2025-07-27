@@ -561,9 +561,6 @@ onMounted(async () => {
     elem.innerHTML = "______Nouveaux messages______";
     message.appendChild(elem);
   }
-  //set messages as seen
-  //set conversation messages as seen
-  await useMessageStatusStore().setConversationMessagesAsSeen();
 });
 definePageMeta({
   layout: "conversations",

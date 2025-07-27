@@ -11,7 +11,6 @@
       >
         <div class="flex items-end" v-if="thereIsSenderImage()">
           <ImagesMessageSender
-            :title="message.sender.name"
             :src="
               getConversationType() == 'ai' && !isMyMessage()
                 ? getRobotImage()
