@@ -128,6 +128,14 @@ export const useMessagesStore = defineStore("messagesStore", {
         }
         eventBus.emit("messageReceived", message.myMessage);
         eventBus.emit("messageReceived", message.aiMessage);
+        //set the aiMessage as seen if the user is still in the conv
+        const id = useRoute().params.id as string;
+        if (id && id == conversationId) {
+          await useMessageStatusStore().setMessageAsSeen(
+            message.aiMessage._id,
+            conversationId
+          );
+        }
       } else {
         this.popTemporaryMessage(temporaryId + "", message);
       }
@@ -278,7 +286,6 @@ export const useMessagesStore = defineStore("messagesStore", {
           messageId: _id,
           userId: useUsersStore().user._id,
           conversationId: useConversationsStore().currentConversation._id,
-          conversation: useConversationsStore().currentConversation._id,
         },
       } as any);
       if (res) {
