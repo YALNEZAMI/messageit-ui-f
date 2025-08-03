@@ -372,6 +372,9 @@ const deleteForMe = async () => {
   useAudioStore().runWipeDelete();
 
   setIsOptions(false);
+  //hide the "new messages mark"
+  const newMessageMark = document.getElementById("newMessagesMark");
+  if (newMessageMark) newMessageMark.remove();
 };
 const deleteForAll = async () => {
   if (selectingMode.value) {
@@ -385,6 +388,9 @@ const deleteForAll = async () => {
   useAudioStore().runWipeDelete();
 
   setIsOptions(false);
+
+  const newMessageMark = document.getElementById("newMessagesMark");
+  if (newMessageMark) newMessageMark.remove();
 };
 const copy = () => {
   copied.value = true;
@@ -545,6 +551,7 @@ onMounted(async () => {
     goToMessage(lastSeenMessageId, false);
     const message = document.getElementById(lastSeenMessageId) as HTMLElement;
     const elem = document.createElement("div");
+    elem.id = "newMessagesMark";
     elem.classList.add(
       "bg-gray-300",
       "border-2",
