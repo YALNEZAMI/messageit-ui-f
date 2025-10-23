@@ -31,7 +31,7 @@
               useConversationsStore().currentConversation.theme?.photo
             })`,
           }"
-          class="relative flex w-full md:w-4/5 pr-3 flex-col h-full"
+          class="relative flex w-full pr-3 flex-col h-full"
         >
           <!--copied message-->
           <div
