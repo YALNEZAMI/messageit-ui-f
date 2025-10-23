@@ -19,6 +19,7 @@ export const useMessagesStore = defineStore("messagesStore", {
       isAtBottom: true,
       temporaryMessagesIds: [] as number[],
       isAiTyping: false,
+      chunksIds: [] as string[],
     };
   },
   actions: {
@@ -265,6 +266,7 @@ export const useMessagesStore = defineStore("messagesStore", {
           conversation: useConversationsStore().currentConversation._id,
         },
       });
+      console.log("res", res);
       this.searchedMessages = res;
       this.isSearchMessagePulse = false;
       return res;
@@ -420,19 +422,24 @@ export const useMessagesStore = defineStore("messagesStore", {
       });
       this.getService("ai").on("created", async (aiBody: any) => {
         this.isAiTyping = false;
-
         // console.log("chunk-", new Date());
-
         this.messages = this.messages.map((msg, index) => {
           const senderId = (msg.sender as User)._id
             ? (msg.sender as User)._id
             : (msg.sender as string);
           if (index == this.messages.length - 1) {
             // console.log("senderId", senderId);
-            // console.log("aiBody.user", aiBody.aiUser);
+            // console.log("aiBody", aiBody);
             if (senderId == aiBody.aiUser) {
               // console.log("concatenating-", index, new Date());
-              msg.text += aiBody.text;
+              if (!this.chunksIds.includes(aiBody._id)) {
+                if (aiBody.indexOfChunk == 0) {
+                  msg.text = aiBody.text;
+                } else {
+                  msg.text += aiBody.text;
+                }
+              }
+              this.chunksIds.push(aiBody._id);
             }
           }
           return msg;
