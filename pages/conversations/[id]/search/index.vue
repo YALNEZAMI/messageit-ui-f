@@ -21,7 +21,7 @@
             `/conversations/${$route.params.id}/messages?messageId=${msg._id}`
           )
         "
-        class="bg-black hover:bg-opacity-80 transition-all duration-500 cursor-pointer rounded w-full h-16 p-2 m-1 flex items-center text-black"
+        class="bg-black hover:bg-opacity-80 transition-all duration-500 cursor-pointer rounded w-full md:w-3/4 h-16 p-2 m-1 flex items-center text-black"
       >
         <NuxtImg
           class="h-full w-16 rounded-full"
@@ -30,8 +30,14 @@
         <div class="w-full ml-3">
           <div class="text-xl font-bold">{{ getSender(msg).name }}</div>
           <div class="flex">
-            <div class="truncate w-40 md:w-1/2">{{ msg.text }}</div>
-            <div class="text-xs w-1/2 flex justify-end">
+            <div class="truncate w-40 md:w-96">
+              {{ getTextBeforeKey(msg.text) }}
+              <span class="font-bold text-red-500">{{
+                getCaseSensitiveKey(msg.text)
+              }}</span>
+              {{ getTextAfterKey(msg.text) }}
+            </div>
+            <div class="text-xs w-1/2 md:w-1/4 flex justify-end">
               {{ useMessagesStore().getDate(msg.createdAt + "") }}
             </div>
           </div>
@@ -96,4 +102,32 @@ const onInput = async (reqParam: string) => {
 onBeforeUnmount(() => {
   useMessagesStore().setSearchedMessages([]);
 });
+const getTextBeforeKey = (text: string) => {
+  const lowerText = text.toLowerCase();
+  const lowerKey = key.value.toLowerCase();
+  const indexOfPattern = lowerText.indexOf(lowerKey);
+  if (indexOfPattern === -1) return text;
+
+  // slice safely (avoid negative index)
+  const start = Math.max(0, indexOfPattern - 10);
+  return text.substring(start, indexOfPattern);
+};
+
+const getCaseSensitiveKey = (text: string) => {
+  const lowerText = text.toLowerCase();
+  const lowerKey = key.value.toLowerCase();
+  const indexOfPattern = lowerText.indexOf(lowerKey);
+  if (indexOfPattern === -1) return "";
+
+  return text.substring(indexOfPattern, indexOfPattern + key.value.length);
+};
+
+const getTextAfterKey = (text: string) => {
+  const lowerText = text.toLowerCase();
+  const lowerKey = key.value.toLowerCase();
+  const indexOfPattern = lowerText.indexOf(lowerKey);
+  if (indexOfPattern === -1) return "";
+
+  return text.substring(indexOfPattern + key.value.length);
+};
 </script>
