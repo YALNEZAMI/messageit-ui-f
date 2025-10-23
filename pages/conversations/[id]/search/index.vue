@@ -28,7 +28,9 @@
           :src="getSender(msg).image"
         ></NuxtImg>
         <div class="w-full ml-3">
-          <div class="text-xl font-bold">{{ getSender(msg).name }}</div>
+          <div class="text-xl font-bold">
+            {{ getSenderName(msg) }}
+          </div>
           <div class="flex">
             <div class="truncate w-40 md:w-96">
               {{ getTextBeforeKey(msg.text) }}
@@ -129,5 +131,14 @@ const getTextAfterKey = (text: string) => {
   if (indexOfPattern === -1) return "";
 
   return text.substring(indexOfPattern + key.value.length);
+};
+const getSenderName = (msg: Message) => {
+  if (
+    getSender(msg)._id != useUsersStore().user._id &&
+    useConversationsStore().currentConversation.type == "ai"
+  ) {
+    return "Boby";
+  }
+  return getSender(msg).name;
 };
 </script>
