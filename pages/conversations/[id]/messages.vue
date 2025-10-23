@@ -1,164 +1,181 @@
 <template>
   <main class="flex w-screen" style="height: 36.8rem">
-    <!--side conversations-->
-    <ContainersMain style="min-height: 35.5rem" class="w-1/4 md:w-1/5 rounded">
-      <ConversationSideBar></ConversationSideBar>
-    </ContainersMain>
-    <!--messages container and input-->
-    <div
-      style="
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: center;
-      "
-      :style="{
-        backgroundImage: `url(${
-          useConversationsStore().currentConversation.theme?.photo
-        })`,
-      }"
-      class="relative flex w-full md:w-4/5 pr-3 flex-col h-full"
-    >
-      <!--copied message-->
-      <div
-        v-if="copied"
-        class="flex justify-center absolute bottom-14 left-0 w-full"
+    <!--splitter-->
+    <Splitter style="height: 36.8rem; width: 100vw">
+      <!--1st item-->
+      <SplitterPanel
+        class="flex items-center justify-center"
+        :size="35"
+        :minSize="35"
       >
-        <span class="bg-white p-1 rounded-md text-green-400 font-bold"
-          >Copied ✔️</span
-        >
-      </div>
-      <div
-        id="messagesContainer"
-        class="relativep-1 px-1 w-full flex flex-col overflow-y-auto overflow-x-hidden"
-        style="height: 32rem; scrollbar-width: thin"
+        <!--side conversations-->
+        <ContainersMain style="min-height: 35.5rem" class="w-full rounded">
+          <ConversationSideBar></ConversationSideBar>
+        </ContainersMain>
+      </SplitterPanel>
+      <!--2nd item-->
+      <SplitterPanel
+        class="flex items-center justify-center"
+        :size="65"
+        :min-size="60"
       >
-        <!--load spinner-->
-        <div class="flex justify-center" v-if="getIsAppendingMessages()">
-          <div
-            class="w-6 h-6 mb-10 border-4 border-solid border-white border-t-transparent rounded-full animate-spin"
-          ></div>
-        </div>
-        <!--welcome to conversation-->
-        <ConversationWelcome
-          v-if="getMessages().length == 0"
-        ></ConversationWelcome>
-        <!--messages-->
-        <div v-for="message of getMessages()" :key="message._id">
-          <Message
-            :id="message._id"
-            @click="setClickedId(message._id)"
-            @options="messageOptions(message)"
-            @select="select(message)"
-            @goToReferedMessage="
-              goToMessage(getReferedMessageId(message), true)
-            "
-            :message="message"
-            :clickedId="clickedId"
-            :is-selected="isSelected(message._id + '')"
-            :selectingMode="selectingMode"
-            v-if="message.type == 'message'"
-          ></Message>
-          <ConversationNotification
-            v-if="message.type == 'notification'"
-            @click="setClickedId(message._id)"
-            :message="message"
-            :clickedId="clickedId"
-          ></ConversationNotification>
-        </div>
-        <!--typing component-->
-        <Typing @goBottom="goBottom()"></Typing>
-        <!--pulse effect-->
+        <!--messages container and input-->
         <div
-          class="w-full m-1"
-          :class="{
-            'flex justify-start': index % 2 == 0,
-            hidden: !isMessagesPulse(),
-          }"
+          style="
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+          "
           :style="{
-            direction: index % 2 == 0 ? 'rtl' : 'ltr',
+            backgroundImage: `url(${
+              useConversationsStore().currentConversation.theme?.photo
+            })`,
           }"
-          v-for="(pulse, index) in ([].length = 10)"
-          :key="index"
+          class="relative flex w-full md:w-4/5 pr-3 flex-col h-full"
         >
-          <Pulse
-            v-if="isMessagesPulse()"
-            class="bg-gray-300 overflow-x-hidden rounded p-2 h-16 w-96 overflow-hidden"
-          ></Pulse>
-        </div>
-        <!--scroll down button-->
-        <div class="flex justify-center sticky bottom-0 left-0 w-full">
-          <button
-            v-if="!isAtBottom() && useMessagesStore().messages.length > 10"
-            class="animate-bounce bg-transparent border-0 cursor-pointer"
-            @click="goBottom"
+          <!--copied message-->
+          <div
+            v-if="copied"
+            class="flex justify-center absolute bottom-14 left-0 w-full"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="size-7"
+            <span class="bg-white p-1 rounded-md text-green-400 font-bold"
+              >Copied ✔️</span
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-              />
-            </svg>
-          </button>
+          </div>
+          <div
+            id="messagesContainer"
+            class="relativep-1 px-1 w-full flex flex-col overflow-y-auto overflow-x-hidden"
+            style="height: 32rem; scrollbar-width: thin"
+          >
+            <!--load spinner-->
+            <div class="flex justify-center" v-if="getIsAppendingMessages()">
+              <div
+                class="w-6 h-6 mb-10 border-4 border-solid border-white border-t-transparent rounded-full animate-spin"
+              ></div>
+            </div>
+            <!--welcome to conversation-->
+            <ConversationWelcome
+              v-if="getMessages().length == 0"
+            ></ConversationWelcome>
+            <!--messages-->
+            <div v-for="message of getMessages()" :key="message._id">
+              <Message
+                :id="message._id"
+                @click="setClickedId(message._id)"
+                @options="messageOptions(message)"
+                @select="select(message)"
+                @goToReferedMessage="
+                  goToMessage(getReferedMessageId(message), true)
+                "
+                :message="message"
+                :clickedId="clickedId"
+                :is-selected="isSelected(message._id + '')"
+                :selectingMode="selectingMode"
+                v-if="message.type == 'message'"
+              ></Message>
+              <ConversationNotification
+                v-if="message.type == 'notification'"
+                @click="setClickedId(message._id)"
+                :message="message"
+                :clickedId="clickedId"
+              ></ConversationNotification>
+            </div>
+            <!--typing component-->
+            <Typing @goBottom="goBottom()"></Typing>
+            <!--pulse effect-->
+            <div
+              class="w-full m-1"
+              :class="{
+                'flex justify-start': index % 2 == 0,
+                hidden: !isMessagesPulse(),
+              }"
+              :style="{
+                direction: index % 2 == 0 ? 'rtl' : 'ltr',
+              }"
+              v-for="(pulse, index) in ([].length = 10)"
+              :key="index"
+            >
+              <Pulse
+                v-if="isMessagesPulse()"
+                class="bg-gray-300 overflow-x-hidden rounded p-2 h-16 w-96 overflow-hidden"
+              ></Pulse>
+            </div>
+            <!--scroll down button-->
+            <div class="flex justify-center sticky bottom-0 left-0 w-full">
+              <button
+                v-if="!isAtBottom() && useMessagesStore().messages.length > 10"
+                class="animate-bounce bg-transparent border-0 cursor-pointer"
+                @click="goBottom"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="size-7"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <!--selection multiple options-->
+          <div
+            class="flex flex-wrap justify-center bg-gray-400 bg-opacity-65 p-2"
+            v-if="selectedMessages.length > 0"
+          >
+            <button
+              class="selectionButtons half bg-orange-500 hover:bg-orange-600"
+              @click="deleteForMe"
+            >
+              Supprimer pour moi
+            </button>
+            <button
+              v-if="allSeletedMessagesAreMine()"
+              class="selectionButtons half bg-red-500 hover:bg-red-600"
+              @click="deleteForAll"
+            >
+              Supprimer pour tous
+            </button>
+
+            <button
+              class="selectionButtons w-1/2 bg-yellow-500 hover:bg-yellow-600"
+              @click="cancelSelection()"
+            >
+              Annuler
+            </button>
+            <button
+              @click="transfering = true"
+              class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
+            >
+              Transferer
+            </button>
+            <button
+              @click="copy"
+              class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
+            >
+              {{ copied ? "Copied ✔️" : "Copier le text" }}
+            </button>
+          </div>
+
+          <div v-else-if="selectingMode" class="flex justify-center">
+            <button
+              class="selectionButtons w-1/2 bg-yellow-500 hover:bg-yellow-600"
+              @click="cancelSelection()"
+            >
+              Annuler
+            </button>
+          </div>
+          <!-- input -->
+          <MessageInput class="absolute bottom-0 left-0 w-full"></MessageInput>
         </div>
-      </div>
-      <!--selection multiple options-->
-      <div
-        class="flex flex-wrap justify-center bg-gray-400 bg-opacity-65 p-2"
-        v-if="selectedMessages.length > 0"
-      >
-        <button
-          class="selectionButtons half bg-orange-500 hover:bg-orange-600"
-          @click="deleteForMe"
-        >
-          Supprimer pour moi
-        </button>
-        <button
-          v-if="allSeletedMessagesAreMine()"
-          class="selectionButtons half bg-red-500 hover:bg-red-600"
-          @click="deleteForAll"
-        >
-          Supprimer pour tous
-        </button>
-
-        <button
-          class="selectionButtons w-1/2 bg-yellow-500 hover:bg-yellow-600"
-          @click="cancelSelection()"
-        >
-          Annuler
-        </button>
-        <button
-          @click="transfering = true"
-          class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
-        >
-          Transferer
-        </button>
-        <button
-          @click="copy"
-          class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
-        >
-          {{ copied ? "Copied ✔️" : "Copier le text" }}
-        </button>
-      </div>
-
-      <div v-else-if="selectingMode" class="flex justify-center">
-        <button
-          class="selectionButtons w-1/2 bg-yellow-500 hover:bg-yellow-600"
-          @click="cancelSelection()"
-        >
-          Annuler
-        </button>
-      </div>
-      <!-- input -->
-      <MessageInput class="absolute bottom-0 left-0 w-full"></MessageInput>
-    </div>
+      </SplitterPanel>
+    </Splitter>
 
     <!--options-->
     <transition name="slide-up">
