@@ -1,3 +1,5 @@
+import Aura from "@primeuix/themes/aura";
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 const port = 3000;
 export default defineNuxtConfig({
@@ -14,6 +16,8 @@ export default defineNuxtConfig({
     },
   },
   modules: [
+    "@primevue/nuxt-module",
+
     "@nuxt/image",
     [
       "@pinia/nuxt",
@@ -22,6 +26,16 @@ export default defineNuxtConfig({
       },
     ],
   ],
+  // @ts-ignore
+  primevue: {
+    autoImport: false,
+    usePrimeVue: true,
+    options: {
+      theme: {
+        preset: Aura,
+      },
+    },
+  },
   imports: {
     dirs: ["stores"],
   },
