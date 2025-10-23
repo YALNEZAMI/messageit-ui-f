@@ -4,3 +4,4 @@
 //FIXME animation de la notif "est en train d'écrir"
 //FIXME photo sending and ai media analyser
 //FIXME msgs paginations and last message seen coherence
+//TODO splitter primevue (side convs bar and messages view)
