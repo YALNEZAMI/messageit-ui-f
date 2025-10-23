@@ -116,14 +116,20 @@ export const useMessagesStore = defineStore("messagesStore", {
 
       this.handleTemporaryMessage(temporaryId, msg);
       //if ai conversation-> message:{myMessage:Message,aiMessage:Message}
-      const message = await this.getThisService().create(msg, {
+      const service =
+        useConversationsStore().currentConversation.type == "ai"
+          ? this.getService("ai")
+          : this.getService("messages");
+      const message = await service.create(msg, {
         query: { conversation: conversationId },
       });
+      // console.log("message", message, new Date());
       //ai response handling
       if (useConversationsStore().currentConversation.type == "ai") {
         this.isAiTyping = false;
         this.popTemporaryMessage(temporaryId + "", message.myMessage);
         if (conversationId == useConversationsStore().currentConversation._id) {
+          // console.log("aiMessage pushed", new Date());
           this.messages.push(message.aiMessage);
         }
         eventBus.emit("messageReceived", message.myMessage);
@@ -411,6 +417,26 @@ export const useMessagesStore = defineStore("messagesStore", {
         useConversationsStore().sortConversations();
         //update navItem number
         eventBus.emit("notificationNumberChanged", message);
+      });
+      this.getService("ai").on("created", async (aiBody: any) => {
+        this.isAiTyping = false;
+
+        // console.log("chunk-", new Date());
+
+        this.messages = this.messages.map((msg, index) => {
+          const senderId = (msg.sender as User)._id
+            ? (msg.sender as User)._id
+            : (msg.sender as string);
+          if (index == this.messages.length - 1) {
+            // console.log("senderId", senderId);
+            // console.log("aiBody.user", aiBody.aiUser);
+            if (senderId == aiBody.aiUser) {
+              // console.log("concatenating-", index, new Date());
+              msg.text += aiBody.text;
+            }
+          }
+          return msg;
+        });
       });
     },
   },
