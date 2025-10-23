@@ -1,7 +1,7 @@
 <template>
   <main>
     <div class="w-full justify-center flex-col space-y-2 my-1 flex">
-      <div class="w-11/12 hidden sm:block">
+      <div class="w-11/12 m-auto hidden sm:block">
         <ElementsInputsText
           type="text"
           @onInput="onInput($event)"
