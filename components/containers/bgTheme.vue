@@ -3,6 +3,7 @@
   <div
     :class="{
       [getClasses()]: true,
+      'theme-panda': props.theme?._id === 'panda',
     }"
     v-bind="attrs"
   >
@@ -17,17 +18,16 @@ const attrs = useAttrs();
 const props = defineProps({
   theme: Object,
 });
-const theme = props.theme as Theme;
 const getClasses = () => {
-  switch (theme._id) {
+  switch ((props.theme as Theme | undefined)?._id) {
     case "basic":
       return "bg-blue-100 text-black";
     case "love":
-      return "bg-pink-100 text-white";
+      return "bg-pink-100 text-black";
     case "panda":
       return "bg-gray-600 text-white";
     case "spring":
-      return "bg-green-100 text-white";
+      return "bg-green-100 text-black";
 
     default:
       return "bg-white text-black";

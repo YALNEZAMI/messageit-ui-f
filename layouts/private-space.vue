@@ -1,5 +1,5 @@
 <template>
-  <main>
+  <main class="workspace-shell">
     <div>
       <PrivateSpaceHeader></PrivateSpaceHeader>
       <PrivateSpaceNavBar></PrivateSpaceNavBar>
@@ -8,7 +8,7 @@
     <div>
       <SideBar></SideBar>
     </div>
-    <ContainersBgTheme :theme="useUsersStore().user.theme">
+    <ContainersBgTheme class="workspace-content" :theme="useUsersStore().user.theme">
       <slot />
     </ContainersBgTheme>
   </main>

@@ -10,49 +10,44 @@
       v-if="referedMessage._id"
     ></MessageInputReferedMessage>
     <!--photos preview-->
-    <div class="flex bg-black bg-opacity-25">
-      <div v-for="(file, index) of previewSrc" :key="file" class="relative">
-        <NuxtImg
-          v-if="index < 3"
-          class="w-16 h-16 rounded m-1 border-2 border-solid border-white"
-          :src="file"
-        ></NuxtImg>
+    <div v-if="previewSrc.length" class="composer-previews">
+      <div v-for="(file, index) of previewSrc.slice(0, 3)" :key="file" class="composer-preview">
+        <img :src="file" :alt="files[index]?.name || 'Image sélectionnée'" />
         <button
-          class="p-1 cursor-pointer rounded border-0 text-white px-2 bg-red-500 absolute top-0 right-0"
+          type="button"
+          class="composer-preview-remove"
+          :aria-label="`Retirer ${files[index]?.name || 'l’image'}`"
           @click="removeFile(index)"
-        >
-          x
-        </button>
+        >×</button>
       </div>
-      <div
+      <button
         @click="selectFiles = true"
         v-if="previewSrc.length > 3"
-        class="flex items-center text-xl font-bold cursor-pointer"
-      >
-        ...
-      </div>
+        type="button"
+        class="composer-more"
+      >+{{ previewSrc.length - 3 }}</button>
     </div>
     <!--inputs-->
-    <ContainersConversationTheme class="w-full flex justify-center">
-      <div
-        class="p-2 flex justify-center items-center space-x-1 w-full md:w1/2"
-      >
+    <ContainersConversationTheme class="composer w-full flex justify-center">
+      <div class="composer-inner">
         <!--text main input-->
         <textarea
           @input="typing"
           id="textInput"
           type="text"
           v-model.trim="message.text"
-          class="scroll border-2 border-solid border-black w-3/4 h-7 md:w-1/2 px-2 rounded focus:border-black focus:border-2"
-          placeholder="écrir..."
-          rows="3"
+          class="composer-input scroll"
+          placeholder="Écrire un message..."
+          aria-label="Écrire un message"
+          rows="1"
           style="resize: none"
         ></textarea>
         <button
           :disabled="isSendButtonDisabled()"
           v-if="isSendable()"
           @click="send"
-          class="bg-white text-black rounded border-0 px-2 py-1 cursor-pointer hover:bg-gray-200 transition-all duration-500 ease-in-out"
+          class="composer-send"
+          aria-label="Envoyer le message"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -73,13 +68,15 @@
         <button
           v-else
           @click="sendEmoji"
-          class="bg-white text-lg border-solid shadow-md text-black rounded cursor-pointer hover:bg-gray-200 transition-all duration-500 ease-in-out"
+          class="composer-send"
+          aria-label="Envoyer l’emoji du thème"
         >
           {{ getEmoji() }}
         </button>
         <!--file form activater-->
         <button
-          class="flex cursor-pointer items-center bg-green-400 hover:bg-green-500 border-solid border-black border-2 text-white rounded"
+          class="composer-attach"
+          aria-label="Ajouter des photos"
           @click="selectFiles = true"
         >
           <svg
@@ -99,7 +96,6 @@
         </button>
         <MessageInputFiles
           @finish="finishFiles($event)"
-          @removeFile="removeFile($event)"
           v-if="selectFiles"
           :files="files"
           :previewSrc="previewSrc"

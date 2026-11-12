@@ -1,11 +1,11 @@
 <template>
   <main
-    class="text-center text-sm text-black bg-gray-100 bg-opacity-75 rounded-md my-1"
+    class="conversation-notice"
   >
     <div>{{ message.text }}</div>
     <!--date-->
     <div
-      class="text-center text-ss text-black"
+      class="conversation-notice-date"
       v-if="props.clickedId == message._id"
     >
       {{ getDate() }}

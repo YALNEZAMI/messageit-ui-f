@@ -1,39 +1,36 @@
 <template>
-  <main>
-    <div class="w-full justify-center flex-col space-y-2 my-1 flex">
-      <div class="w-11/12 hidden sm:block">
+  <main class="conversation-sidebar-content">
+    <div class="conversation-sidebar-toolbar">
+      <div class="w-full">
         <ElementsInputsText
           type="text"
           @onInput="onInput($event)"
         ></ElementsInputsText>
       </div>
 
-      <div class="flex flex-wrap">
-        <span
+      <div class="conversation-filters" role="group" aria-label="Filtrer les conversations">
+        <button
           v-for="fc of filterCategorys"
           :key="fc.value"
+          type="button"
           @click="setFilterCategory(fc)"
-          :class="{
-            'bg-blue-500': filterCategory.value == fc.value,
-            'bg-black': filterCategory.value != fc.value,
-          }"
-          class="cursor-pointer text-white p-1 rounded-md m-1"
-          >{{ fc.name }}</span
+          :class="{ active: filterCategory.value == fc.value }"
+          :aria-pressed="filterCategory.value == fc.value"
+          >{{ fc.name }}</button
         >
       </div>
     </div>
     <!--conversations container-->
     <div
-      style="max-height: 26rem; direction: rtl; scrollbar-width: thin"
-      class="overflow-y-auto flex justify-center flex-wrap h-max pb-2"
+      class="conversation-sidebar-list"
     >
       <Conversation
-        style="direction: ltr"
-        class="mb-1 overflow-hidden"
+        class="overflow-hidden"
         v-for="conv of getConvs()"
         :key="conv._id"
         :conversation="conv"
         :isSideBar="true"
+        @click="emit('conversation-selected')"
       ></Conversation>
       <div
         class="w-11/12"
@@ -44,7 +41,6 @@
         }"
       >
         <Pulse
-          style="direction: ltr"
           v-if="isConversationPulse()"
           class="w-full overflow-hidden"
         ></Pulse>
@@ -54,7 +50,7 @@
 </template>
 <script lang="ts" setup>
 import type { Conversation } from "~/interfaces/conversation";
-import conversations from "~/middleware/conversations";
+const emit = defineEmits(["conversation-selected"]);
 
 const key = ref("");
 const filterCategory: Ref<FilterCategory> = ref({

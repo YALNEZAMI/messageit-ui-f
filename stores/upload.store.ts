@@ -9,20 +9,18 @@ export const useUploadStore = defineStore("upload", {
       const formData = new FormData();
       formData.append("profilePhoto", file);
       formData.append("idUser", useUsersStore().user._id as string);
-      try {
-        const res = await fetch("/api/uploadProfilePhoto", {
-          method: "POST",
-          body: formData,
-        });
-
-        const result = await res.json();
-        return result;
-      } catch (err) {
-        console.log(
-          "Une erreur est survenue lors de l'upload de la photo de profil"
-        );
+      const res = await fetch("/api/uploadProfilePhoto", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        throw new Error(`Le téléversement a échoué (${res.status}).`);
       }
-      return { path: useUsersStore().defaultUserImg };
+      const result = await res.json();
+      if (typeof result.path !== "string" || !result.path) {
+        throw new Error("Le serveur n'a pas renvoyé la photo téléversée.");
+      }
+      return result;
     },
     async uploadConversationPhoto(file: File): Promise<{ path: string }> {
       const formData = new FormData();
@@ -31,20 +29,18 @@ export const useUploadStore = defineStore("upload", {
         "idConversation",
         useConversationsStore().currentConversation._id as string
       );
-      try {
-        const res = await fetch("/api/uploadConversationPhoto", {
-          method: "POST",
-          body: formData,
-        });
-
-        const result = await res.json();
-        return result;
-      } catch (err) {
-        console.log(
-          "Une erreur est survenue lors de l'upload de la photo de profil"
-        );
+      const res = await fetch("/api/uploadConversationPhoto", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        throw new Error(`Le téléversement a échoué (${res.status}).`);
       }
-      return { path: useUsersStore().defaultUserImg };
+      const result = await res.json();
+      if (typeof result.path !== "string" || !result.path) {
+        throw new Error("Le serveur n'a pas renvoyé la photo téléversée.");
+      }
+      return result;
     },
     async uploadMessageFiles(files: File[]): Promise<{ urls: string[] }> {
       const formData = new FormData();

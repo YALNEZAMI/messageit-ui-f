@@ -1,10 +1,10 @@
 <template>
-  <main>
+  <main class="workspace-shell conversation-shell">
     <div>
       <ConversationHeader></ConversationHeader>
       <ConversationNavBar></ConversationNavBar>
     </div>
-    <ContainersBgTheme
+    <ContainersBgTheme class="conversation-content"
       :theme="useConversationsStore().currentConversation.theme"
     >
       <slot />

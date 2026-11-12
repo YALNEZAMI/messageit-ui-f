@@ -13,20 +13,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   }
   if (authStore.isAuthenticated()) {
     try {
-      //init data
-      await useFriendsStore().getMyFriends();
-      await useConversationsStore().getInitalConversations();
-
-      //websocket channels subscription
-      await useConversationsStore().onConversation();
-      useUsersStore().onUser();
-      await useFriendsStore().onFriendRequests();
-      await useFriendsStore().onFriends();
-      await useMessagesStore().onMessage();
-      useMessageStatusStore().onMessageStatus();
-      await useMessageStatusStore().setAllConversationsMessagesAsRecieved();
-      useTypingStore().onTyping();
+      await authStore.initializeSession();
     } catch (e) {
+      console.error("Échec de l'initialisation de la session :", e);
       localStorage.clear();
       useAuthStore().setAccessToken("");
       useRouter().push("/auth/login");

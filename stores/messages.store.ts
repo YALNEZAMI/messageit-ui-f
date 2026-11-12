@@ -158,25 +158,19 @@ export const useMessagesStore = defineStore("messagesStore", {
     },
     async getInitialMessages(idConv: string) {
       this.isMessagesPulse = true;
-      const messagesCounting = await this.getThisService().find({
-        query: {
-          $limit: 0,
-          conversation: idConv,
-        },
-      });
-      this.setSkip(Math.max(0, messagesCounting.total - this.paginationValue));
-      const messages = await this.getThisService().find({
-        query: {
-          $skip: this.skip,
-          $limit: this.paginationValue,
-          $sort: { createdAt: 1 },
-          conversation: idConv,
-        },
-      });
-
-      this.messages = await this.populateMessages(messages.data);
-
-      this.isMessagesPulse = false;
+      try {
+        const messages = await this.getThisService().find({
+          query: {
+            $limit: this.paginationValue,
+            $sort: { createdAt: -1, _id: -1 },
+            conversation: idConv,
+          },
+        });
+        this.setSkip(Math.max(0, messages.total - this.paginationValue));
+        this.messages = await this.populateMessages(messages.data.reverse());
+      } finally {
+        this.isMessagesPulse = false;
+      }
     },
     async populateMessages(messages: Message[]) {
       const res = [];
@@ -206,25 +200,23 @@ export const useMessagesStore = defineStore("messagesStore", {
       }
       this.isAppendingMessages = true;
 
-      let limit = this.skip;
-      this.setSkip(Math.max(0, this.skip - this.paginationValue));
-      if (this.skip > this.paginationValue) {
-        limit = this.paginationValue;
+      const limit = Math.min(this.skip, this.paginationValue);
+      const nextSkip = Math.max(0, this.skip - this.paginationValue);
+      try {
+        const res = await this.getThisService().find({
+          query: {
+            $limit: limit,
+            $skip: nextSkip,
+            $sort: { createdAt: 1, _id: 1 },
+            conversation: useRoute().params.id,
+          },
+        });
+        const messages = await this.populateMessages(res.data);
+        this.setSkip(nextSkip);
+        this.messages = messages.concat(this.messages);
+      } finally {
+        this.isAppendingMessages = false;
       }
-      const res = await this.getThisService().find({
-        query: {
-          $limit: limit,
-          $skip: this.skip,
-          $sort: { createdAt: 1 },
-          conversation: useRoute().params.id,
-        },
-      });
-      let messages = res.data;
-
-      messages = await this.populateMessages(messages);
-
-      this.messages = messages.concat(this.messages);
-      this.isAppendingMessages = false;
       //set new loaded messages as seen
       await useMessageStatusStore().setConversationMessagesAsSeen();
     },

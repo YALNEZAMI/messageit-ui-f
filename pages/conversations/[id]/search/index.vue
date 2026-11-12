@@ -1,7 +1,8 @@
 <template>
-  <main style="height: 36rem">
+  <main class="page-section">
+    <div class="page-heading"><div><p class="page-eyebrow">CONVERSATION</p><h1>Rechercher un message</h1><p>Retrouvez un échange dans cette conversation.</p></div></div>
     <!--input-->
-    <div class="flex justify-center bg-gray-200 p-1 space-x-2 w-11/12 mx-auto">
+    <div class="flex justify-center w-full max-w-xl mx-auto">
       <ElementsInputsText
         type="text"
         @onInput="onInput($event)"
@@ -21,14 +22,16 @@
             `/conversations/${$route.params.id}/messages?messageId=${msg._id}`
           )
         "
-        class="bg-black hover:bg-opacity-80 transition-all duration-500 cursor-pointer rounded w-full h-16 p-2 m-1 flex items-center text-black"
+        class="conversation-card cursor-pointer w-full min-h-16 p-2 m-1 flex items-center"
       >
-        <NuxtImg
-          class="h-full w-16 rounded-full"
-          :src="getSender(msg).image"
-        ></NuxtImg>
+        <ImagesFallback
+          class="h-16 w-16 shrink-0 rounded-full object-cover"
+          :src="getSender(msg)?.image"
+          :fallback="useConversationsStore().getDefaultImage(getSender(msg)?.aiUser ? 'ai' : 'private')"
+          alt=""
+        />
         <div class="w-full ml-3">
-          <div class="text-xl font-bold">{{ getSender(msg).name }}</div>
+          <div class="text-xl font-bold">{{ getSender(msg)?.aiUser ? 'Boby' : (getSender(msg)?.name || 'Utilisateur') }}</div>
           <div class="flex">
             <div class="truncate w-40 md:w-1/2">{{ msg.text }}</div>
             <div class="text-xs w-1/2 flex justify-end">
@@ -76,18 +79,12 @@ const getSearchedMessages = () => {
 const isSearchMessagesPulse = () => {
   return useMessagesStore().isSearchMessagePulse;
 };
-const getSender = (msg: Message): User => {
-  return msg.sender as User;
+const getSender = (msg: Message): User | undefined => {
+  return typeof msg.sender === "object" ? msg.sender : undefined;
 };
 definePageMeta({
   middleware: "conversations",
   layout: "conversations",
-});
-document.addEventListener("keydown", async (e) => {
-  if (e.key == "Enter") {
-    await search();
-    return;
-  }
 });
 const onInput = async (reqParam: string) => {
   key.value = reqParam;

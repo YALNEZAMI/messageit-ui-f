@@ -4,12 +4,14 @@
     <!--viewers images-->
     <div
       v-if="viewers.length > 0 && getConversationType() != 'ai'"
-      class="flex justify-end px-2 mb-2"
+      class="message-viewers flex justify-end px-2 mb-2"
     >
-      <img
-        class="w-4 h-4 rounded-full"
+      <ImagesFallback
+        class="message-viewer-avatar"
         :title="viewer.name + ' userid: ' + viewer._id"
         :src="viewer.image"
+        :fallback="useConversationsStore().getDefaultImage('private')"
+        :alt="`Vu par ${viewer.name || 'un utilisateur'}`"
         v-for="viewer of viewers"
         :key="viewer._id"
       />
@@ -150,7 +152,7 @@ onMounted(async () => {
     if (seeing.viewer != useUsersStore().user._id && isLastMessage()) {
       const viewer = useConversationsStore().getMember(seeing.viewer);
       popViewer(seeing.viewer); //avoid repetition
-      viewers.value.push(viewer);
+      if (viewer) viewers.value.push(viewer);
     }
   });
 });

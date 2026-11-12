@@ -1,17 +1,18 @@
 <template>
   <main
-    class="fixed left-0 top-0 w-screen h-screen z-50 flex justify-center items-center"
+    class="dialog-backdrop fixed inset-0 z-50 flex justify-center items-center"
   >
-    <div class="bg-white text-black rounded p-4">
+    <div class="dialog-panel text-black">
       <div class="text-center text-orange-500 font-bold">
         {{ alert.header }}
       </div>
       <div class="text-center my-2">{{ alert.message }}</div>
       <div class="text-center">
-        <ContainersMain
+        <button
+          type="button"
           @click="emits('finish')"
-          class="mx-auto cursor-pointer text-white w-max px-2 py-1 rounded"
-          >Fermer</ContainersMain
+          class="upload-button-primary"
+          >Fermer</button
         >
       </div>
     </div>

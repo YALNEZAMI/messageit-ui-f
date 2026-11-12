@@ -1,8 +1,7 @@
 <template>
   <main class="flex justify-center">
     <div
-      class="rounded-md p-3"
-      style="background: linear-gradient(0deg, cyan, pink, white)"
+      class="conversation-welcome"
     >
       <div class="flex justify-center">
         <ImagesConversationHeader></ImagesConversationHeader>
@@ -12,7 +11,7 @@
           Chatter avec votre assistant de vie maintenant !
         </div>
         <div v-else-if="conversation.type == 'group'">
-          "Vous faites partie du groupe {{ conversation.name }}, lancez la
+          Vous faites partie du groupe {{ conversation.name }}, lancez la
           conversation !
         </div>
         <div v-else>

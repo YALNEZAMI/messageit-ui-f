@@ -1,12 +1,13 @@
 <template>
-  <main style="min-height: 35.9rem">
+  <main class="page-section">
+    <div class="page-heading"><div><p class="page-eyebrow">CONVERSATION</p><h1>Membres</h1><p>Les personnes participant à cette conversation.</p></div></div>
     <div class="flex justify-center items-center">
       <button
         @click="addingMembers = true"
         v-if="getConversationType() == 'group'"
-        class="p-2 text-white hover:bg-green-500 cursor-pointer rounded border-0 bg-green-400 w-full"
+        class="upload-button-primary"
       >
-        Add members +
+        Ajouter des membres
       </button>
       <ConversationMembersAddMember
         @finish="addingMembers = false"
@@ -16,13 +17,12 @@
     </div>
     <div
       class="overflow-y-auto flex flex-wrap justify-center h-max"
-      style="max-height: 35.9rem; scrollbar-width: thin"
     >
       <div v-for="user of getMembers()" :key="user._id">
         <!--if group -> rights-->
         <div
           v-if="getConversationType() == 'group'"
-          class="text-black px-2 underline font-bold"
+          class="px-2 underline font-bold"
         >
           {{ getRights(user) }}
         </div>
@@ -37,7 +37,7 @@
             v-if="
               currentUser._id != user._id && hasRights(currentUser._id + '')
             "
-            class="text-black text-2xl cursor-pointer"
+            class="text-2xl cursor-pointer"
             @click="toogleMemberOptions(true, user)"
           >
             ...

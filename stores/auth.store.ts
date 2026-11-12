@@ -6,11 +6,48 @@ export const useAuthStore = defineStore("authStore", {
     return {
       accessToken: "",
       authentication: { payload: { exp: 1 } },
+      initializedSessionToken: "",
+      sessionInitialization: null as Promise<void> | null,
+      sessionListenersRegistered: false,
       authBackgroud:
         useRuntimeConfig().public.BASE_URL + "/images-ui/authBackgroud.png",
     };
   },
   actions: {
+    async initializeSession() {
+      if (this.initializedSessionToken === this.accessToken) return;
+      if (this.sessionInitialization) {
+        await this.sessionInitialization;
+        if (this.initializedSessionToken === this.accessToken) return;
+      }
+
+      const token = this.accessToken;
+      this.sessionInitialization = (async () => {
+        await Promise.all([
+          useFriendsStore().getMyFriends(),
+          useConversationsStore().getInitalConversations(),
+        ]);
+
+        if (!this.sessionListenersRegistered) {
+          await useConversationsStore().onConversation();
+          useUsersStore().onUser();
+          await useFriendsStore().onFriendRequests();
+          await useFriendsStore().onFriends();
+          await useMessagesStore().onMessage();
+          useMessageStatusStore().onMessageStatus();
+          useTypingStore().onTyping();
+          this.sessionListenersRegistered = true;
+        }
+
+        await useMessageStatusStore().setAllConversationsMessagesAsRecieved();
+        if (this.accessToken === token) this.initializedSessionToken = token;
+      })();
+      try {
+        await this.sessionInitialization;
+      } finally {
+        this.sessionInitialization = null;
+      }
+    },
     getService(name: string) {
       return useNuxtApp().$feathers.service(name);
     },

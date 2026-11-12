@@ -52,13 +52,13 @@ export const useConversationsStore = defineStore("conversationsStore", {
     getDefaultImage(convType: string): string {
       switch (convType) {
         case "ai":
-          return useRuntimeConfig().public.BASE_URL + "/images-ui/robot.png";
+          return "/images-ui/robot.png";
         case "group":
-          return useRuntimeConfig().public.BASE_URL + "/images-ui/group.png";
+          return "/images-ui/group.png";
         case "private":
-          return useRuntimeConfig().public.BASE_URL + "/images-ui/user.png";
+          return "/images-ui/user.png";
         default:
-          return useRuntimeConfig().public.BASE_URL + "/images-ui/user.png";
+          return "/images-ui/user.png";
       }
     },
     getEmojiOfTheme(themeId: string): string {
@@ -165,7 +165,7 @@ export const useConversationsStore = defineStore("conversationsStore", {
       useRouter().push("/conversations");
     },
     async updateConversation(
-      conversation: Conversation
+      conversation: Pick<Conversation, "_id"> & Partial<Conversation>
     ): Promise<Conversation> {
       return await this.getService("conversations").patch(
         conversation._id as string,
@@ -178,12 +178,14 @@ export const useConversationsStore = defineStore("conversationsStore", {
     },
     async getInitalConversations() {
       this.isConversationsPulse = true;
-      const conversations = await this.getService("conversations").find({
-        paginate: false,
-      });
-
-      this.setConversations(conversations);
-      this.isConversationsPulse = false;
+      try {
+        const conversations = await this.getService("conversations").find({
+          paginate: false,
+        });
+        this.setConversations(conversations);
+      } finally {
+        this.isConversationsPulse = false;
+      }
     },
 
     async chatWithUser(user: User) {

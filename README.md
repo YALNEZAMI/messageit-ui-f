@@ -54,6 +54,13 @@ your Google AI Studio project that supports `generateContent` if necessary.
 Restart the API after changing these values. Conversation text and images sent
 to the assistant are transmitted to Gemini.
 
+### MongoDB
+
+Set `MONGODB_URI` in the API's `.env` file or deployment environment, for
+example `MONGODB_URI=mongodb://localhost:27017/message-it-api` for a local
+database. The API reads this value at startup; restart it after changes. Never
+commit connection strings containing credentials.
+
 ## Production
 
 Build the application for production:

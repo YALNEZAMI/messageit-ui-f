@@ -1,14 +1,16 @@
 <template>
   <ContainersTheme
     :class="getContainerClasses()"
-    class="relative flex h-20 items-center shadow-md hover:bg-opacity-70 transition-all duration-500 cursor-pointer p-1 rounded m-1"
+    class="conversation-card relative flex items-center m-1"
+    :data-sidebar="isSideBar"
   >
-    <div
-      class="flex w-full items-center"
-      :class="{
-        'justify-center md:justify-normal ': isSideBar,
-      }"
-      @click="setConversation()"
+    <button
+      type="button"
+      class="conversation-card-open"
+      :disabled="isOpening"
+      :aria-busy="isOpening"
+      :aria-label="isOpening ? `Ouverture de ${getName()}` : `Ouvrir ${getName()}`"
+      @click="setConversation"
     >
       <!--image and user status-->
       <div
@@ -29,18 +31,21 @@
       </div>
       <!--name + second text+ lastMessage status-->
       <div
-        class="md:w-3/4 w-2/3 flex h-full items-center justify-between"
-        :class="{
-          ' hidden md:block': props.isSideBar,
-        }"
+        class="conversation-card-content flex items-center justify-between"
       >
-        <div class="sm:w-3/4 w-2/3 truncate px-3">
-          <div class="font-bold text-2xl mb-1">
+        <div class="conversation-card-copy">
+          <div class="conversation-card-name truncate">
             {{ getName() }}
           </div>
           <!--draft-->
-          <div v-if="getDraft()">
-            <span class="text-green-500">Brouillon: </span>{{ getDraft() }}
+          <div v-if="isOpening" role="status" class="text-xs">
+            Ouverture de la conversation…
+          </div>
+          <div v-else-if="navigationError" role="alert" class="text-xs text-red-600">
+            Impossible d'ouvrir la conversation. Réessayez.
+          </div>
+          <div v-else-if="getDraft()">
+            <span class="conversation-draft">Brouillon : </span>{{ getDraft() }}
           </div>
           <div v-else-if="showImagesAsSecondaryText()" class="flex space-x-1">
             <div
@@ -57,10 +62,9 @@
           </div>
           <div
             v-else
-            class="truncate"
+            class="conversation-card-preview truncate"
             :class="{
-              'font-bold text-base ': !isSeen,
-              'text-xs font-serif ': isSeen,
+              'font-bold': !isSeen,
             }"
           >
             {{ getSecondaryText() }}
@@ -74,14 +78,17 @@
           :message="conversation.lastMessage"
         ></MessageStatus>
       </div>
-    </div>
+    </button>
 
     <!--settings-->
-    <div class="absolute top-1/3 right-4 z-20" v-if="!isSideBar && !noSettings">
+    <button
+      v-if="!isSideBar && !noSettings"
+      type="button"
+      class="conversation-card-settings"
+      :aria-label="`Paramètres de ${getName()}`"
+      @click="$router.push('/conversations/' + conversation._id + '/settings')"
+    >
       <svg
-        @click="
-          $router.push('/conversations/' + conversation._id + '/settings')
-        "
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
@@ -100,7 +107,7 @@
           d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
         />
       </svg>
-    </div>
+    </button>
   </ContainersTheme>
 </template>
 <script lang="ts" setup>
@@ -115,8 +122,20 @@ const props = defineProps({
 });
 const conversation = props.conversation as Conversation;
 const isSideBar = props.isSideBar;
+const router = useRouter();
+const isOpening = ref(false);
+const navigationError = ref(false);
 const setConversation = async () => {
-  useRouter().push("/conversations/" + conversation._id + "/messages");
+  isOpening.value = true;
+  navigationError.value = false;
+  try {
+    await router.push("/conversations/" + conversation._id + "/messages");
+  } catch (error) {
+    console.error("Impossible d'ouvrir la conversation :", error);
+    navigationError.value = true;
+  } finally {
+    isOpening.value = false;
+  }
 };
 
 const getName = () => {
@@ -255,7 +274,7 @@ const showImagesAsSecondaryText = (): boolean => {
     conversation.lastMessage != undefined &&
     (conversation.lastMessage.text == "" ||
       conversation.lastMessage.text == undefined) &&
-    conversation.lastMessage.files!.length > 0
+    (conversation.lastMessage.files?.length ?? 0) > 0
   );
 };
 </script>

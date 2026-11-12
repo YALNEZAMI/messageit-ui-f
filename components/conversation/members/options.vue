@@ -1,5 +1,5 @@
 <template>
-  <main class="fixed bottom-0 left-0 h-max w-full bg-gray-600">
+  <main class="member-options fixed bottom-0 left-0 h-max w-full">
     <div class="text-center my-2 text-xl">
       Operation sur <span class="underline">{{ member.name }}</span>
     </div>

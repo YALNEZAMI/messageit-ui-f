@@ -1,38 +1,29 @@
 <template>
   <main>
-    <NuxtImg
-      class="w-16 h-16 rounded-md"
-      :src="imgSrc"
-      @error="handleError"
-    ></NuxtImg>
+    <ImagesFallback
+      class="w-16 h-16 rounded-md object-cover"
+      :src="imageSrc"
+      :fallback="fallback"
+      alt=""
+    />
   </main>
 </template>
 
 <script lang="ts" setup>
-const conversation = useConversationsStore().currentConversation;
-
-const getConversationImage = (): string => {
-  switch (conversation.type) {
+const conversation = computed(() => useConversationsStore().currentConversation);
+const fallback = computed(() =>
+  useConversationsStore().getDefaultImage(conversation.value.type)
+);
+const imageSrc = computed(() => {
+  switch (conversation.value.type) {
     case "ai":
       return useConversationsStore().getDefaultImage("ai");
     case "group":
-      return conversation.image!;
+      return conversation.value.image;
     case "private":
-      return useConversationsStore().getOtherUser(conversation).image;
+      return useConversationsStore().getOtherUser(conversation.value).image;
     default:
-      return useConversationsStore().getOtherUser(conversation).image;
+      return fallback.value;
   }
-};
-
-const imgSrc = ref(""); // Local reactive variable for the image source
-
-const handleError = () => {
-  return useConversationsStore().getDefaultImage(conversation.type);
-};
-onMounted(async () => {
-  imgSrc.value = getConversationImage();
-  eventBus.on("conversationChanged", (conv: any) => {
-    imgSrc.value = getConversationImage();
-  });
 });
 </script>

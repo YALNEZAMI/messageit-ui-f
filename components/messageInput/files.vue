@@ -1,167 +1,138 @@
 <template>
-  <main
-    class="fixed top-0 left-0 z-30 bg-black bg-opacity-70 w-screen h-screen flex justify-center items-center"
-  >
-    <!--cancel-->
-    <div class="flex justify-end fixed z-20 w-screen h-max top-0 left-0">
-      <button
-        @click="emits('finish', { files, previewSrc })"
-        class="text-green-500 border-2 border-solid border-green-500 bg-green-50 hover:bg-green-100 cursor-pointer rounded-md p-2 m-2"
+  <Teleport to="body">
+    <div class="upload-overlay" @click.self="cancel" @keydown.esc.stop="cancel">
+      <section
+        ref="dialog"
+        class="upload-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="upload-title"
+        aria-describedby="upload-description"
+        tabindex="-1"
+        @keydown.tab="trapFocus"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="size-4"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="m4.5 12.75 6 6 9-13.5"
-          />
-        </svg>
-      </button>
-      <button
-        @click="emits('finish', { files: [], previewSrc: [] })"
-        class="text-red-500 border-2 border-solid border-red-500 bg-red-50 hover:bg-red-100 cursor-pointer rounded-md p-2 px-3 m-2"
-      >
-        X
-      </button>
-    </div>
-    <div class="w-11/12">
-      <div
-        class="flex w-1/2 justify-center mb-2 m-auto h-max max-h-36 overflow-y-auto flex-wrap"
-      >
-        <!--loading-->
-        <div
-          v-if="loading"
-          class="w-20 h-20 animate-pulse rounded bg-gray-300 flex justify-between px-1 items-center"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-6 animate-spin"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-            />
-          </svg>
-          <span>{{ loadedIndex + "/" + loadedTotal }}</span>
-        </div>
-        <div v-for="(file, index) of previewSrc" :key="file" class="relative">
-          <NuxtImg class="w-20 h-20 rounded m-1" :src="file"></NuxtImg>
-          <button
-            class="p-1 hover:text-black cursor-pointer rounded border-0 text-white px-2 bg-red-500 absolute top-0 right-0"
-            @click="removeFile(index)"
-          >
-            x
+        <div class="upload-header">
+          <div>
+            <p class="upload-eyebrow">PIÈCES JOINTES</p>
+            <h2 id="upload-title">Partager des photos</h2>
+            <p id="upload-description">Choisissez les images à joindre à votre message.</p>
+          </div>
+          <button type="button" class="upload-close" aria-label="Fermer" :disabled="loading" @click="cancel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+              <path stroke-linecap="round" d="M6 6l12 12M18 6 6 18" />
+            </svg>
           </button>
         </div>
-      </div>
-      <div class="flex flex-wrap justify-center">
-        <button
-          @click="triggerInput('photos')"
-          class="basicButton text-black bg-green-500 flex flex-col"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-10"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
-            />
-          </svg>
 
-          <span>Photos</span>
-        </button>
-        <input
-          @change="selectFiles"
-          type="file"
-          id="photos"
-          class="hidden"
-          accept="image/*"
-          multiple
-        />
-        <!--<button @click="triggerInput('videos')">videos</button>
-        <input
-          @change="selectFiles"
-          type="file"
-          id="videos"
-          class="hidden"
-          accept="video/*"
-          multiple
-        />-->
-      </div>
+        <div class="upload-body">
+          <button type="button" class="upload-picker" :disabled="loading" @click="fileInput?.click()">
+            <span class="upload-picker-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0L8 8m4-4 4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+              </svg>
+            </span>
+            <span class="upload-picker-title">{{ files.length ? "Ajouter d’autres photos" : "Choisir des photos" }}</span>
+            <span class="upload-picker-hint">Sélectionnez une ou plusieurs images sur votre appareil</span>
+          </button>
+          <input ref="fileInput" type="file" class="sr-only" tabindex="-1" accept="image/*" multiple @change="selectFiles" />
+
+          <p v-if="loading" class="upload-status" role="status">Préparation des images…</p>
+          <p v-if="error" class="upload-error" role="alert">{{ error }}</p>
+          <div v-if="files.length" class="upload-selection">
+            <div class="upload-selection-heading">
+              <strong>Photos sélectionnées</strong>
+              <span>{{ files.length }} {{ files.length > 1 ? "images" : "image" }}</span>
+            </div>
+            <div class="upload-grid">
+              <div v-for="(file, index) in files" :key="`${file.name}-${index}`" class="upload-preview">
+                <img :src="previewSrc[index]" :alt="file.name" />
+                <button type="button" class="upload-remove" :aria-label="`Retirer ${file.name}`" @click="removeFile(index)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" d="M6 6l12 12M18 6 6 18" />
+                  </svg>
+                </button>
+                <span :title="file.name">{{ file.name }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="upload-footer">
+          <button type="button" class="upload-button-secondary" :disabled="loading" @click="cancel">Annuler</button>
+          <button type="button" class="upload-button-primary" :disabled="loading || (!files.length && !props.files.length)" @click="confirm">
+            Ajouter au message
+          </button>
+        </div>
+      </section>
     </div>
-  </main>
+  </Teleport>
 </template>
 
 <script lang="ts" setup>
-const props = defineProps({
-  previewSrc: Array,
-  files: Array,
-});
-const previewSrc = ref<string[]>(props.previewSrc as string[]);
-const files = ref<File[]>(props.files as File[]);
-const emits = defineEmits(["finish", "removeFile"]);
-
-const triggerInput = async (id: string) => {
-  document.getElementById(id)?.click();
-  files.value = [];
-  previewSrc.value = [];
-};
+const props = defineProps<{ previewSrc: string[]; files: File[] }>();
+const emits = defineEmits<{
+  finish: [data: { files: File[]; previewSrc: string[] }];
+}>();
+const files = ref([...props.files]);
+const previewSrc = ref([...props.previewSrc]);
+const fileInput = ref<HTMLInputElement | null>(null);
+const dialog = ref<HTMLElement | null>(null);
 const loading = ref(false);
-const loadedIndex = ref(0);
-const loadedTotal = ref(0);
-const readFile = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
+const error = ref("");
+let previousFocus: HTMLElement | null = null;
+
+onMounted(() => {
+  previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  dialog.value?.focus();
+});
+onBeforeUnmount(() => previousFocus?.focus());
+
+const cancel = () => {
+  if (!loading.value) emits("finish", { files: props.files, previewSrc: props.previewSrc });
+};
+const confirm = () => emits("finish", { files: files.value, previewSrc: previewSrc.value });
+const removeFile = (index: number) => {
+  files.value.splice(index, 1);
+  previewSrc.value.splice(index, 1);
+};
+const trapFocus = (event: KeyboardEvent) => {
+  const elements = dialog.value?.querySelectorAll<HTMLElement>(
+    'button:not([disabled]), [href], input:not([disabled]):not(.sr-only), [tabindex]:not([tabindex="-1"])'
+  );
+  if (!elements?.length) return;
+  const first = elements[0];
+  const last = elements[elements.length - 1];
+  if (event.shiftKey && (document.activeElement === first || document.activeElement === dialog.value)) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+};
+const readFile = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(file);
   });
-};
 
-const selectFiles = async (e: Event) => {
-  const input = e.target as HTMLInputElement;
-  if (input.files && input.files.length > 0) {
-    loading.value = true;
-
-    loadedTotal.value = input.files.length;
-    for (const file of input.files) {
-      try {
-        const fileData = await readFile(file); // Wait for each file to be processed
-        previewSrc.value.push(fileData); // Save the preview source
-        files.value.push(file); // Save the file for uploading
-        loadedIndex.value = files.value.length;
-      } catch (error) {
-        console.error("Error reading file:", error);
-      }
+const selectFiles = async (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  if (!input.files?.length) return;
+  loading.value = true;
+  error.value = "";
+  for (const file of Array.from(input.files)) {
+    try {
+      const preview = await readFile(file);
+      files.value.push(file);
+      previewSrc.value.push(preview);
+    } catch (reason) {
+      console.error("Impossible de lire l'image sélectionnée", reason);
+      error.value = "Certaines images n’ont pas pu être lues. Veuillez réessayer.";
     }
-    loading.value = false;
   }
-};
-const removeFile = (index: number) => {
-  files.value = files.value.filter((file: File, i: any) => {
-    return index != i;
-  });
-  previewSrc.value = previewSrc.value.filter((file: any, i: any) => {
-    return index != i;
-  });
-  emits("removeFile", index);
-  loadedTotal.value = files.value.length;
+  input.value = "";
+  loading.value = false;
 };
 </script>

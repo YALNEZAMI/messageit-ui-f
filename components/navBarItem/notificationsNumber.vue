@@ -5,7 +5,7 @@
         class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-90"
       ></span>
       <span
-        class="relative inline-flex rounded-full h-4 w-5 px-1 text-xs text-center bg-red-500 border-2 border-solid border-white text-white opacity-80"
+        class="relative inline-flex rounded-full h-4 w-5 px-1 text-xs text-center bg-red-700 border-2 border-solid border-white text-white"
       >
         {{ getDisplyedText() }}
       </span>
@@ -22,16 +22,25 @@ const props = defineProps({
 const getDisplyedText = () => {
   return number.value;
 };
-const number = ref("");
-onMounted(async () => {
-  number.value = await getNumber();
-  eventBus.on("notificationNumberChanged", async (notif: Notification) => {
-    await updateNumber();
-  });
-});
+const number = ref("0");
+let requestId = 0;
 const updateNumber = async () => {
-  number.value = await getNumber();
+  const id = ++requestId;
+  try {
+    const result = await getNumber();
+    if (id === requestId) number.value = result;
+  } catch (error) {
+    console.error("Impossible de charger le nombre de notifications :", error);
+  }
 };
+onMounted(() => {
+  void updateNumber();
+  eventBus.on("notificationNumberChanged", updateNumber);
+});
+onBeforeUnmount(() => {
+  requestId++;
+  eventBus.off("notificationNumberChanged", updateNumber);
+});
 const getNumber = async () => {
   let res = 0;
   switch (props.name) {
@@ -52,23 +61,17 @@ const getNumber = async () => {
   return res < 10 ? "" + res : "+9";
 };
 const getConversationsWithNewMessagesNumber = async () => {
-  let res = 0;
-  for (const conv of useConversationsStore().conversations) {
+  const unread = await Promise.all(useConversationsStore().conversations.map(async (conv) => {
     const lastMessage: any = conv.lastMessage;
-
-    if (lastMessage && lastMessage.sender._id != useUsersStore().user._id) {
-      if (lastMessage.type == "notification") {
-        continue;
-      }
+    if (lastMessage && lastMessage.type !== "notification" && lastMessage.sender?._id != useUsersStore().user._id) {
       const isSeenBy = await useMessageStatusStore().isSeenBy(
         lastMessage._id,
         useUsersStore().user._id as string
       );
-      if (!isSeenBy) {
-        res++;
-      }
+      return !isSeenBy;
     }
-  }
-  return res;
+    return false;
+  }));
+  return unread.filter(Boolean).length;
 };
 </script>

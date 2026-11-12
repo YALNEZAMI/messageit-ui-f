@@ -5,34 +5,33 @@
       'justify-end': isMyMessage(),
     }"
   >
-    <div
+    <button
       @click="shownFilesSection = true"
       v-if="files.length > 0"
-      class="flex flex-col md:w-52 w-32 m-1 mx-2"
+      type="button"
+      :aria-label="`Voir les ${files.length} photo${files.length > 1 ? 's' : ''} du message`"
+      class="message-files-preview"
     >
-      <div
+      <span
         v-for="(file, index) of files"
         :key="file"
-        class="flex w-full"
-        :class="{
-          'justify-end': index % 2 == 0,
-          '-mb-16': index != files.length - 1,
-        }"
+        class="message-file-thumb"
       >
         <NuxtImg
-          class="md:w-40 md:h-40 w-24 h-24 cursor-pointer rounded shadow-md"
+          class="message-file-image"
           :src="file"
+          :alt="`Photo ${index + 1}`"
         ></NuxtImg>
-      </div>
-    </div>
+      </span>
+    </button>
     <ContainersConversationTheme
       v-if="shownFilesSection"
-      class="flex justify-center bg-opacity-80 fixed z-50 top-0 left-0 h-screen w-screen"
+      class="media-viewer fixed z-50 inset-0"
     >
       <!--files section-->
-      <div>
+      <div class="media-viewer-panel">
         <!--options-->
-        <div class="flex justify-end pr-5 w-screen p-2 space-x-3">
+        <div class="flex justify-end p-3 space-x-3">
           <!--download-->
           <div
             @click="downloadAll()"
@@ -62,7 +61,7 @@
           </div>
         </div>
         <!--files-->
-        <div class="flex flex-wrap justify-center h-screen overflow-y-auto">
+        <div class="flex flex-wrap justify-center overflow-y-auto">
           <div
             v-for="file of files"
             :key="file"

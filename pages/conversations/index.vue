@@ -1,78 +1,40 @@
 <template>
-  <main class="p-2">
-    <!--search bar-->
-    <div class="flex justify-center w-3/4 mx-auto">
-      <ElementsInputsText
-        type="text"
-        @onInput="onInput($event)"
-      ></ElementsInputsText>
+  <main class="page-section">
+    <div class="page-heading">
+      <p class="page-eyebrow">VOTRE ESPACE</p>
+      <h1>Conversations</h1>
+      <p>Retrouvez toutes vos discussions au même endroit.</p>
     </div>
-    <div style="min-height: 32rem" class="flex justify-center pb-2">
-      <div
-        style="max-height: 32rem; scrollbar-width: thin"
-        class="flex pb-3 h-max w-full lg:w-3/4 justify-center flex-wrap overflow-y-auto p-2"
-      >
-        <Conversation
-          v-for="conv of getConvs()"
-          :key="conv._id"
-          :conversation="conv"
-          :isSideBar="false"
-        />
-        <!--pulse effect-->
-        <div
-          class="w-11/12 md:w-1/3 m-1"
-          :class="{
-            hidden: !isPulse() && !isSearchConversationsPulse(),
-          }"
-          v-for="(pulse, index) in ([].length = 10)"
-          :key="index"
-        >
-          <Pulse
-            v-if="isPulse() || isSearchConversationsPulse()"
-            class="w-full overflow-hidden bg-gray-300 rounded"
-          ></Pulse>
-        </div>
-
-        <NoResult
-          v-if="isNoConversations()"
-          message="Aucune conversations pour le moment."
-        />
+    <div class="search-panel">
+      <label class="search-panel-label" for="conversation-search">Rechercher une conversation</label>
+      <div class="search-field">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.2-5.2M19 10.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0Z" />
+        </svg>
+        <input id="conversation-search" v-model="query" type="search" placeholder="Nom, groupe ou Boby…" />
       </div>
     </div>
+    <div class="results-heading">
+      <h2>Vos conversations</h2>
+      <span>{{ filtered.length }} {{ filtered.length === 1 ? "discussion" : "discussions" }}</span>
+    </div>
+    <div v-if="conversationsStore.isConversationsPulse" role="status" class="results-loading">Chargement des conversations…</div>
+    <div v-else-if="filtered.length" class="results-grid">
+      <Conversation v-for="conv in filtered" :key="conv._id" :conversation="conv" :isSideBar="false" />
+    </div>
+    <NoResult v-else :message="query ? 'Aucune conversation ne correspond à votre recherche.' : 'Aucune conversation pour le moment.'" />
   </main>
 </template>
-<script lang="ts" setup>
-// import { Conversation } from "~/interfaces/conversation";
 
-const req = ref("");
-const searchedConversations = ref([] as any[]);
-const search = async () => {
-  const res = await useConversationsStore().searchConversations(req.value);
-  searchedConversations.value = res;
-};
-const isSearchConversationsPulse = () => {
-  return useConversationsStore().isSearchedConversationsPulse;
-};
-const getConvs = (): any[] => {
-  return req.value == ""
-    ? useConversationsStore().conversations
-    : searchedConversations.value;
-};
-const isPulse = () => {
-  return useConversationsStore().isConversationsPulse;
-};
-const isNoConversations = (): boolean => {
-  return getConvs().length == 0;
-};
-const onInput = async (reqParam: string) => {
-  req.value = reqParam;
-  await search();
-};
-definePageMeta({
-  layout: "private-space",
-  middleware: "conversations",
-});
-onBeforeMount(async () => {
-  await useConversationsStore().getInitalConversations();
-});
+<script lang="ts" setup>
+import { filterConversations } from "~/utils/conversationSearch";
+
+const conversationsStore = useConversationsStore();
+const query = ref("");
+const filtered = computed(() => filterConversations(
+  conversationsStore.conversations,
+  query.value,
+  useUsersStore().user._id
+));
+definePageMeta({ layout: "private-space", middleware: "conversations" });
 </script>

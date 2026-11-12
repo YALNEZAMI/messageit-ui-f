@@ -9,13 +9,13 @@
         v-for="typing of typings"
         :key="getTyper(typing)._id + ''"
         :id="getTyper(typing)._id"
-        class="flex items-center space-x-2 w-full h-16 transition-all duration-300 ease-out"
+        class="typing-indicator"
       >
         <ImagesMessageSender
           :title="getTyper(typing).name"
           :src="getTyper(typing).image"
         />
-        <div class="text-black font-bold">en train...</div>
+        <div class="typing-label">{{ getTyper(typing).name }} écrit…</div>
       </div>
     </div>
   </main>

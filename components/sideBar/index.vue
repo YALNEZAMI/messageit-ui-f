@@ -1,18 +1,23 @@
 <template>
   <transition name="slide-horizontally">
     <main
-      class="fixed w-full z-30 right-0 top-0 h-full flex flex-row-reverse transition-all duration-500 ease-in-out"
+      class="side-overlay fixed w-full z-30 right-0 top-0 flex flex-row-reverse"
       v-if="isSideBareDisplayed"
+      @keydown.esc="hideSideBar()"
     >
       <!--main side bar-->
       <div
-        class="flex w-1/3 p-2 flex-col bg-white transition-all duration-500 ease-in-out"
+        class="side-panel flex flex-col bg-white"
       >
         <!--toogle button-->
-        <div class="bg-gray-200 p-1">
-          <ContainersMain
+        <div class="side-panel-heading">
+          <div><strong>Message-it</strong><span>Votre espace</span></div>
+          <button
+            ref="closeButton"
+            type="button"
+            aria-label="Fermer le menu"
             @click="hideSideBar()"
-            class="cursor-pointer w-max text-white rounded p-1 flex items-center hover:bg-opacity-80"
+            class="header-menu"
             ><svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -26,16 +31,16 @@
                 stroke-linejoin="round"
                 d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
               /></svg
-          ></ContainersMain>
+          ></button>
         </div>
         <!--create groupe button-->
         <div>
           <button
             @click="redirectToCreateGroup()"
             type="button"
-            class="bg-indigo-500 cursor-pointer w-11/12 m-1 rounded p-1 hover:bg-indigo-400 text-white border-0 flex justify-center space-x-2 items-center"
+            class="side-action"
           >
-            <div class="font-bold hidden sm:block">Créer groupe</div>
+            <div>Créer un groupe</div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -57,9 +62,9 @@
           <button
             @click="createAIConversation()"
             type="button"
-            class="bg-blue-500 cursor-pointer w-11/12 m-1 rounded p-1 hover:bg-blue-400 py-2 text-white border-0 flex justify-center space-x-2 items-center"
+            class="side-action"
           >
-            <div class="hidden sm:block">Conversation IA</div>
+            <div>Conversation IA</div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="17"
@@ -82,9 +87,9 @@
           <button
             @click="useAuthStore().logout()"
             type="button"
-            class="bg-red-500 cursor-pointer w-11/12 m-1 rounded p-1 hover:bg-red-400 text-white border-0 flex justify-center space-x-2 items-center"
+            class="side-action side-action-danger"
           >
-            <div class="font-bold hidden sm:block">Se déconnecter</div>
+            <div>Se déconnecter</div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -104,7 +109,7 @@
       </div>
       <!--other side of screen-->
       <div
-        class="w-2/3 bg-black opacity-50 h-full"
+        class="side-backdrop"
         @click="hideSideBar()"
       ></div>
     </main>
@@ -112,9 +117,12 @@
 </template>
 <script lang="ts" setup>
 const isSideBareDisplayed = ref(false);
+const closeButton = ref<HTMLButtonElement | null>(null);
+let opener: HTMLElement | null = null;
 
 const hideSideBar = () => {
   isSideBareDisplayed.value = false;
+  nextTick(() => opener?.focus());
 };
 const redirectToCreateGroup = () => {
   hideSideBar();
@@ -124,11 +132,18 @@ const createAIConversation = async () => {
   await useConversationsStore().createAIConversation();
   hideSideBar();
 };
-onMounted(() => {
-  eventBus.on("sideBareToogled", (bool: boolean) => {
-    isSideBareDisplayed.value = bool;
-  });
-});
+const toggleSideBar = async (bool: boolean) => {
+  if (bool && document.activeElement instanceof HTMLElement) {
+    opener = document.activeElement;
+  }
+  isSideBareDisplayed.value = bool;
+  if (bool) {
+    await nextTick();
+    closeButton.value?.focus();
+  }
+};
+onMounted(() => eventBus.on("sideBareToogled", toggleSideBar));
+onUnmounted(() => eventBus.off("sideBareToogled", toggleSideBar));
 </script>
 <style scoped>
 .slide-horizontally-enter-active,

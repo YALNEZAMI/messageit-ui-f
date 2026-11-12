@@ -4,13 +4,15 @@
       @input="onInput"
       :type="props.type"
       v-model="val"
-      class="rounded-xl hover:rounded-md w-full p-2 border-2 border-dashed border-indigo-700 focus:border-0 focus:border-indigo-700 focus:bg-indigo-50"
-      placeholder="Recherche..."
+      class="search-input"
+      aria-label="Recherche"
+      placeholder="Rechercher..."
     />
     <div
-      class="flex absolute right-0 top-0 h-full w-max items-center space-x-2"
+      class="flex absolute right-3 top-0 h-full w-max items-center space-x-2"
     >
       <!--cancel icon-->
+      <button v-if="val" type="button" aria-label="Effacer la recherche" @click="clear">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -18,7 +20,6 @@
         stroke-width="1.5"
         stroke="currentColor"
         class="size-6 text-indigo-600 hover:text-indigo-500 cursor-pointer"
-        @click="clear"
       >
         <path
           stroke-linecap="round"
@@ -26,6 +27,7 @@
           d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
         />
       </svg>
+      </button>
       <!--search icon-->
       <svg
         xmlns="http://www.w3.org/2000/svg"

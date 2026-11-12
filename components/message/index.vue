@@ -1,10 +1,10 @@
 <template>
-  <main>
+  <main class="message-item">
     <!--message-->
     <div class="flex flex-col">
       <!--message body-->
       <div
-        class="pb-1 mb-1 rounded flex"
+        class="message-row flex"
         :class="{
           'flex-row-reverse': isMyMessage(),
         }"
@@ -20,7 +20,7 @@
           ></ImagesMessageSender>
         </div>
         <div
-          class="flex items-center justify-between w-full"
+          class="message-row-content flex items-center justify-between w-full"
           :class="{
             'flex-row-reverse': !isMyMessage(),
           }"
@@ -29,10 +29,11 @@
             <input
               :checked="props.isSelected"
               type="checkbox"
+              aria-label="Sélectionner le message"
               @change="select()"
             />
           </div>
-          <div v-else class="text-black cursor-pointer" @click="options">
+          <button v-else type="button" class="message-options" aria-label="Options du message" @click="options">
             <svg
               v-if="isMyMessage()"
               xmlns="http://www.w3.org/2000/svg"
@@ -63,25 +64,30 @@
                 d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"
               />
             </svg>
-          </div>
+          </button>
           <!--text and reply arrow-->
           <div
-            class="flex items-center"
+            class="message-body flex items-center"
             v-if="message.text || message.transfered"
           >
-            <svg
+            <button
               v-if="
                 isMyMessage() &&
                 clickedId == message._id &&
                 useConversationsStore().currentConversation.type != 'ai'
               "
-              @click="reply(message)"
+              type="button"
+              aria-label="Répondre au message"
+              class="message-reply"
+              @click.stop="reply(message)"
+            >
+            <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               stroke-width="1.5"
               stroke="currentColor"
-              class="size-4 replyArrow"
+              class="size-4"
             >
               <path
                 stroke-linecap="round"
@@ -89,18 +95,19 @@
                 d="m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3"
               />
             </svg>
+            </button>
 
             <ContainersConversationTheme
               :class="getContainerClasses()"
-              class="p-1 break-words w-max h-max md:max-w-52 lg:max-w-96 max-w-40 shadow-md"
+              class="message-bubble break-words"
             >
               <!--refered message-->
               <div
                 @click="emit('goToReferedMessage')"
                 v-if="message.referedMessage"
-                class="bg-gray-300 cursor-pointer text-black p-1 truncate rounded border-l-4 border-solid border-0 border-red-600"
+                class="message-quote cursor-pointer"
               >
-                <div class="text-red-600">
+                <div class="message-quote-sender">
                   {{ message.referedMessage.sender.name }}
                 </div>
                 <div class="truncate" v-if="message.referedMessage.text != ''">
@@ -118,14 +125,14 @@
                 <div class="flex">
                   <div
                     v-if="message.transfered"
-                    class="font-serif text-xs text-gray-400"
+                    class="message-bubble-label"
                   >
                     Transféré
                   </div>
                   <div
                     @click="displayOriginalText = !displayOriginalText"
                     v-if="message.originalText"
-                    class="font-serif m-1 text-xs text-gray-400 underline cursor-pointer"
+                    class="message-bubble-label m-1 underline cursor-pointer"
                   >
                     Modifié
                   </div>
@@ -139,28 +146,31 @@
                   @click="displayOriginalText = false"
                   v-if="displayOriginalText"
                   :class="getContainerClasses()"
-                  class="p-1 break-words border-0 border-solid border-black w-max h-max md:max-w-52 lg:max-w-96 max-w-40 text-gray-500"
+                  class="message-original break-words"
                 >
-                  <div class="text-center">___________</div>
-                  <br />
                   Text original : {{ " " + message.originalText }}
                 </div>
               </div>
             </ContainersConversationTheme>
 
-            <svg
+            <button
               v-if="
                 !isMyMessage() &&
                 clickedId == message._id &&
                 useConversationsStore().currentConversation.type != 'ai'
               "
-              @click="reply(message)"
+              type="button"
+              aria-label="Répondre au message"
+              class="message-reply"
+              @click.stop="reply(message)"
+            >
+            <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               stroke-width="1.5"
               stroke="currentColor"
-              class="size-4 replyArrow"
+              class="size-4"
             >
               <path
                 stroke-linecap="round"
@@ -168,6 +178,7 @@
                 d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"
               />
             </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -191,18 +202,13 @@
     </div>
     <!--date-->
     <div
-      class="text-center text-sm text-black"
+      class="message-date"
       v-if="props.clickedId == message._id"
     >
       {{ getDate() }}
     </div>
   </main>
 </template>
-<style lang="postcss" scoped>
-.replyArrow {
-  @apply text-black text-sm mx-2 cursor-pointer;
-}
-</style>
 <script lang="ts" setup>
 import { eventBus } from "@/utils/eventBus";
 import type { Message } from "~/interfaces/message";
@@ -220,12 +226,8 @@ const emit = defineEmits(["options", "goToReferedMessage", "select"]);
 const getContainerClasses = () => {
   return {
     hidden: message.text == "",
-    "ml-12": !thereIsSenderImage() && !isMyMessage(),
-    "mr-12": !thereIsSenderImage() && isMyMessage(),
-    "mr-1": isMyMessage() && thereIsSenderImage(),
-    "ml-1": thereIsSenderImage() && !isMyMessage(),
-    "rounded-t-md rounded-bl-md": isMyMessage(),
-    "rounded-t-md rounded-br-md": !isMyMessage(),
+    "message-bubble-own": isMyMessage(),
+    "message-bubble-other": !isMyMessage(),
   };
 };
 const options = () => {

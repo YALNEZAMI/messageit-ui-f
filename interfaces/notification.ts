@@ -6,4 +6,5 @@ export interface Notification {
   recipient: User | string;
   type: "friendRequest" | "friendAcceptation";
   seen?: boolean;
+  createdAt?: string;
 }

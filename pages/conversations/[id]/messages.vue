@@ -1,8 +1,23 @@
 <template>
-  <main class="chat-page flex w-full">
+  <main class="chat-page flex w-full" @keydown.esc="closeConversationSidebar">
     <!--side conversations-->
-    <ContainersMain class="chat-sidebar w-1/4 rounded-xl md:w-1/5">
-      <ConversationSideBar></ConversationSideBar>
+    <button
+      v-if="conversationSidebarOpen"
+      type="button"
+      class="chat-sidebar-backdrop"
+      aria-label="Fermer la liste des conversations"
+      @click="closeConversationSidebar"
+    ></button>
+    <ContainersMain
+      id="conversation-sidebar"
+      class="chat-sidebar rounded-xl"
+      :class="{ 'chat-sidebar-open': conversationSidebarOpen }"
+    >
+      <div class="chat-sidebar-heading">
+        <h2>Conversations</h2>
+        <button ref="conversationSidebarCloseButton" type="button" class="chat-sidebar-close" aria-label="Fermer la liste des conversations" @click="closeConversationSidebar">×</button>
+      </div>
+      <ConversationSideBar @conversation-selected="closeConversationSidebar"></ConversationSideBar>
     </ContainersMain>
     <!--messages container and input-->
     <div
@@ -11,8 +26,19 @@
           useConversationsStore().currentConversation.theme?.photo
         })`,
       }"
-      class="chat-content relative flex h-full w-full flex-col bg-cover bg-center bg-no-repeat md:w-4/5 md:pr-3"
+      class="chat-content relative flex h-full w-full flex-col bg-cover bg-center bg-no-repeat"
     >
+      <button
+        type="button"
+        ref="conversationSidebarToggleButton"
+        class="chat-sidebar-toggle"
+        aria-controls="conversation-sidebar"
+        :aria-expanded="conversationSidebarOpen"
+        @click="openConversationSidebar"
+      >
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        Conversations
+      </button>
       <!--copied message-->
       <div
         v-if="copied"
@@ -152,80 +178,75 @@
         </button>
       </div>
       <!-- input -->
-      <MessageInput class="absolute bottom-0 left-0 w-full"></MessageInput>
+      <MessageInput class="w-full shrink-0"></MessageInput>
     </div>
 
     <!--options-->
     <transition name="slide-up">
       <div
         id="options"
-        style="height: 35.5rem"
         v-if="isOptions"
         @click="setIsOptions(false)"
-        class="bg-black bg-opacity-80 fixed w-screen z-30 flex justify-center items-end"
+        class="message-options-overlay"
       >
-        <div class="relative w-11/12">
-          <div
-            class="z-40 transition-all duration-1000 w-11/12 h-max p-0 bg-white rounded"
-          >
+        <div class="message-options-panel">
+          <div>
+            <div class="message-options-heading">
+              <div><h2>Options du message</h2><p>Réagissez ou choisissez une action.</p></div>
+              <button type="button" class="message-options-close" aria-label="Fermer les options">×</button>
+            </div>
             <!--emojis container-->
-            <div
-              class="flex justify-center space-x-2 bg-black bg-opacity-50 p-1 mb-1"
-            >
-              <div
+            <div class="message-options-reactions">
+              <button
+                type="button"
                 @click="postEmoji(emoji)"
-                class="rounded-lg p-1 cursor-pointer hover:opacity-85"
-                :class="{
-                  'bg-indigo-300': reaction == emoji,
-                  'bg-white': reaction !== emoji,
-                }"
+                class="message-options-reaction"
+                :class="{ active: reaction == emoji }"
+                :aria-label="`Réagir avec ${emoji}`"
+                :aria-pressed="reaction == emoji"
                 v-for="emoji of useEmojisStore().availableEmojis"
                 :key="emoji"
               >
                 {{ emoji }}
-              </div>
+              </button>
             </div>
-            <!--<h3 class="text-center text-black mb-1 m-0">
-          Choisir l'opération à effectuer sur
-        </h3>-->
-
-            <div class="flex flex-wrap justify-center w-full">
+            <div class="message-options-actions">
               <button
                 @click="deleteForMe"
-                class="optionsButtons text-xs bg-orange-500 hover:bg-orange-600"
+                class="message-action message-action-danger"
               >
                 Supprimer pour moi
               </button>
               <button
                 v-if="getSender()._id == useUsersStore().user._id"
                 @click="deleteForAll"
-                class="optionsButtons text-xs bg-red-500 hover:bg-red-600"
+                class="message-action message-action-danger"
               >
                 Supprimer pour tous
               </button>
               <button
                 v-if="isModifiable()"
                 @click="isModifyMessage = true"
-                class="optionsButtons text-xs bg-green-500 hover:bg-green-600"
+                class="message-action"
               >
                 Modifier
               </button>
 
               <button
                 @click="toogleSelectingMode()"
-                class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
+                class="message-action"
               >
-                Select
+                Sélectionner
               </button>
               <button
                 @click="transferOne()"
-                class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
+                class="message-action"
               >
-                Transfère
+                Transférer
               </button>
               <button
                 @click="copy"
-                class="optionsButtons bg-indigo-500 hover:bg-indigo-600"
+                class="message-action"
               >
                 {{ copied ? "Copié ✔️" : "Copier" }}
               </button>
@@ -272,6 +293,19 @@ import type { Message } from "~/interfaces/message";
 import type { User } from "~/interfaces/user";
 
 const clickedId = ref("");
+const conversationSidebarOpen = ref(false);
+const conversationSidebarToggleButton = ref<HTMLButtonElement | null>(null);
+const conversationSidebarCloseButton = ref<HTMLButtonElement | null>(null);
+const openConversationSidebar = async () => {
+  conversationSidebarOpen.value = true;
+  await nextTick();
+  conversationSidebarCloseButton.value?.focus();
+};
+const closeConversationSidebar = () => {
+  if (!conversationSidebarOpen.value) return;
+  conversationSidebarOpen.value = false;
+  nextTick(() => conversationSidebarToggleButton.value?.focus());
+};
 const isOptions = ref(false);
 const selectingMode = ref(false);
 let message = useMessagesStore().messages[0];
@@ -480,8 +514,6 @@ const isModifiable = (): boolean => {
   return res;
 };
 onMounted(async () => {
-  //init messages
-  await useMessagesStore().getInitialMessages(useRoute().params.id as string);
   //set messages containrer
   messagesContainer = document.getElementById(
     "messagesContainer"
@@ -532,7 +564,7 @@ onMounted(async () => {
   const msgs = useMessagesStore().messages;
   if (
     lastSeenMessageId == null ||
-    lastSeenMessageId == msgs[msgs.length - 1]._id
+    lastSeenMessageId == msgs[msgs.length - 1]?._id
   ) {
     //initial scrolling
     goBottom();

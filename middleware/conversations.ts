@@ -8,6 +8,12 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   //set conversation
   const idConv = to.params.id as string;
   if (idConv) {
+    if (
+      from.params.id === idConv &&
+      useConversationsStore().currentConversation._id === idConv
+    ) {
+      return;
+    }
     const conv = await useConversationsStore().getConversation(idConv);
     const isMember =
       conv.members.filter(
@@ -20,9 +26,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     await useConversationsStore().setCurrentConversation(conv);
 
     //init messages
-    await useMessagesStore().getInitialMessages(idConv);
-    //init viewers
-    await useMessageStatusStore().initViewers();
+    await Promise.all([
+      useMessagesStore().getInitialMessages(idConv),
+      useMessageStatusStore().initViewers(),
+    ]);
     useEmojisStore().onEmoji();
     eventBus.emit("conversationChanged", conv);
     eventBus.emit("notificationNumberChanged", true);

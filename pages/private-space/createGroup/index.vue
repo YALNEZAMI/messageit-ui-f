@@ -1,6 +1,7 @@
 <template>
-  <main style="min-height: 35.9rem">
-    <div class="flex justify-between items-center">
+  <main class="page-section">
+    <div class="page-heading"><div><p class="page-eyebrow">NOUVELLE CONVERSATION</p><h1>Créer un groupe</h1><p>Choisissez un nom et invitez vos amis.</p></div></div>
+    <div class="group-toolbar flex justify-between items-center">
       <!--filter input-->
       <div class="flex justify-center mb-1">
         <div class="relative w-full">
@@ -58,7 +59,7 @@
           @click="createGroupe"
           class="p-2 rounded cursor-pointer bg-indigo-500 hover:bg-indigo-600 transition-all duration-500 ease-in-out h-max text-white"
         >
-          Create
+          Créer
         </button>
       </div>
     </div>
@@ -96,7 +97,7 @@
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-6 text-black"
+          class="size-6"
         >
           <path
             stroke-linecap="round"
@@ -110,7 +111,7 @@
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="currentColor"
-          class="size-6 text-black"
+          class="size-6"
         >
           <path
             fill-rule="evenodd"

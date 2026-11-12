@@ -4,11 +4,11 @@
     :class="{
       'bg-white text-black':
         useConversationsStore().currentConversation.theme?._id == 'basic',
-      'bg-pink-400 text-white':
+      'bg-pink-400 text-black':
         useConversationsStore().currentConversation.theme?._id == 'love',
       'bg-black text-white':
         useConversationsStore().currentConversation.theme?._id == 'panda',
-      'bg-green-400 text-white':
+      'bg-green-400 text-black':
         useConversationsStore().currentConversation.theme?._id == 'spring',
     }"
     v-bind="attrs"

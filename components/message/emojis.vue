@@ -1,16 +1,16 @@
 <template>
   <main>
     <!--emojis-->
-    <div class="flex">
+    <div class="message-reactions flex flex-wrap">
       <div
-        class="emoji relative"
+        class="emoji message-reaction relative"
         v-for="emojiMap of getEmojisMap()"
         :key="emojiMap.key"
       >
         {{ emojiMap.key }}
         <span
           v-if="emojiMap.emojis.length > 1"
-          class="text-black text-xs absolute -bottom-1 right-0"
+          class="message-reaction-count"
           >{{ emojiMap.emojis.length }}</span
         >
         <div

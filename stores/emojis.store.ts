@@ -4,6 +4,7 @@ export const useEmojisStore = defineStore("useEmojisStore", {
   state: () => {
     return {
       att: "val",
+      listening: false,
       availableEmojis: ["👍", "❤️", "😊", "😔", "😡"],
     };
   },
@@ -63,6 +64,7 @@ export const useEmojisStore = defineStore("useEmojisStore", {
       return response.data;
     },
     onEmoji() {
+      if (this.listening) return;
       this.getService().on("created", (emoji: Emoji) => {
         eventBus.emit("emojiCreated", emoji);
       });
@@ -72,6 +74,7 @@ export const useEmojisStore = defineStore("useEmojisStore", {
       this.getService().on("removed", (emoji: Emoji) => {
         eventBus.emit("emojiRemoved", emoji);
       });
+      this.listening = true;
     },
   },
 });

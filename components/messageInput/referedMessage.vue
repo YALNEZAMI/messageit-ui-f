@@ -1,13 +1,13 @@
 <template>
   <main>
     <div
-      class="border-l-8 py-2 border-solid border-l-red-600 w-full flex mx-auto bg-black bg-opacity-60"
+      class="composer-reply"
     >
-      <div class="w-11/12">
-        <div class="mx-2 font-bold text-red-600">
+      <div class="min-w-0 flex-1">
+        <div class="composer-reply-sender">
           {{ getReferedMessageSender().name }}
         </div>
-        <div class="truncate mx-2 text-white" v-if="referedMessage.text">
+        <div class="truncate" v-if="referedMessage.text">
           {{ referedMessage.text }}
         </div>
         <div
@@ -23,14 +23,14 @@
           />
         </div>
       </div>
-      <ContainersMain class="h-max rounded-full"
-        ><button
+      <button
+          type="button"
+          aria-label="Annuler la réponse"
           @click="cancelReply()"
-          class="rounded-full cursor-pointer bg-transparent text-white hover:opacity-80"
+          class="composer-reply-close"
         >
-          x
-        </button></ContainersMain
-      >
+          ×
+      </button>
     </div>
   </main>
 </template>

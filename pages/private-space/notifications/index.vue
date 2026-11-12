@@ -1,159 +1,87 @@
 <template>
-  <main class="flex flex-col">
-    <!--categories-->
-    <div class="flex flex-wrap justify-center w-full my-2 bg-gray-100 p-2">
-      <button
-        type="button"
-        @click="categorie = 'FriendRequests'"
-        :class="{
-          'border-2 border-solid border-red-500':
-            useFriendsStore().friendRequests.length > 0,
-          'underline text-red-500': categorie == 'FriendRequests',
-        }"
-        class="w-full sm:w-1/3 m-2 my-1 p-2 rounded bg-white shadow-md text-black border-0 cursor-pointer hover:bg-gray-300 transition-all duration-500"
-      >
-        {{ useFriendsStore().friendRequests.length }} demandes d'amitié reçues
-      </button>
-      <button
-        type="button"
-        @click="categorie = 'Acceptations'"
-        class="w-full shadow-md sm:w-1/3 m-2 my-1 p-2 rounded bg-white text-black border-0 cursor-pointer hover:bg-gray-300 transition-all duration-500"
-        :class="{
-          'border-2 border-solid border-red-500':
-            useFriendsStore().acceptations.length > 0,
-          'underline text-red-500': categorie == 'Acceptations',
-        }"
-      >
-        {{ useFriendsStore().acceptations.length }} demandes d'amitié acceptées
-      </button>
+  <main class="page-section">
+    <div class="page-heading">
+      <p class="page-eyebrow">ACTIVITÉ</p>
+      <h1>Notifications</h1>
+      <p>Suivez vos demandes et vos nouvelles connexions.</p>
     </div>
-    <!--no result-->
-    <NoResult
-      v-if="
-        (noFriendRequests() && categorie == 'FriendRequests') ||
-        (noAcceptations() && categorie == 'Acceptations')
-      "
-      class="mt-3"
-      :message="getNoResultMessage()"
-    ></NoResult>
-    <div
-      style="min-height: 31rem; scrollbar-width: thin"
-      class="flex overflow-y-auto justify-center"
-    >
-      <!--friendrequests data-->
-      <div
-        style="max-height: 31rem; scrollbar-width: thin"
-        v-if="categorie == 'FriendRequests'"
-        class="overflow-y-auto lg:w-3/4 h-max w-full flex flex-wrap justify-center"
-      >
-        <div
-          v-for="fr of getFriendRequests()"
-          :key="fr._id"
-          class="flex items-center bg-gray-300 bg-opacity-45 p-1 rounded"
-        >
-          <User :user="fr.sender"></User>
-          <span>{{
-            new Date(fr.createdAt).toLocaleDateString() +
-            " à " +
-            new Date(fr.createdAt).getHours() +
-            ":" +
-            new Date(fr.createdAt).getMinutes()
-          }}</span>
-        </div>
 
-        <div
-          class="w-11/12 md:w-1/3 m-1"
-          v-for="(pulse, index) in ([].length = 10)"
-          :key="index"
-          :class="{
-            hidden: !isFriendRequestsPulse(),
-          }"
-        >
-          <Pulse
-            v-if="isFriendRequestsPulse()"
-            class="w-full overflow-hidden bg-gray-300 rounded"
-          ></Pulse>
+    <section class="network-panel" aria-labelledby="activity-title">
+      <div class="network-panel-heading">
+        <div class="network-heading-content">
+          <span class="network-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" />
+            </svg>
+          </span>
+          <div>
+            <h2 id="activity-title">Votre activité</h2>
+            <p>Vos demandes et connexions en un coup d'œil.</p>
+          </div>
         </div>
       </div>
-      <!--acceptations-->
-      <div
-        style="max-height: 31rem; scrollbar-width: thin"
-        v-if="categorie == 'Acceptations'"
-        class="overflow-y-auto lg:w-3/4 h-max w-full flex flex-wrap justify-center"
-      >
-        <div
-          class="w-11/12 md:w-1/3 m-1"
-          v-for="(pulse, index) in ([].length = 10)"
-          :key="index"
-          :class="{
-            hidden: !isAcceptationsPulse(),
-          }"
-        >
-          <Pulse
-            v-if="isAcceptationsPulse()"
-            class="w-full overflow-hidden bg-gray-300 rounded"
-          ></Pulse>
-        </div>
-        <div
-          v-for="acc of getAcceptations()"
-          :key="acc._id"
-          class="flex items-center bg-gray-300 bg-opacity-45 p-1 rounded"
-        >
-          <User :user="acc.recipient"></User>
-          <span class="text-sm">{{
-            new Date(acc.createdAt).toLocaleDateString() +
-            " à " +
-            new Date(acc.createdAt).getHours() +
-            ":" +
-            new Date(acc.createdAt).getMinutes()
-          }}</span>
-        </div>
+
+      <div class="notification-categories" role="group" aria-label="Catégorie de notifications">
+        <button type="button" :class="{ active: category === 'FriendRequests' }" :aria-pressed="category === 'FriendRequests'" @click="category = 'FriendRequests'">
+          <span>Demandes reçues</span>
+          <span class="notification-count">{{ friendsStore.friendRequests.length }}</span>
+        </button>
+        <button type="button" :class="{ active: category === 'Acceptations' }" :aria-pressed="category === 'Acceptations'" @click="category = 'Acceptations'">
+          <span>Demandes acceptées</span>
+          <span class="notification-count">{{ friendsStore.acceptations.length }}</span>
+        </button>
       </div>
-    </div>
+
+      <div class="network-list-heading">
+        <h3>{{ category === "FriendRequests" ? "Demandes d'amitié" : "Nouvelles connexions" }}</h3>
+        <span v-if="!isLoading" class="network-count">{{ notifications.length }} {{ notifications.length === 1 ? "notification" : "notifications" }}</span>
+      </div>
+      <p v-if="isLoading && !notifications.length" class="network-status" role="status">Chargement des notifications…</p>
+      <div v-else-if="notifications.length" class="notification-list">
+        <article v-for="item in notifications" :key="item.notification._id" class="notification-card">
+          <div class="notification-meta">
+            <span class="notification-kind">{{ category === "FriendRequests" ? "Demande reçue" : "Demande acceptée" }}</span>
+            <time v-if="formatDate(item.notification.createdAt)" :datetime="item.notification.createdAt">{{ formatDate(item.notification.createdAt) }}</time>
+          </div>
+          <User v-if="typeof item.person !== 'string'" :user="item.person" />
+          <p v-else class="notification-unavailable">Profil indisponible.</p>
+        </article>
+      </div>
+      <div v-else class="network-empty">
+        <span class="network-empty-icon" aria-hidden="true">✦</span>
+        <h3>{{ category === "FriendRequests" ? "Aucune demande reçue" : "Aucune nouvelle connexion" }}</h3>
+        <p>{{ category === "FriendRequests" ? "Les demandes d'amitié que vous recevrez apparaîtront ici." : "Les acceptations de vos demandes apparaîtront ici." }}</p>
+      </div>
+    </section>
   </main>
 </template>
 
 <script lang="ts" setup>
-const isFriendRequestsPulse = () => {
-  return useFriendsStore().isFriendRequestsPulse;
-};
-const isAcceptationsPulse = () => {
-  return useFriendsStore().isAcceptationsPulse;
-};
-//Ref<"FriendRequests" | "Acceptations">
-const categorie = ref("Acceptations");
-const getFriendRequests = (): any[] => {
-  return useFriendsStore().friendRequests;
-};
-const getAcceptations = (): any[] => {
-  return useFriendsStore().acceptations;
-};
-const noFriendRequests = (): boolean => {
-  return getFriendRequests().length == 0;
-};
-const noAcceptations = (): boolean => {
-  return getAcceptations().length == 0;
-};
-const getNoResultMessage = (): string => {
-  if (categorie.value == "FriendRequests") {
-    return "Aucune demande d'amitié trouvée.";
-  } else {
-    return "Aucune notification d'acceptation trouvée.";
-  }
+const friendsStore = useFriendsStore();
+const category = ref<"FriendRequests" | "Acceptations">("Acceptations");
+const notifications = computed(() => {
+  const requests = category.value === "FriendRequests";
+  return (requests ? friendsStore.friendRequests : friendsStore.acceptations).map((notification) => ({
+    notification,
+    person: requests ? notification.sender : notification.recipient,
+  }));
+});
+const isLoading = computed(() => category.value === "FriendRequests" ? friendsStore.isFriendRequestsPulse : friendsStore.isAcceptationsPulse);
+const formatDate = (value?: string) => {
+  if (!value) return "";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : new Intl.DateTimeFormat("fr-FR", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
 };
 
 onUnmounted(async () => {
-  for (let friendRes of getFriendRequests()) {
-    await useFriendsStore().setFriendRequestAsSeen(friendRes._id);
+  for (const request of friendsStore.friendRequests) {
+    await friendsStore.setFriendRequestAsSeen(request._id);
   }
-  await clearAcceptations();
+  await friendsStore.clearAcceptations();
   eventBus.emit("notificationNumberChanged", true);
 });
-const clearAcceptations = async () => {
-  await useFriendsStore().clearAcceptations();
-};
-definePageMeta({
-  layout: "private-space",
-  middleware: "private-space",
-});
+definePageMeta({ layout: "private-space", middleware: "private-space" });
 </script>

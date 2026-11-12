@@ -11,13 +11,7 @@
   </ContainersMain>
 </template>
 <script lang="ts" setup>
-const friendStore = useFriendsStore();
 const navBarItems = ref([] as any[]);
-onMounted(async () => {
-  await friendStore.getFriendRequestsSentToMe();
-  await friendStore.getAcceptedFriendRequests();
-  setNavBarItems();
-});
 const getCompletePath = (nbiPath: string): string => {
   return "/conversations/" + getConvId() + nbiPath;
 };
@@ -114,4 +108,5 @@ const setNavBarItems = () => {
     },
   ];
 };
+setNavBarItems();
 </script>

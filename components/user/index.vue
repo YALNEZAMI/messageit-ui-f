@@ -1,8 +1,7 @@
 <template>
   <ContainersTheme
     :id="user._id"
-    style="min-width: 19rem"
-    class="flex items-center w-11/12 sm:w-96 h-16 rounded p-2 m-1 shadow-md"
+    class="user-card flex items-center w-full sm:w-96 min-h-20 p-3 m-1"
   >
     <div class="relative">
       <ImagesUser :src="user.image" />
@@ -12,19 +11,19 @@
         :user="getUser()"
       ></Status>
     </div>
-    <div class="mx-2 w-1/2 sm:3/4 truncate font-bold text-lg">
+    <div class="user-card-name min-w-0 flex-1 truncate font-semibold">
       {{ getUserName() }}
     </div>
     <div
-      id="btngroupe  "
+      class="user-card-actions"
       v-if="user._id != useUsersStore().user._id && !noButtons"
     >
       <!--delete and chat-->
-      <div v-if="isMyFriend" class="flex flex-col sm:flex-row">
+      <div v-if="isMyFriend" class="user-action-group">
         <button
           type="button"
           @click="remove"
-          class="userButton bg-red-500 hover:bg-red-600"
+          class="userButton bg-red-700 hover:bg-red-800"
         >
           <div>Supprimer</div>
           <svg
@@ -45,7 +44,7 @@
         <button
           type="button"
           @click="chatWithUser()"
-          class="userButton bg-gray-400 hover:bg-gray-300 hover:text-black"
+          class="userButton bg-slate-700 hover:bg-slate-800"
         >
           <div>Discuter</div>
           <svg
@@ -65,7 +64,7 @@
         </button>
       </div>
       <div
-        class="flex justify-end w-"
+        class="user-action-group"
         v-else-if="
           !isMyFriend && !isISentFriendRequest && !isHeSentFriendRequest
         "
@@ -73,7 +72,7 @@
         <!--add-->
         <button
           type="button"
-          class="userButton bg-indigo-500 hover:bg-indigo-600"
+          class="userButton bg-indigo-700 hover:bg-indigo-800"
           @click="addFriendRequest"
         >
           <div>Ajouter</div>
@@ -97,7 +96,7 @@
       <!--cancel-->
       <button
         type="button"
-        class="userButton bg-yellow-500 hover:bg-yellow-600"
+        class="userButton bg-yellow-700 hover:bg-yellow-800"
         v-else-if="isISentFriendRequest"
         @click="cancelFriendRequest(user._id)"
       >
@@ -119,13 +118,13 @@
       </button>
       <div
         v-else-if="isHeSentFriendRequest"
-        class="flex flex-col sm:flex-row flex-end"
+        class="user-action-group"
       >
         <!--accept-->
         <button
           @click="accept"
           type="button"
-          class="userButton bg-green-500 hover:bg-green-600"
+          class="userButton bg-green-700 hover:bg-green-800"
         >
           <div>Accepter</div>
           <svg
@@ -146,7 +145,7 @@
         <!--refuse-->
         <button
           type="button"
-          class="userButton bg-red-500 hover:bg-red-600"
+          class="userButton bg-red-700 hover:bg-red-800"
           @click="cancelFriendRequest(user._id)"
         >
           <div>Refuser</div>

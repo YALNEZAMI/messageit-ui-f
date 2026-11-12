@@ -1,21 +1,16 @@
 <template>
   <main>
-    <NuxtImg
-      class="rounded-full w-8 h-8 border-2 border-solid border-black p-1"
-      :src="imgSrc"
-      @error="handleError"
-    ></NuxtImg>
+    <ImagesFallback
+      class="message-avatar"
+      :src="src"
+      :fallback="useConversationsStore().getDefaultImage('private')"
+      alt=""
+    />
   </main>
 </template>
 
 <script setup>
-const props = defineProps({
-  src: String, // Fixed type definition
+defineProps({
+  src: String,
 });
-
-const imgSrc = ref(props.src); // Local reactive variable for the image source
-
-const handleError = () => {
-  imgSrc.value = useUsersStore().defaultUserImg; // Set to default image on error
-};
 </script>

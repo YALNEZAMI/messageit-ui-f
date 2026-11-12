@@ -1,8 +1,10 @@
 <template>
   <main
-    class="fixed w-screen h-screen top-0 left-0 flex justify-center items-center bg-black bg-opacity-50 z-50"
+    class="dialog-backdrop fixed inset-0 flex justify-center items-center z-50"
   >
-    <div class="bg-white p-2 rounded-md">
+    <div class="dialog-panel">
+      <h2 class="dialog-title">Ajouter des membres</h2>
+      <p class="dialog-subtitle">Choisissez les amis à inviter dans la conversation.</p>
       <div class="flex justify-center flex-wrap max-h-96 h-max overflow-y-auto">
         <div
           v-for="mem of membersToAdd"
@@ -11,7 +13,7 @@
         >
           <User :user="mem" :noButtons="true"></User>
           <ContainersMain
-            class="border-0 rounded px-2 py-1 mx-1 font-bold cursor-pointer"
+            class="border-0 rounded-lg px-3 py-2 mx-1 font-bold cursor-pointer"
             @click="addMember(mem._id + '')"
           >
             +
@@ -21,7 +23,7 @@
       <div class="flex justify-center my-2">
         <button
           @click="emits('finish')"
-          class="border-0 rounded px-2 py-1 mx-1 font-bold cursor-pointer bg-gray-300"
+          class="upload-button-primary"
         >
           Terminer
         </button>

@@ -1,26 +1,29 @@
 <template>
   <main
-    class="fixed z-50 top-0 left-0 w-screen h-screen bg-black flex justify-center items-center bg-opacity-60"
+    class="dialog-backdrop fixed inset-0 z-50 flex justify-center items-center"
   >
-    <div class="flex flex-col bg-white p-5 rounded">
-      <h4>Entrer votre nouveau text:</h4>
+    <div class="dialog-panel message-edit">
+      <h2 class="dialog-title">Modifier le message</h2>
+      <label for="message-edit-input">Votre message</label>
       <input
-        id="input"
+        id="message-edit-input"
         type="text"
-        class="p-1 px-2"
-        placeholder="Your new message"
+        class="search-input"
+        placeholder="Votre message"
         v-model="text"
       />
 
-      <div class="flex justify-center m-3 space-x-2">
+      <div class="message-edit-actions">
         <button
-          class="basicButton border-2 border-solid border-red-600 hover:bg-red-50 bg-white text-red-700"
+          type="button"
+          class="message-action"
           @click="cancel"
         >
           Annuler
         </button>
         <button
-          class="basicButton border-2 border-solid border-green-600 hover:bg-green-50 bg-white text-green-700"
+          type="button"
+          class="upload-button-primary"
           @click="modify"
         >
           Modifier
@@ -49,7 +52,7 @@ const modify = async () => {
   emit("cancel");
 };
 onMounted(async () => {
-  const input = document.getElementById("input") as HTMLInputElement;
+  const input = document.getElementById("message-edit-input") as HTMLInputElement;
   input.focus();
 });
 </script>

@@ -1,8 +1,8 @@
 <template>
-  <main style="min-height: 35.9rem">
+  <main class="page-section">
+    <div class="page-heading"><div><p class="page-eyebrow">CONVERSATION</p><h1>Médias</h1><p>Retrouvez les photos partagées ici.</p></div></div>
     <div
       class="overflow-y-auto flex justify-center flex-wrap h-max"
-      style="max-height: 35.9rem; scrollbar-width: thin"
     >
       <ImagesMessageFile
         class="m-1 h-max"

@@ -1,11 +1,11 @@
 <template>
   <ContainersConversationTheme
-    class="flex items-center justify-between space-x-2 rounded p-2"
+    class="workspace-header flex items-center justify-between space-x-2"
   >
-    <div class="flex items-center w-11/12">
+    <div class="flex min-w-0 items-center flex-1">
       <div class="relative">
         <ImagesConversationHeader
-          class="w-20 md:w-20 h-16"
+          class="w-14 h-14"
         ></ImagesConversationHeader>
 
         <Status
@@ -14,20 +14,22 @@
           :user="getConnectedFriend()"
         ></Status>
       </div>
-      <div class="px-3">
-        <div class="w-3/4 text-2xl md:text-3xl font-bold">
+      <div class="min-w-0 px-3">
+        <div class="workspace-greeting truncate">
           {{ getType() != "ai" ? getName() : "Boby 🤖" }}
         </div>
-        <span class="text-xs font-serif truncate">{{
+        <span class="conversation-header-detail block truncate">{{
           getSecondaryText()
         }}</span>
       </div>
     </div>
-    <ContainersMain
-      class="font-bold hover:bg-opacity-70 transition-all duration-300 rounded-full flex justify-center items-center p-1 w-max hover:px-2"
+    <button
+      type="button"
+      aria-label="Retour aux conversations"
+      @click="goToConversations"
+      class="header-menu"
     >
       <svg
-        @click="goToConversations"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
@@ -41,7 +43,7 @@
           d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
         />
       </svg>
-    </ContainersMain>
+    </button>
   </ContainersConversationTheme>
 </template>
 <script lang="ts" setup>

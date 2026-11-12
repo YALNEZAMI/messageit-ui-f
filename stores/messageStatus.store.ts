@@ -69,7 +69,7 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
       return messageIndex <= indexOfLastMsgSeenByOthers;
     },
     async setAllConversationsMessagesAsRecieved() {
-      for (const conv of useConversationsStore().conversations) {
+      await Promise.all(useConversationsStore().conversations.map(async (conv) => {
         const alreadySetAsRecieved = await this.getService(
           "message-recieving"
         ).find({
@@ -80,29 +80,30 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
           },
         });
         if (alreadySetAsRecieved.total > 0) {
-          return await this.getService("message-recieving").patch(
+          await this.getService("message-recieving").patch(
             alreadySetAsRecieved.data[0]._id,
             {
               createdAt: new Date().toISOString(),
             }
           );
+          return;
         }
         await this.getService("message-recieving").create({
           conversation: conv._id,
           recipient: useUsersStore().user._id,
           message: "noMessage", //noMessage because we mark the conv as recieved not a certain msg
         });
-      }
+      }));
     },
     async initViewers() {
-      for (const member of useConversationsStore().currentConversation
-        .members as User[]) {
+      const conversation = useConversationsStore().currentConversation;
+      await Promise.all((conversation.members as User[]).map(async (member) => {
         if (member._id == useUsersStore().user._id) {
-          continue;
+          return;
         }
         const res = await this.getService("message-seen").find({
           query: {
-            conversation: useConversationsStore().currentConversation._id,
+            conversation: conversation._id,
             viewer: member._id as string,
             $sort: { createdAt: -1 },
             $limit: 1,
@@ -112,7 +113,7 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
         if (res.data.length > 0) {
           this.updateMessageViewersLocally(res.data[0]);
         }
-      }
+      }));
     },
     getViewers(message: string): User[] {
       //TODO if message not maped ,retrieve it

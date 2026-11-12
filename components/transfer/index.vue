@@ -1,5 +1,7 @@
 <template>
-  <main class="bg-white p-1 py-4 rounded w-full sm:w-3/4 h-1/2">
+  <main class="dialog-panel transfer-panel">
+    <h2 class="dialog-title">Transférer le message</h2>
+    <p class="dialog-subtitle">Choisissez une conversation.</p>
     <!--search bar-->
     <div class="flex justify-center my-2">
       <div class="relative w-3/4 md:w-1/2">
@@ -7,7 +9,7 @@
           v-model="req"
           @input="search"
           type="text"
-          class="rounded-md w-full p-2 bg-gray-100"
+          class="search-input"
           placeholder="Recherche..."
         />
         <!--search icon-->
@@ -83,7 +85,7 @@
     <div class="flex justify-center my-2">
       <button
         @click="emits('finish')"
-        class="basicButton bg-green-500 hover:bg-green-600"
+        class="upload-button-primary"
       >
         Terminer
       </button>

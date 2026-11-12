@@ -18,8 +18,14 @@ const goToPath = (nbi: any) => {
   useRouter().push(nbi.path);
 };
 onMounted(async () => {
-  await friendStore.getFriendRequestsSentToMe();
-  await friendStore.getAcceptedFriendRequests();
+  try {
+    await Promise.all([
+      friendStore.getFriendRequestsSentToMe(),
+      friendStore.getAcceptedFriendRequests(),
+    ]);
+  } catch (error) {
+    console.error("Impossible de charger les notifications :", error);
+  }
 });
 
 const navBarItems = ref([
