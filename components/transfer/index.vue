@@ -90,35 +90,45 @@
         Terminer
       </button>
     </div>
+    <p v-if="sendError" class="search-error" role="alert">{{ sendError }}</p>
   </main>
 </template>
 <script lang="ts" setup>
 import type { Conversation } from "~/interfaces/conversation";
+import type { Message } from "~/interfaces/message";
 const emits = defineEmits(["send", "finish"]);
-const props = defineProps({
-  messagesToSend: Array,
-});
+const props = defineProps<{ messagesToSend: Message[] }>();
 const sentTab = ref([] as string[]);
 const sendingTab = ref([] as string[]);
+const sendError = ref("");
 const send = async (conv: Conversation) => {
-  sendingTab.value.push(conv._id as string);
-  for (const msg of props.messagesToSend) {
-    const sending = await useMessagesStore().transfer(
-      {
-        text: msg.text,
-        files: msg.files,
-        referedMessage: "",
-        type: "message",
-        transfered: true,
-        createdAt: new Date().toISOString(),
-      },
-      conv._id as string
-    );
+  const id = conv._id as string;
+  if (sendingTab.value.includes(id)) return;
+  sendingTab.value.push(id);
+  sendError.value = "";
+  try {
+    for (const msg of props.messagesToSend) {
+      await useMessagesStore().transfer(
+        {
+          text: msg.text,
+          files: msg.files,
+          conversation: id,
+          referedMessage: "",
+          type: "message",
+          transfered: true,
+          createdAt: new Date().toISOString(),
+        },
+        id
+      );
+    }
+    sentTab.value.push(id);
+    emits("send", conv);
+  } catch (error) {
+    console.error("Impossible de transférer le message :", error);
+    sendError.value = "Le transfert a échoué. Vérifiez la conversation avant de réessayer.";
+  } finally {
+    sendingTab.value = sendingTab.value.filter((sendingId) => sendingId !== id);
   }
-  sendingTab.value = sendingTab.value.filter((id: string) => id != conv._id);
-  sentTab.value.push(conv._id as string);
-
-  emits("send", conv);
 };
 
 const req = ref("");
