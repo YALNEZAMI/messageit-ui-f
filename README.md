@@ -38,6 +38,22 @@ yarn dev
 bun run dev
 ```
 
+For local development, open [http://localhost:3000](http://localhost:3000)
+in your browser. The development server listens on `0.0.0.0` so it can also
+accept network connections, but that address is not the recommended browser
+URL. The API's Socket.IO configuration permits the local origins
+`localhost:3000`, `127.0.0.1:3000`, and `0.0.0.0:3000`. If you change the
+frontend port or use another host, add that exact origin to the API's
+`config/default.json` and restart the API.
+
+### Assistant Gemini
+
+Configure `GEMINI_KEY` in the API's `.env`, not in the frontend. The optional
+`GEMINI_MODEL` defaults to `gemini-3.5-flash-lite`; use a model available to
+your Google AI Studio project that supports `generateContent` if necessary.
+Restart the API after changing these values. Conversation text and images sent
+to the assistant are transmitted to Gemini.
+
 ## Production
 
 Build the application for production:

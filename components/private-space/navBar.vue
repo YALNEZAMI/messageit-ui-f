@@ -1,11 +1,8 @@
 <template>
-  <ContainersMain class="flex flex-wrap p-1 md:p-2 justify-center my-1">
+  <ContainersMain class="workspace-nav flex flex-wrap p-1 md:p-2 justify-center my-1">
     <ContainersTheme
-      class="m-1 rounded hover:opacity-70"
-      :style="{
-        'background-color': isSamePath(nbi) ? 'black' : '',
-        color: isSamePath(nbi) ? 'white' : '',
-      }"
+      class="nav-item m-1 rounded-lg"
+      :class="{ 'nav-item-active': isSamePath(nbi) }"
       v-for="nbi of navBarItems"
       :key="nbi.name"
       ><NavBarItem @click="goToPath(nbi)" :navBarItem="nbi"></NavBarItem

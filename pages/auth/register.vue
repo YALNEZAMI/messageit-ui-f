@@ -1,78 +1,101 @@
 <template>
-  <main
-    style="background: linear-gradient(40deg, white, brown)"
-    class="w-3/4 md:w-1/2 p-2 rounded shadow-md"
-  >
-    <h3 class="text-center">Création de votre compte</h3>
-    <div class="flex justify-center">
-      <div id="inputs" class="flex flex-col space-y-1">
-        <div class="inputy">
-          <div>Nom d'utilisateur*</div>
+  <section class="auth-card" aria-labelledby="auth-title">
+    <div class="auth-brand">
+      <span class="auth-brand-mark" aria-hidden="true">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          class="h-5 w-5"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M7.5 8.25h9m-9 3.75h5.25M4.5 19.5l1.6-3.2A8.25 8.25 0 1 1 12 18a8.3 8.3 0 0 1-3.7-.87L4.5 19.5Z"
+          />
+        </svg>
+      </span>
+      <span>Message-it</span>
+    </div>
+    <h1 id="auth-title" class="auth-title">Créez votre compte</h1>
+    <p class="auth-subtitle">Quelques informations pour commencer à échanger.</p>
+
+    <div class="auth-fields">
+      <label class="auth-field" for="name">
+        <span>Nom d'utilisateur <span aria-hidden="true">*</span></span>
           <input
             :class="{
               inputError: inputInError.includes('name'),
             }"
             id="name"
             type="text"
+            class="auth-input"
+            autocomplete="username"
             v-model.trim="auth.name"
-            placeholder="jack"
+            placeholder="Votre nom"
           />
-        </div>
-        <div>
-          <div>Email*</div>
+      </label>
+      <label class="auth-field" for="email">
+        <span>Email <span aria-hidden="true">*</span></span>
           <input
             :class="{
               inputError: inputInError.includes('email'),
             }"
             id="email"
-            type="text"
+            type="email"
+            class="auth-input"
+            autocomplete="email"
             v-model.trim="auth.email"
-            placeholder="jack@gmail.com"
+            placeholder="vous@exemple.com"
           />
-        </div>
-        <div>
-          <div>Mot de passe*</div>
+      </label>
+      <label class="auth-field" for="password">
+        <span>Mot de passe <span aria-hidden="true">*</span></span>
           <input
             :class="{
               inputError: inputInError.includes('password'),
             }"
             id="password"
             type="password"
+            class="auth-input"
+            autocomplete="new-password"
             v-model.trim="auth.password"
-            placeholder="monChien3MeSuitTil?"
+            placeholder="Choisissez un mot de passe"
           />
-        </div>
-        <div>
-          <div>Confirmer le mot de passe*</div>
+      </label>
+      <label class="auth-field" for="password2">
+        <span>Confirmer le mot de passe <span aria-hidden="true">*</span></span>
           <input
             :class="{
               inputError: inputInError.includes('password2'),
             }"
             id="password2"
             type="password"
+            class="auth-input"
+            autocomplete="new-password"
             v-model.trim="auth.password2"
-            placeholder="monChien3MeSuitTil?"
+            placeholder="Répétez le mot de passe"
           />
-        </div>
-      </div>
+      </label>
     </div>
-    <div v-if="alert.bool" class="bg-red-400 p-2 my-1 text-white text-center">
+    <div v-if="alert.bool" role="alert" class="my-4 rounded-lg bg-red-50 p-3 text-center text-sm text-red-700">
       {{ alert.message }}
     </div>
-    <div v-else class="flex justify-center mt-1">
-      <small>Tous les champs marqués de * sont obligatoires</small>
+    <div v-else class="mt-3 text-center">
+      <small class="text-xs text-slate-500">Les champs marqués d'un * sont obligatoires.</small>
     </div>
-    <div class="flex justify-center mt-1">
+    <div class="mt-1 flex justify-center">
       <button
         type="button"
         @click="register"
-        style="background: linear-gradient(40deg, purple, white)"
-        class="min-w-20 cursor-pointer transition-all duration-500 px-4 rounded-xl hover:rounded p-2 text-black my-2 font-bold"
+        class="auth-submit"
       >
-        <span v-if="!loading">S'inscrir</span>
+        <span v-if="!loading">Créer mon compte</span>
         <span v-else class="flex items-center">
           <svg
-            class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+            class="-ml-1 mr-3 h-5 w-5 animate-spin text-white"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -95,21 +118,20 @@
         </span>
       </button>
     </div>
-    <div class="text-center">
-      <NuxtLink to="/auth/login" class="underline"
-        >Vous avez déjà un compte ?</NuxtLink
-      >
-    </div>
-  </main>
+    <p class="auth-switch">
+      Vous avez déjà un compte ?
+      <NuxtLink to="/auth/login" class="auth-link">Se connecter</NuxtLink>
+    </p>
+  </section>
 </template>
 <script lang="ts" setup>
 import type { User } from "~/interfaces/user";
 
 const auth = ref({
-  name: "yaser",
-  email: "yaser@gmail.com",
-  password: "1234",
-  password2: "1234",
+  name: "",
+  email: "",
+  password: "",
+  password2: "",
 });
 const alert = ref({
   bool: false,
@@ -190,10 +212,3 @@ document.addEventListener("keydown", async (e) => {
   }
 });
 </script>
-<style scoped>
-input {
-  width: 15rem;
-  padding: 5px;
-  border-radius: 5px;
-}
-</style>

@@ -116,22 +116,31 @@ export const useMessagesStore = defineStore("messagesStore", {
 
       this.handleTemporaryMessage(temporaryId, msg);
       //if ai conversation-> message:{myMessage:Message,aiMessage:Message}
-      const message = await this.getThisService().create(msg, {
-        query: { conversation: conversationId },
-      });
-      //ai response handling
-      if (useConversationsStore().currentConversation.type == "ai") {
-        this.isAiTyping = false;
-        this.popTemporaryMessage(temporaryId + "", message.myMessage);
-        if (conversationId == useConversationsStore().currentConversation._id) {
-          this.messages.push(message.aiMessage);
+      const isAiConversation =
+        useConversationsStore().currentConversation.type == "ai";
+      try {
+        const message = await this.getThisService().create(msg, {
+          query: { conversation: conversationId },
+        });
+        if (isAiConversation) {
+          this.popTemporaryMessage(temporaryId + "", message.myMessage);
+          if (conversationId == useConversationsStore().currentConversation._id) {
+            this.messages.push(message.aiMessage);
+          }
+          eventBus.emit("messageReceived", message.myMessage);
+          eventBus.emit("messageReceived", message.aiMessage);
+        } else {
+          this.popTemporaryMessage(temporaryId + "", message);
         }
-        eventBus.emit("messageReceived", message.myMessage);
-        eventBus.emit("messageReceived", message.aiMessage);
-      } else {
-        this.popTemporaryMessage(temporaryId + "", message);
+        return message;
+      } catch (error) {
+        this.messages = this.messages.filter(
+          (item) => String(item._id) !== String(temporaryId)
+        );
+        throw error;
+      } finally {
+        if (isAiConversation) this.isAiTyping = false;
       }
-      return message;
     },
     async transfer(msg: Message, conversationId: string) {
       //set default value

@@ -1,51 +1,72 @@
 <template>
-  <main
-    style="background: linear-gradient(40deg, white, brown)"
-    class="w-3/4 md:w-1/2 p-2 bg-opacity-30 rounded flex flex-col space-y-2 shadow-md"
-  >
-    <h3 class="text-center">Connexion à votre compte</h3>
-    <div class="flex justify-center">
-      <div id="inputs" class="flex flex-col space-y-1">
-        <div>
-          <div>Email</div>
-          <input
-            type="text"
-            v-model.trim="auth.email"
-            placeholder="jack@gmail.com"
+  <section class="auth-card" aria-labelledby="auth-title">
+    <div class="auth-brand">
+      <span class="auth-brand-mark" aria-hidden="true">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          class="h-5 w-5"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M7.5 8.25h9m-9 3.75h5.25M4.5 19.5l1.6-3.2A8.25 8.25 0 1 1 12 18a8.3 8.3 0 0 1-3.7-.87L4.5 19.5Z"
           />
-        </div>
-        <div>
-          <div>Mot de passe</div>
-          <input
-            type="password"
-            v-model.trim="auth.password"
-            placeholder="monChien3MeSuitTil?"
-          />
-        </div>
-      </div>
+        </svg>
+      </span>
+      <span>Message-it</span>
     </div>
-    <div v-if="alert.bool" class="bg-red-400 p-2 my-1 text-white text-center">
+    <h1 id="auth-title" class="auth-title">Ravi de vous revoir</h1>
+    <p class="auth-subtitle">Connectez-vous pour retrouver vos conversations.</p>
+
+    <div v-if="alert.bool" role="alert" class="mb-4 rounded-lg bg-red-50 p-3 text-center text-sm text-red-700">
       {{ alert.message }}
     </div>
     <div
       @click="$router.push('/private-space')"
       v-if="useAuthStore().isAuthenticated() && !loading"
-      class="bg-indigo-400 p-2 my-1 cursor-pointer text-white text-center flex justify-center space-x-2"
+      class="mb-4 flex cursor-pointer justify-center gap-1 rounded-lg bg-indigo-50 p-3 text-center text-sm text-indigo-800"
     >
       <div>Continuez en tant que</div>
-      <div class="underline font-serif">{{ useUsersStore().user.name }}</div>
+      <div class="font-semibold underline">{{ useUsersStore().user.name }}</div>
     </div>
-    <div class="flex justify-center mt-1">
+    <div class="auth-fields">
+      <label class="auth-field" for="login-email">
+        <span>Email</span>
+        <input
+          id="login-email"
+          class="auth-input"
+          type="email"
+          autocomplete="email"
+          v-model.trim="auth.email"
+          placeholder="vous@exemple.com"
+        />
+      </label>
+      <label class="auth-field" for="login-password">
+        <span>Mot de passe</span>
+        <input
+          id="login-password"
+          class="auth-input"
+          type="password"
+          autocomplete="current-password"
+          v-model.trim="auth.password"
+          placeholder="Votre mot de passe"
+        />
+      </label>
+    </div>
+    <div class="mt-1 flex justify-center">
       <button
         type="button"
         @click="login"
-        style="background: linear-gradient(40deg, purple, white)"
-        class="min-w-20 border-white font-bold transition-all duration-500 rounded-xl p-2 px-3 text-black cursor-pointer hover:rounded"
+        class="auth-submit"
       >
         <span v-if="!loading">Se connecter</span>
         <span v-else class="flex items-center">
           <svg
-            class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+            class="-ml-1 mr-3 h-5 w-5 animate-spin text-white"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -68,12 +89,11 @@
         </span>
       </button>
     </div>
-    <div class="text-center">
-      <NuxtLink to="/auth/register" class="underline"
-        >Vous n'avez pas de compte ?</NuxtLink
-      >
-    </div>
-  </main>
+    <p class="auth-switch">
+      Vous n'avez pas de compte ?
+      <NuxtLink to="/auth/register" class="auth-link">Créer un compte</NuxtLink>
+    </p>
+  </section>
 </template>
 <script lang="ts" setup>
 import type { User } from "~/interfaces/user";
@@ -83,8 +103,8 @@ if (useAuthStore().isAuthenticated()) {
   alreadyConnectedUser = useUsersStore().user;
 }
 const auth = ref({
-  email: "yaser@gmail.com",
-  password: "1234",
+  email: "",
+  password: "",
 });
 const loading = ref(false);
 const authStore = useAuthStore();
@@ -124,10 +144,3 @@ document.addEventListener("keydown", async (e) => {
   }
 });
 </script>
-<style scoped>
-input {
-  width: 15rem;
-  padding: 5px;
-  border-radius: 5px;
-}
-</style>

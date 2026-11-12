@@ -1,22 +1,17 @@
 <template>
-  <main class="flex w-screen" style="height: 36.8rem">
+  <main class="chat-page flex w-full">
     <!--side conversations-->
-    <ContainersMain style="min-height: 35.5rem" class="w-1/4 md:w-1/5 rounded">
+    <ContainersMain class="chat-sidebar w-1/4 rounded-xl md:w-1/5">
       <ConversationSideBar></ConversationSideBar>
     </ContainersMain>
     <!--messages container and input-->
     <div
-      style="
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: center;
-      "
       :style="{
         backgroundImage: `url(${
           useConversationsStore().currentConversation.theme?.photo
         })`,
       }"
-      class="relative flex w-full md:w-4/5 pr-3 flex-col h-full"
+      class="chat-content relative flex h-full w-full flex-col bg-cover bg-center bg-no-repeat md:w-4/5 md:pr-3"
     >
       <!--copied message-->
       <div
@@ -29,8 +24,8 @@
       </div>
       <div
         id="messagesContainer"
-        class="relativep-1 px-1 w-full flex flex-col overflow-y-auto overflow-x-hidden"
-        style="height: 32rem; scrollbar-width: thin"
+        class="chat-messages relative w-full flex flex-col overflow-y-auto overflow-x-hidden px-1"
+        style="scrollbar-width: thin"
       >
         <!--load spinner-->
         <div class="flex justify-center" v-if="getIsAppendingMessages()">

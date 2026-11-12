@@ -1,13 +1,10 @@
 <template>
-  <ContainersMain class="flex flex-wrap p-1 md:p-2 justify-center my-1">
+  <ContainersMain class="workspace-nav flex flex-wrap p-1 md:p-2 justify-center my-1">
     <ContainersConversationTheme
-      class="m-1 rounded md:mx-2 hover:bg-opacity-85"
+      class="nav-item m-1 rounded-lg md:mx-2"
       v-for="nbi of navBarItems"
       :key="nbi.name"
-      :style="{
-        'background-color': isSamePath(nbi) ? 'black' : '',
-        color: isSamePath(nbi) ? 'white' : '',
-      }"
+      :class="{ 'nav-item-active': isSamePath(nbi) }"
     >
       <NavBarItem @click="goToPath(nbi)" :navBarItem="nbi"></NavBarItem
     ></ContainersConversationTheme>

@@ -1,5 +1,8 @@
 <template>
   <div class="w-full">
+    <div v-if="sendError" role="alert" class="bg-red-50 px-3 py-2 text-center text-sm text-red-700">
+      {{ sendError }}
+    </div>
     <!--refered message-->
     <MessageInputReferedMessage
       :refered-message="referedMessage"
@@ -155,28 +158,38 @@ const getConversationType = () => {
   return useConversationsStore().currentConversation.type;
 };
 const isGenerating = ref(false);
+const sendError = ref("");
 const send = async () => {
-  previewSrc.value = [];
   isGenerating.value = true;
+  sendError.value = "";
   const text = message.value.text;
   message.value.text = "";
-  let urls = [] as string[];
-  if (files.value.length > 0) {
-    const res = await useUploadStore().uploadMessageFiles(files.value);
-    urls = res.urls;
+  try {
+    let urls = [] as string[];
+    if (files.value.length > 0) {
+      const res = await useUploadStore().uploadMessageFiles(files.value);
+      urls = res.urls;
+    }
+    await useMessagesStore().send(
+      {
+        ...message.value,
+        text,
+        type: "message",
+        files: urls,
+      },
+      useConversationsStore().currentConversation._id as string
+    );
+    previewSrc.value = [];
+    files.value = [];
+    cancelReply();
+  } catch (error) {
+    console.error("Échec de l'envoi du message", error);
+    if (!message.value.text) message.value.text = text;
+    sendError.value =
+      "Impossible d'envoyer le message. Vérifiez la connexion et la configuration du serveur, puis réessayez.";
+  } finally {
+    isGenerating.value = false;
   }
-  const res = await useMessagesStore().send(
-    {
-      ...message.value,
-      text,
-      type: "message",
-      files: urls,
-    },
-    useConversationsStore().currentConversation._id as string
-  );
-  isGenerating.value = false;
-  files.value = [];
-  cancelReply();
 };
 const typing = async () => {
   useConversationsStore().setConversationDraft(
