@@ -4,6 +4,9 @@ Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduct
 
 ## Setup
 
+Pour lancer le front, l'API et MongoDB ensemble avec Docker Compose, consultez
+la section « Lancer avec Docker Compose » du README de `messageit-api-f`.
+
 Make sure to install dependencies:
 
 ```bash
