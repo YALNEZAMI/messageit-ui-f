@@ -1,4 +1,4 @@
-import type { Message } from "postcss";
+import type { Message } from "./message";
 import type { Theme } from "./theme";
 import type { User } from "./user";
 import type { GroupRights } from "./groupRights";

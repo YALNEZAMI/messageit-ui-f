@@ -4,7 +4,6 @@ import type { Message } from "~/interfaces/message";
 import type { User } from "~/interfaces/user";
 import type { Recieving } from "~/interfaces/recieving";
 import type { Conversation } from "~/interfaces/conversation";
-import type { MessageSeen } from "~/interfaces/message-seen";
 
 export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
@@ -127,10 +126,16 @@ export const useMessagesStore = defineStore("messagesStore", {
           if (conversationId == useConversationsStore().currentConversation._id) {
             this.messages.push(message.aiMessage);
           }
+          useConversationsStore().setLastMessage(message.aiMessage, conversationId);
+          if (useRoute().params.id === conversationId && message.aiMessage._id) {
+            void useMessageStatusStore().setMessageAsSeen(message.aiMessage._id, conversationId)
+              .catch((error: unknown) => console.error("Impossible de confirmer la lecture du message :", error));
+          }
           eventBus.emit("messageReceived", message.myMessage);
           eventBus.emit("messageReceived", message.aiMessage);
         } else {
           this.popTemporaryMessage(temporaryId + "", message);
+          useConversationsStore().setLastMessage(message, conversationId);
         }
         return message;
       } catch (error) {
@@ -329,14 +334,10 @@ export const useMessagesStore = defineStore("messagesStore", {
         useRoute().params.id &&
         useRoute().params.id == (message.conversation as Conversation)._id
       ) {
-        const messageSeen: MessageSeen = {
-          message: message._id as string,
-          conversation: (message.conversation as Conversation)._id as string,
-          viewer: useUsersStore().user._id as string,
-        };
-        const creatingMessageSeen = await this.getService(
-          "message-seen"
-        ).create(messageSeen);
+        await useMessageStatusStore().setMessageAsSeen(
+          message._id as string,
+          (message.conversation as Conversation)._id as string
+        );
       } else {
         //we are not in the conv
         if ((message.sender as User)._id != useUsersStore().user._id) {
@@ -382,9 +383,6 @@ export const useMessagesStore = defineStore("messagesStore", {
         await this.handleMessageCreated(message);
       });
 
-      this.getThisService().on("created", async (message: Message) => {
-        await this.handleMessageCreated(message);
-      });
       this.getThisService().on("removed", async (message: Message) => {
         //set new lastMessage
         let conversationId: any = message.conversation;

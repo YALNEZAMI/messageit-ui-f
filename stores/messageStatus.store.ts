@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { eventBus } from "@/utils/eventBus";
 import type { Conversation } from "~/interfaces/conversation";
 import type { Message } from "~/interfaces/message";
 import type { MessageSeen } from "~/interfaces/message-seen";
@@ -126,40 +127,37 @@ export const useMessageStatusStore = defineStore("useMessageStatusStore", {
       return res;
     },
     async setConversationMessagesAsSeen() {
+      const conversationId = useConversationsStore().currentConversation._id;
+      const userId = useUsersStore().user._id;
+      if (!conversationId || !userId) return;
+      const messages = [...useMessagesStore().messages];
       const messagesAlreadySeen = await this.getService("message-seen").find({
         query: {
-          conversation: useConversationsStore().currentConversation._id,
-          viewer: useUsersStore().user._id,
+          conversation: conversationId,
+          viewer: userId,
         },
         paginate: false,
       });
       const seenMessagesIds = messagesAlreadySeen.data.map((view: any) => {
         return view.message;
       });
-      const messageNotMarkedAsSeen = useMessagesStore().messages.filter(
-        (msg) => {
-          return !seenMessagesIds.includes(msg._id);
-        }
+      const messageNotMarkedAsSeen = messages.filter(
+        (msg) => msg._id && !seenMessagesIds.includes(msg._id)
       );
-      for (const msgNotSeen of messageNotMarkedAsSeen) {
-        const conversationId = useRoute().params.id;
-        if (conversationId) {
-          const viewBody = {
-            message: msgNotSeen._id,
-            viewer: useUsersStore().user._id,
-            conversation: conversationId,
-          };
-          return await this.getService("message-seen").create(viewBody);
-        }
-      }
+      await Promise.all(messageNotMarkedAsSeen.map((message) =>
+        this.setMessageAsSeen(message._id!, conversationId, userId)
+      ));
     },
-    async setMessageAsSeen(msgId: string, convId: string) {
+    async setMessageAsSeen(msgId: string, convId: string, userId = useUsersStore().user._id) {
+      if (!userId) throw new Error("Utilisateur introuvable pour l'accusé de lecture.");
       const viewBody = {
         message: msgId,
-        viewer: useUsersStore().user._id,
+        viewer: userId,
         conversation: convId,
       };
-      return await this.getService("message-seen").create(viewBody);
+      const result = await this.getService("message-seen").create(viewBody);
+      eventBus.emit("seeing", result);
+      return result;
     },
     updateMessageViewersLocally(messageSeen: MessageSeen) {
       //ignore current user
