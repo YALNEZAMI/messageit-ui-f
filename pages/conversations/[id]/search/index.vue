@@ -50,7 +50,7 @@
           </div>
         </ContainersConversationTheme>
       </div>
-      <NoResult v-else class="mt-3" message="Aucun message trouvé." />
+      <NoResult v-else class="mt-3" :message="mode === 'semantic' ? 'Aucun message suffisamment proche. Essayez de reformuler votre recherche.' : 'Aucun message trouvé.'" />
     </template>
   </main>
 </template>
