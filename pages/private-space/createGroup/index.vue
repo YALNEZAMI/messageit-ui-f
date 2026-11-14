@@ -1,226 +1,240 @@
 <template>
   <main class="page-section">
-    <div class="page-heading"><div><p class="page-eyebrow">NOUVELLE CONVERSATION</p><h1>Créer un groupe</h1><p>Choisissez un nom et invitez vos amis.</p></div></div>
-    <div class="group-toolbar flex justify-between items-center">
-      <!--filter input-->
-      <div class="flex justify-center mb-1">
-        <div class="relative w-full">
-          <input
-            placeholder="Recherche d'amis..."
-            class="w-full pt-3 pb-2 px-3 rounded-md border-2 border-solid border-black"
-            type="text"
-            v-model="key"
-          />
-          <!--search icon-->
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-6 text-black absolute -right-1 top-1"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-            />
+    <div class="page-heading">
+      <p class="page-eyebrow">NOUVELLE CONVERSATION</p>
+      <h1>Créer un groupe</h1>
+      <p>Rassemblez vos amis autour d'une nouvelle conversation.</p>
+    </div>
+
+    <form class="group-creation" novalidate @submit.prevent="createGroup">
+      <div class="group-main">
+        <section class="group-panel" aria-labelledby="group-details-title">
+          <div class="section-heading">
+            <span class="section-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2m12-13a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm4 13v-2a4 4 0 0 0-3-3.87M16 4.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </span>
+            <div>
+              <h2 id="group-details-title">Votre nouveau groupe</h2>
+              <p>Commencez par lui donner un nom.</p>
+            </div>
+          </div>
+          <label class="field-label" for="group-name">Nom du groupe <span aria-hidden="true">*</span></label>
+          <input id="group-name" v-model="groupName" class="group-input" type="text"
+            placeholder="Ex. Les amis du dimanche" autocomplete="off" :disabled="creating"
+            :aria-invalid="nameInvalid" :aria-describedby="nameInvalid ? 'group-name-help group-form-error' : 'group-name-help'"
+            @input="nameInvalid = false; formError = ''" />
+          <p id="group-name-help" class="field-help">Choisissez un nom que tout le monde reconnaîtra.</p>
+        </section>
+
+        <section class="group-panel" aria-labelledby="group-friends-title">
+          <div class="friends-heading">
+            <div>
+              <h2 id="group-friends-title">Inviter des amis</h2>
+              <p>Sélectionnez au moins deux amis pour commencer.</p>
+            </div>
+            <span class="count-badge">{{ selectedIds.length }} sélectionné{{ selectedIds.length === 1 ? "" : "s" }}</span>
+          </div>
+          <label class="field-label" for="friend-search">Rechercher parmi vos amis</label>
+          <div class="friend-search">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.2-5.2M19 10.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0Z" />
+            </svg>
+            <input id="friend-search" v-model="search" type="search" placeholder="Rechercher par nom…" :disabled="creating" />
+          </div>
+          <p v-if="loading" class="group-status" role="status">Chargement de vos amis…</p>
+          <p v-else-if="loadError" class="group-error" role="alert">
+            {{ loadError }} <button type="button" @click="loadFriends">Réessayer</button>
+          </p>
+          <div v-else-if="!friendsStore.friends.length" class="group-empty">
+            <p>Vous n'avez pas encore d'amis à inviter.</p>
+            <NuxtLink to="/private-space/search">Trouver des personnes <span aria-hidden="true">→</span></NuxtLink>
+          </div>
+          <p v-else-if="!filteredFriends.length" class="group-empty">Aucun ami ne correspond à cette recherche.</p>
+          <div v-else class="friends-list" aria-label="Liste des amis">
+            <label v-for="friend in filteredFriends" :key="friend._id" class="friend-option"
+              :class="{ 'friend-option-selected': isSelected(friend._id) }">
+              <ImagesFallback class="friend-avatar" :src="friend.image" fallback="/images-ui/user.png" alt="" />
+              <span class="friend-name">{{ friend.name || "Utilisateur" }}</span>
+              <span class="friend-choice">{{ isSelected(friend._id) ? "Sélectionné" : "Ajouter" }}</span>
+              <input type="checkbox" :checked="isSelected(friend._id)" :disabled="creating || !friend._id"
+                :aria-label="`Sélectionner ${friend.name || 'cet ami'}`" @change="toggleFriend(friend._id)" />
+            </label>
+          </div>
+        </section>
+      </div>
+
+      <aside class="group-panel group-summary" aria-labelledby="group-summary-title">
+        <p class="summary-eyebrow">VOTRE GROUPE</p>
+        <div class="summary-avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2m12-13a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm4 13v-2a4 4 0 0 0-3-3.87" />
           </svg>
         </div>
-      </div>
-      <div class="w-1/2 flex justify-end pr-2 items-center space-x-10">
-        <div class="relative my-4 w-1/2 md:w-1/3 lg:w-1/4">
-          <label
-            @click="nameGroupLabelClicked"
-            id="nameGroupLabel"
-            for="groupName"
-            class="overflow-visible text-black rounded-md cursor-text absolute z-10 left-3 transition-all duration-300 ease-in-out"
-            :class="{
-              'top-2 bg-white': !nameGroupInputIsFocused && group.name == '',
-              '-top-2 ': nameGroupInputIsFocused || group.name != '',
-            }"
-          >
-            <div class="relative z-10">Nom du groupe</div>
-            <div
-              class="absolute h-1 w-full bg-white top-2 z-0"
-              :class="{ hidden: !nameGroupInputIsFocused && group.name == '' }"
-            ></div>
-          </label>
-
-          <input
-            v-model="group.name"
-            id="nameGroupInput"
-            type="text"
-            placeholder="Les amis"
-            class="w-full pt-3 pb-2 px-3 rounded-2xl border-2 border-solid border-black"
-          />
+        <h2 id="group-summary-title">{{ groupName.trim() || "Nom du groupe" }}</h2>
+        <p class="summary-description">{{ selectedIds.length }} ami{{ selectedIds.length === 1 ? "" : "s" }} sélectionné{{ selectedIds.length === 1 ? "" : "s" }} · Vous serez ajouté automatiquement</p>
+        <div class="summary-divider"></div>
+        <div class="selected-heading">
+          <h3>Participants</h3>
+          <span>{{ selectedIds.length }}</span>
         </div>
-        <button
-          @click="createGroupe"
-          class="p-2 rounded cursor-pointer bg-indigo-500 hover:bg-indigo-600 transition-all duration-500 ease-in-out h-max text-white"
-        >
-          Créer
+        <p v-if="!selectedFriends.length" class="summary-empty">Les amis sélectionnés apparaîtront ici.</p>
+        <ul v-else class="selected-list">
+          <li v-for="friend in selectedFriends" :key="friend._id">
+            <ImagesFallback class="selected-avatar" :src="friend.image" fallback="/images-ui/user.png" alt="" />
+            <span>{{ friend.name || "Utilisateur" }}</span>
+            <button type="button" :disabled="creating" :aria-label="`Retirer ${friend.name || 'cet ami'}`"
+              @click="toggleFriend(friend._id)">×</button>
+          </li>
+        </ul>
+        <p v-if="formError" id="group-form-error" class="group-error" role="alert">{{ formError }}</p>
+        <button type="submit" class="create-button" :disabled="creating || loading || !!loadError">
+          {{ creating ? "Création en cours…" : "Créer le groupe" }}
+          <span v-if="!creating" aria-hidden="true">→</span>
         </button>
-      </div>
-    </div>
-
-    <!--friends-->
-    <div
-      style="max-height: 31rem"
-      class="flex flex-wrap justify-center h-max overflow-y-auto"
-    >
-      <div
-        class="w-11/12 md:w-1/3 m-1"
-        v-for="(pulse, index) in ([].length = 10)"
-        :key="index"
-        :class="{
-          hidden: !isFriendsPulse(),
-        }"
-      >
-        <Pulse
-          v-if="isFriendsPulse()"
-          class="w-full bg-gray-300 overflow-hidden"
-        ></Pulse>
-      </div>
-      <div
-        @click="select(friend._id)"
-        class="flex items-center w-full cursor-pointer justify-center"
-        v-for="friend of getFriends()"
-        :key="friend._id"
-      >
-        <User :user="friend" :noButtons="true"></User>
-        <!--not selected svg-->
-        <svg
-          v-if="!isSelected(friend._id)"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="size-6"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
-          />
-        </svg>
-        <!--selected svg-->
-        <svg
-          v-else
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          class="size-6"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M8.603 3.799A4.49 4.49 0 0 1 12 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 0 1 3.498 1.307 4.491 4.491 0 0 1 1.307 3.497A4.49 4.49 0 0 1 21.75 12a4.49 4.49 0 0 1-1.549 3.397 4.491 4.491 0 0 1-1.307 3.497 4.491 4.491 0 0 1-3.497 1.307A4.49 4.49 0 0 1 12 21.75a4.49 4.49 0 0 1-3.397-1.549 4.49 4.49 0 0 1-3.498-1.306 4.491 4.491 0 0 1-1.307-3.498A4.49 4.49 0 0 1 2.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 0 1 1.307-3.497 4.49 4.49 0 0 1 3.497-1.307Zm7.007 6.387a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </div>
-    </div>
-    <!--error popup-->
-    <div
-      class="flex justify-center items-center fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-50"
-      v-if="alert.bool"
-    >
-      <div class="bg-white rounded w-3/4 h-max p-2 py-4">
-        <div class="flex justify-center my-1 text-red-500">
-          <strong>OUPS !</strong>
-        </div>
-        <div class="text-center text-black">{{ alert.message }}</div>
-        <div class="flex justify-center my-2">
-          <button
-            @click="alert.bool = false"
-            class="p-1 rounded border-0 bg-orange-500 cursor-pointer hover:opacity-80 text-white px-2"
-          >
-            Fermer
-          </button>
-        </div>
-      </div>
-    </div>
+        <p class="summary-note">Vous pourrez personnaliser le groupe plus tard.</p>
+      </aside>
+    </form>
   </main>
 </template>
+
 <script lang="ts" setup>
 import type { Conversation } from "~/interfaces/conversation";
-import type { User } from "~/interfaces/user";
 
-const group: Ref<Conversation> = ref({
-  name: "",
-  members: [] as string[],
-  type: "group",
-});
-const key = ref("");
+const friendsStore = useFriendsStore();
+const groupName = ref("");
+const search = ref("");
+const selectedIds = ref<string[]>([]);
+const loading = ref(true);
+const loadError = ref("");
+const formError = ref("");
+const nameInvalid = ref(false);
+const creating = ref(false);
 
-const alert = ref({
-  bool: false,
-  message: "",
+const filteredFriends = computed(() => {
+  const query = search.value.trim().toLocaleLowerCase();
+  return friendsStore.friends.filter((friend) =>
+    (friend.name || "").toLocaleLowerCase().includes(query)
+  );
 });
-const lanceAlert = (msg: string): void => {
-  alert.value.bool = true;
-  alert.value.message = msg;
-};
-const isFriendsPulse = () => {
-  return useFriendsStore().isFriendsPulse;
-};
-const createGroupe = async () => {
-  if (group.value.name == "") {
-    lanceAlert("Veillez spécifier un nom pour le groupe.");
+const selectedFriends = computed(() =>
+  friendsStore.friends.filter((friend) => friend._id && selectedIds.value.includes(friend._id))
+);
+watch(
+  () => friendsStore.friends.map((friend) => friend._id),
+  (ids) => {
+    const available = new Set(ids);
+    selectedIds.value = selectedIds.value.filter((id) => available.has(id));
+  }
+);
+const isSelected = (id?: string) => !!id && selectedIds.value.includes(id);
+function toggleFriend(id?: string) {
+  if (!id || creating.value) return;
+  selectedIds.value = isSelected(id)
+    ? selectedIds.value.filter((selected) => selected !== id)
+    : [...selectedIds.value, id];
+  formError.value = "";
+}
+
+async function loadFriends() {
+  loading.value = true;
+  loadError.value = "";
+  try {
+    await friendsStore.getMyFriends();
+  } catch (error) {
+    console.error("Impossible de charger les amis :", error);
+    loadError.value = "Impossible de charger vos amis.";
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function createGroup() {
+  if (creating.value || loading.value || loadError.value) return;
+  nameInvalid.value = !groupName.value.trim();
+  if (nameInvalid.value) {
+    formError.value = "Veuillez saisir un nom pour le groupe.";
     return;
-  } else if (group.value.members.length < 2) {
-    lanceAlert("Veillez sélectionner au moin deux amis.");
+  }
+  if (selectedFriends.value.length < 2) {
+    formError.value = "Veuillez sélectionner au moins deux amis.";
     return;
-  } else {
-    await useConversationsStore().createGroup(group.value);
   }
-};
-const getFriends = () => {
-  if (key.value == "") {
-    return useFriendsStore().friends;
-  } else {
-    return useFriendsStore().friends.filter((user: User) => {
-      return (user.name as string)
-        .toLowerCase()
-        .includes(key.value.toLowerCase());
-    });
+  formError.value = "";
+  creating.value = true;
+  try {
+    const members = selectedFriends.value.flatMap((friend) => friend._id ? [friend._id] : []);
+    const group: Conversation = { name: groupName.value.trim(), type: "group", members };
+    await useConversationsStore().createGroup(group);
+  } catch (error) {
+    console.error("Impossible de créer le groupe :", error);
+    formError.value = "Impossible de créer le groupe. Veuillez réessayer.";
+  } finally {
+    creating.value = false;
   }
-};
-const select = (id: any) => {
-  if (isSelected(id)) {
-    group.value.members = group.value.members.filter((member: any) => {
-      return id != member;
-    }) as string[];
-  } else {
-    group.value.members.push(id);
-  }
-};
-const isSelected = (id: any): boolean => {
-  return group.value.members.includes(id);
-};
-definePageMeta({
-  layout: "private-space",
-});
-const nameGroupInputIsFocused = ref(false);
-const nameGroupLabelClicked = () => {
-  nameGroupInputIsFocused.value = true;
-  const nameGroupInput = document.getElementById(
-    "nameGroupInput"
-  ) as HTMLInputElement;
+}
 
-  nameGroupInput.focus();
-};
-onMounted(() => {
-  const nameGroupInput = document.getElementById(
-    "nameGroupInput"
-  ) as HTMLInputElement;
-
-  nameGroupInput.addEventListener("focus", () => {
-    nameGroupInputIsFocused.value = true;
-  });
-  nameGroupInput.addEventListener("focusout", () => {
-    nameGroupInputIsFocused.value = false;
-  });
-});
+onMounted(loadFriends);
+definePageMeta({ layout: "private-space", middleware: "private-space" });
 </script>
+
+<style scoped>
+.group-creation { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, 21rem); gap: 1.25rem; align-items: start; max-width: 76rem; }
+.group-main { display: grid; gap: 1rem; min-width: 0; }
+.group-panel { min-width: 0; padding: 1.4rem; border: 1px solid #e6e9f2; border-radius: 1.15rem; background: #fff; color: #172033; box-shadow: 0 10px 32px rgb(34 42 73 / 7%); }
+.section-heading { display: flex; align-items: center; gap: .9rem; margin-bottom: 1.4rem; }
+.section-icon, .summary-avatar { display: grid; flex: none; place-items: center; color: #5b4ac6; background: #eeebff; }
+.section-icon { width: 3rem; height: 3rem; border-radius: .9rem; }
+.section-icon svg { width: 1.5rem; height: 1.5rem; }
+.section-heading h2, .friends-heading h2, .group-summary h2 { margin: 0; color: #202a40; font-size: 1.1rem; font-weight: 750; overflow-wrap: anywhere; }
+.section-heading p, .friends-heading p { margin: .25rem 0 0; color: #526078; font-size: .875rem; line-height: 1.5; }
+.field-label { display: block; margin: 0 0 .45rem; color: #29364c; font-size: .85rem; font-weight: 700; }
+.field-label span { color: #b42318; }
+.group-input, .friend-search { width: 100%; border: 1px solid #d5dbe8; border-radius: .75rem; background: #f9faff; color: #172033; }
+.group-input { min-height: 3rem; padding: .7rem .9rem; }
+.group-input:focus, .friend-search:focus-within { outline: none; border-color: #7669e5; box-shadow: 0 0 0 3px rgb(118 105 229 / 18%); }
+.group-input[aria-invalid="true"] { border-color: #b42318; }
+.field-help { margin: .45rem 0 0; color: #526078; font-size: .8rem; }
+.friends-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.count-badge { flex: none; padding: .35rem .65rem; border-radius: 999px; background: #eeebff; color: #4936aa; font-size: .75rem; font-weight: 700; }
+.friend-search { display: flex; align-items: center; gap: .65rem; padding: 0 .85rem; }
+.friend-search svg { width: 1.15rem; height: 1.15rem; flex: none; color: #6558c8; }
+.friend-search input { width: 100%; min-width: 0; min-height: 3rem; border: 0; outline: 0; background: transparent; color: #172033; }
+.friends-list { display: grid; gap: .55rem; max-height: 25rem; overflow-y: auto; margin-top: 1rem; padding: .15rem; }
+.friend-option { display: flex; align-items: center; gap: .8rem; min-width: 0; padding: .75rem; border: 1px solid #e5e9f1; border-radius: .85rem; cursor: pointer; transition: background .15s, border-color .15s; }
+.friend-option:hover { background: #f8f7ff; border-color: #c9c1f4; }
+.friend-option-selected { border-color: #7564db; background: #f3f1ff; }
+.friend-option:focus-within { outline: 3px solid #bcb2f4; outline-offset: 2px; }
+.friend-avatar, .selected-avatar { flex: none; border-radius: 50%; object-fit: cover; background: #eef0f6; }
+.friend-avatar { width: 2.8rem; height: 2.8rem; }
+.friend-name { flex: 1; min-width: 0; overflow: hidden; color: #202a40; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.friend-choice { color: #5546b3; font-size: .78rem; font-weight: 700; }
+.friend-option input { width: 1.15rem; height: 1.15rem; flex: none; accent-color: #6553cf; }
+.group-status, .group-empty { margin: 1rem 0 0; padding: 1.4rem; border-radius: .8rem; background: #f7f8fc; color: #526078; text-align: center; font-size: .875rem; }
+.group-empty a { display: inline-block; margin-top: .5rem; color: #4b3cab; font-weight: 700; }
+.group-summary { position: sticky; top: 1rem; }
+.summary-eyebrow { margin: 0; color: #6454bf; font-size: .7rem; font-weight: 800; letter-spacing: .11em; }
+.summary-avatar { width: 3.8rem; height: 3.8rem; margin: 1rem 0 .85rem; border-radius: 1.1rem; }
+.summary-avatar svg { width: 2rem; height: 2rem; }
+.summary-description, .summary-empty, .summary-note { color: #526078; font-size: .82rem; line-height: 1.5; }
+.summary-description { margin: .4rem 0 0; }
+.summary-divider { height: 1px; margin: 1.2rem 0; background: #e7eaf1; }
+.selected-heading { display: flex; justify-content: space-between; align-items: center; gap: .5rem; font-size: .85rem; font-weight: 700; }
+.selected-heading span { color: #6656c1; }
+.summary-empty { margin: .75rem 0 1rem; }
+.selected-list { display: grid; gap: .6rem; max-height: 14rem; overflow-y: auto; margin: .8rem 0 1rem; padding: 0; list-style: none; }
+.selected-list li { display: flex; align-items: center; gap: .6rem; min-width: 0; font-size: .85rem; font-weight: 600; }
+.selected-avatar { width: 2rem; height: 2rem; }
+.selected-list li span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.selected-list button { width: 2rem; height: 2rem; border-radius: .5rem; color: #526078; font-size: 1.3rem; }
+.selected-list button:hover { background: #f0eefb; color: #4936aa; }
+.group-error { margin: 1rem 0; padding: .75rem; border-radius: .7rem; background: #fff0ef; color: #a3211a; font-size: .85rem; line-height: 1.45; }
+.group-error button { text-decoration: underline; font-weight: 700; }
+.create-button { display: flex; align-items: center; justify-content: center; gap: .65rem; width: 100%; min-height: 3rem; padding: .7rem 1rem; border-radius: .75rem; background: #5c4bc5; color: #fff; font-weight: 700; }
+.create-button:hover:not(:disabled) { background: #4939ac; }
+.create-button:disabled { opacity: .6; cursor: not-allowed; }
+.summary-note { margin: .7rem 0 0; text-align: center; }
+@media (max-width: 850px) { .group-creation { grid-template-columns: 1fr; } .group-summary { position: static; } }
+@media (max-width: 480px) { .group-panel { padding: 1rem; } .friends-heading { gap: .6rem; } .friend-option { gap: .55rem; } .friend-choice { display: none; } }
+</style>

@@ -202,14 +202,17 @@ export const useFriendsStore = defineStore("friendsStore", {
     },
     async getMyFriends(): Promise<User[]> {
       this.isFriendsPulse = true;
-      const id = useUsersStore().user._id;
-      const myFriends: any = await this.getService("friends").find({
-        query: { id },
-        paginate: false,
-      });
-      this.setFriends(myFriends as User[]);
-      this.isFriendsPulse = false;
-      return myFriends;
+      try {
+        const id = useUsersStore().user._id;
+        const myFriends: User[] = await this.getService("friends").find({
+          query: { id },
+          paginate: false,
+        });
+        this.setFriends(myFriends);
+        return myFriends;
+      } finally {
+        this.isFriendsPulse = false;
+      }
     },
     async remove(id: string) {
       const deleting: any = await this.getService("friends").remove(null, {
