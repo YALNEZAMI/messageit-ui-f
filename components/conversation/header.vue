@@ -3,14 +3,14 @@
     class="workspace-header flex items-center justify-between space-x-2"
   >
     <div class="flex min-w-0 items-center flex-1">
-      <div class="relative">
+      <div class="relative h-16 w-16 shrink-0">
         <ImagesConversationHeader
-          class="w-14 h-14"
+          class="w-16 h-16"
         ></ImagesConversationHeader>
 
         <Status
-          v-if="getType() != 'ai'"
-          class="absolute -top-1 right-3"
+          v-if="getType() === 'private'"
+          class="absolute bottom-0 right-0"
           :user="getConnectedFriend()"
         ></Status>
       </div>

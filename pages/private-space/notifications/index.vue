@@ -21,36 +21,26 @@
         </div>
       </div>
 
-      <div class="notification-categories" role="group" aria-label="Catégorie de notifications">
-        <button type="button" :class="{ active: category === 'FriendRequests' }" :aria-pressed="category === 'FriendRequests'" @click="category = 'FriendRequests'">
-          <span>Demandes reçues</span>
-          <span class="notification-count">{{ friendsStore.friendRequests.length }}</span>
-        </button>
-        <button type="button" :class="{ active: category === 'Acceptations' }" :aria-pressed="category === 'Acceptations'" @click="category = 'Acceptations'">
-          <span>Demandes acceptées</span>
-          <span class="notification-count">{{ friendsStore.acceptations.length }}</span>
-        </button>
-      </div>
-
       <div class="network-list-heading">
-        <h3>{{ category === "FriendRequests" ? "Demandes d'amitié" : "Nouvelles connexions" }}</h3>
+        <h3>Activité récente</h3>
         <span v-if="!isLoading" class="network-count">{{ notifications.length }} {{ notifications.length === 1 ? "notification" : "notifications" }}</span>
       </div>
+      <p v-if="loadError" role="alert">{{ loadError }} <button type="button" @click="loadNotifications">Réessayer</button></p>
       <p v-if="isLoading && !notifications.length" class="network-status" role="status">Chargement des notifications…</p>
       <div v-else-if="notifications.length" class="notification-list">
-        <article v-for="item in notifications" :key="item.notification._id" class="notification-card">
+        <article v-for="item in notifications" :key="`${item.kind}-${item.notification._id}`" class="notification-card">
           <div class="notification-meta">
-            <span class="notification-kind">{{ category === "FriendRequests" ? "Demande reçue" : "Demande acceptée" }}</span>
+            <span class="notification-kind" :class="{ 'notification-accepted': item.kind === 'accepted' }">{{ item.kind === "request" ? "Demande reçue" : "Demande acceptée" }}</span>
             <time v-if="formatDate(item.notification.createdAt)" :datetime="item.notification.createdAt">{{ formatDate(item.notification.createdAt) }}</time>
           </div>
           <User v-if="typeof item.person !== 'string'" :user="item.person" />
           <p v-else class="notification-unavailable">Profil indisponible.</p>
         </article>
       </div>
-      <div v-else class="network-empty">
+      <div v-else-if="!loadError" class="network-empty">
         <span class="network-empty-icon" aria-hidden="true">✦</span>
-        <h3>{{ category === "FriendRequests" ? "Aucune demande reçue" : "Aucune nouvelle connexion" }}</h3>
-        <p>{{ category === "FriendRequests" ? "Les demandes d'amitié que vous recevrez apparaîtront ici." : "Les acceptations de vos demandes apparaîtront ici." }}</p>
+        <h3>Aucune notification</h3>
+        <p>Vos demandes d'amitié et vos nouvelles connexions apparaîtront ici.</p>
       </div>
     </section>
   </main>
@@ -58,15 +48,33 @@
 
 <script lang="ts" setup>
 const friendsStore = useFriendsStore();
-const category = ref<"FriendRequests" | "Acceptations">("Acceptations");
+const loadError = ref("");
+const loadNotifications = async () => {
+  loadError.value = "";
+  try {
+    await Promise.all([friendsStore.getFriendRequestsSentToMe(), friendsStore.getAcceptedFriendRequests()]);
+  } catch (error) {
+    console.error("Impossible de charger les notifications :", error);
+    loadError.value = "Impossible de charger toutes les notifications.";
+  }
+};
+onMounted(loadNotifications);
 const notifications = computed(() => {
-  const requests = category.value === "FriendRequests";
-  return (requests ? friendsStore.friendRequests : friendsStore.acceptations).map((notification) => ({
-    notification,
-    person: requests ? notification.sender : notification.recipient,
+  const requests = friendsStore.friendRequests.map((notification) => ({
+    kind: "request" as const, notification, person: notification.sender,
   }));
+  const accepted = friendsStore.acceptations.map((notification) => ({
+    kind: "accepted" as const, notification, person: notification.recipient,
+  }));
+  return [...requests, ...accepted].sort((a, b) => {
+    const time = (value?: string) => {
+      const timestamp = value ? Date.parse(value) : NaN;
+      return Number.isNaN(timestamp) ? -Infinity : timestamp;
+    };
+    return time(b.notification.createdAt) - time(a.notification.createdAt);
+  });
 });
-const isLoading = computed(() => category.value === "FriendRequests" ? friendsStore.isFriendRequestsPulse : friendsStore.isAcceptationsPulse);
+const isLoading = computed(() => friendsStore.isFriendRequestsPulse || friendsStore.isAcceptationsPulse);
 const formatDate = (value?: string) => {
   if (!value) return "";
   const date = new Date(value);
@@ -77,11 +85,22 @@ const formatDate = (value?: string) => {
 };
 
 onUnmounted(async () => {
-  for (const request of friendsStore.friendRequests) {
-    await friendsStore.setFriendRequestAsSeen(request._id);
+  const requests = friendsStore.friendRequests.filter((request) => !request.seen);
+  const acceptedIds = friendsStore.acceptations.map((acceptation) => acceptation._id);
+  try {
+    for (const request of requests) {
+      await friendsStore.setFriendRequestAsSeen(request._id);
+    }
+    await friendsStore.clearAcceptations(acceptedIds);
+    eventBus.emit("notificationNumberChanged", true);
+  } catch (error) {
+    console.error("Impossible de marquer les notifications comme lues :", error);
   }
-  await friendsStore.clearAcceptations();
-  eventBus.emit("notificationNumberChanged", true);
 });
 definePageMeta({ layout: "private-space", middleware: "private-space" });
 </script>
+
+<style scoped>
+.notification-list { grid-template-columns: minmax(0, 1fr); }
+.notification-accepted { background: #e7f7ed; color: #166534; }
+</style>

@@ -137,9 +137,13 @@ const updateUser = async () => {
   saving.value = true;
   let profileSaved = false;
   try {
-    const image = userPhoto.value
-      ? (await useUploadStore().uploadProfilePhoto(userPhoto.value)).path
-      : usersStore.user.image;
+    let image = usersStore.user.image;
+    if (userPhoto.value) {
+      const path = (await useUploadStore().uploadProfilePhoto(userPhoto.value)).path;
+      const url = new URL(path);
+      url.searchParams.set("v", String(Date.now()));
+      image = url.toString();
+    }
     const normalizedEmail = email.value.toLowerCase();
     const updated = await usersStore.updateUser({
       _id: usersStore.user._id,

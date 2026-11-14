@@ -15,6 +15,7 @@
         <img :src="file" :alt="files[index]?.name || 'Image sélectionnée'" />
         <button
           type="button"
+          :disabled="isGenerating"
           class="composer-preview-remove"
           :aria-label="`Retirer ${files[index]?.name || 'l’image'}`"
           @click="removeFile(index)"
@@ -24,6 +25,7 @@
         @click="selectFiles = true"
         v-if="previewSrc.length > 3"
         type="button"
+        :disabled="isGenerating"
         class="composer-more"
       >+{{ previewSrc.length - 3 }}</button>
     </div>
@@ -33,9 +35,10 @@
         <!--text main input-->
         <textarea
           @input="typing"
+          @keydown="handleKeydown"
           id="textInput"
           type="text"
-          v-model.trim="message.text"
+          v-model="message.text"
           class="composer-input scroll"
           placeholder="Écrire un message..."
           aria-label="Écrire un message"
@@ -43,6 +46,7 @@
           style="resize: none"
         ></textarea>
         <button
+          type="button"
           :disabled="isSendButtonDisabled()"
           v-if="isSendable()"
           @click="send"
@@ -66,7 +70,9 @@
         </button>
         <!--emoji send button-->
         <button
+          type="button"
           v-else
+          :disabled="isGenerating || selectFiles"
           @click="sendEmoji"
           class="composer-send"
           aria-label="Envoyer l’emoji du thème"
@@ -75,6 +81,8 @@
         </button>
         <!--file form activater-->
         <button
+          type="button"
+          :disabled="isGenerating"
           class="composer-attach"
           aria-label="Ajouter des photos"
           @click="selectFiles = true"
@@ -131,6 +139,7 @@ eventBus.on("refereMessage", (referedMsg: Message) => {
 
 const cancelReply = () => {
   referedMessage.value = {} as Message;
+  message.value.referedMessage = "";
 };
 const message = ref({
   text: "",
@@ -156,9 +165,11 @@ const getConversationType = () => {
 const isGenerating = ref(false);
 const sendError = ref("");
 const send = async () => {
+  if (isGenerating.value || selectFiles.value || (!message.value.text?.trim() && files.value.length === 0)) return;
   isGenerating.value = true;
   sendError.value = "";
-  const text = message.value.text;
+  const outgoingMessage = { ...message.value };
+  const text = outgoingMessage.text;
   message.value.text = "";
   try {
     let urls = [] as string[];
@@ -168,7 +179,7 @@ const send = async () => {
     }
     await useMessagesStore().send(
       {
-        ...message.value,
+        ...outgoingMessage,
         text,
         type: "message",
         files: urls,
@@ -177,7 +188,7 @@ const send = async () => {
     );
     previewSrc.value = [];
     files.value = [];
-    cancelReply();
+    if (message.value.referedMessage === outgoingMessage.referedMessage) cancelReply();
   } catch (error) {
     console.error("Échec de l'envoi du message", error);
     if (!message.value.text) message.value.text = text;
@@ -186,6 +197,11 @@ const send = async () => {
   } finally {
     isGenerating.value = false;
   }
+};
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key !== "Enter" || event.shiftKey || event.ctrlKey || event.altKey || event.metaKey || event.isComposing || event.keyCode === 229) return;
+  event.preventDefault();
+  if (!event.repeat && isSendable() && !isSendButtonDisabled()) void send();
 };
 const typing = async () => {
   useConversationsStore().setConversationDraft(
@@ -198,7 +214,7 @@ onMounted(async () => {
   message.value.text = useConversationsStore().getConversationDraft(
     useRoute().params.id as string
   );
-  const input = document.getElementById("textInput") as HTMLInputElement;
+  const input = document.getElementById("textInput") as HTMLTextAreaElement;
   input.focus();
 });
 const isSendable = () => {
@@ -210,8 +226,8 @@ const isSendable = () => {
 };
 const isSendButtonDisabled = () => {
   return (
-    (getConversationType() == "ai" && isGenerating.value) ||
-    (getConversationType() == "ai" && message.value.text == "")
+    isGenerating.value || selectFiles.value ||
+    (getConversationType() == "ai" && !message.value.text?.trim() && files.value.length === 0)
   );
 };
 </script>

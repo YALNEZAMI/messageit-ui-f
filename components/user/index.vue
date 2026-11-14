@@ -7,7 +7,7 @@
       <ImagesUser :src="user.image" />
       <Status
         v-if="isMyFriend"
-        class="absolute top-0 right-0"
+        class="absolute bottom-0 right-0"
         :user="getUser()"
       ></Status>
     </div>

@@ -25,7 +25,8 @@
         />
         <!--user status-->
         <Status
-          class="absolute top-0 right-0"
+          v-if="conversation.type === 'private'"
+          class="absolute bottom-0 right-0"
           :user="getConnectedFriend()"
         ></Status>
       </div>

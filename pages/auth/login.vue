@@ -33,6 +33,7 @@
       <div>Continuez en tant que</div>
       <div class="font-semibold underline">{{ useUsersStore().user.name }}</div>
     </div>
+    <form @submit.prevent="login">
     <div class="auth-fields">
       <label class="auth-field" for="login-email">
         <span>Email</span>
@@ -59,8 +60,7 @@
     </div>
     <div class="mt-1 flex justify-center">
       <button
-        type="button"
-        @click="login"
+        type="submit"
         class="auth-submit"
       >
         <span v-if="!loading">Se connecter</span>
@@ -89,6 +89,7 @@
         </span>
       </button>
     </div>
+    </form>
     <p class="auth-switch">
       Vous n'avez pas de compte ?
       <NuxtLink to="/auth/register" class="auth-link">Créer un compte</NuxtLink>
@@ -137,10 +138,4 @@ const login = async () => {
     loading.value = false;
   }
 };
-document.addEventListener("keydown", async (e) => {
-  if (e.key == "Enter") {
-    await login();
-    return;
-  }
-});
 </script>

@@ -22,6 +22,7 @@
     <h1 id="auth-title" class="auth-title">Créez votre compte</h1>
     <p class="auth-subtitle">Quelques informations pour commencer à échanger.</p>
 
+    <form @submit.prevent="register">
     <div class="auth-fields">
       <label class="auth-field" for="name">
         <span>Nom d'utilisateur <span aria-hidden="true">*</span></span>
@@ -88,8 +89,7 @@
     </div>
     <div class="mt-1 flex justify-center">
       <button
-        type="button"
-        @click="register"
+        type="submit"
         class="auth-submit"
       >
         <span v-if="!loading">Créer mon compte</span>
@@ -118,6 +118,7 @@
         </span>
       </button>
     </div>
+    </form>
     <p class="auth-switch">
       Vous avez déjà un compte ?
       <NuxtLink to="/auth/login" class="auth-link">Se connecter</NuxtLink>
@@ -205,10 +206,4 @@ const allRequiredInputsFilled = (): boolean => {
 };
 
 definePageMeta({ layout: "auth" });
-document.addEventListener("keydown", async (e) => {
-  if (e.key == "Enter") {
-    await register();
-    return;
-  }
-});
 </script>

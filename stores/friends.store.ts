@@ -53,38 +53,39 @@ export const useFriendsStore = defineStore("friendsStore", {
     },
     async getFriendRequestsSentToMe(): Promise<Notification[]> {
       this.isFriendRequestsPulse = true;
-      const query = {
-        recipient: useUsersStore().user._id,
-      };
-      const response: any = await this.getService("friend-requests").find({
-        query,
-      });
-      let friendRequests = await response.data;
-      // friendRequests = friendRequests.map(async (fr: Notification) => {
-      //   fr.sender = await useUsersStore().getUser(fr.sender as string);
-      //   return fr;
-      // });
-      for (let fr of friendRequests) {
-        fr.sender = await useUsersStore().getUser(fr.sender as string);
+      try {
+        const userId = useUsersStore().user._id;
+        const response = await this.getService("friend-requests").find({
+          query: { recipient: userId },
+        });
+        const received = (response.data as Notification[]).filter((request) => request.recipient === userId);
+        const friendRequests = await Promise.all(received.map(async (request) => ({
+          ...request,
+          sender: typeof request.sender === "string" ? await useUsersStore().getUser(request.sender) : request.sender,
+        })));
+        this.setFriendRequests(friendRequests);
+        return friendRequests;
+      } finally {
+        this.isFriendRequestsPulse = false;
       }
-      this.setFriendRequests(friendRequests);
-      this.isFriendRequestsPulse = false;
-      return friendRequests;
     },
     async getAcceptedFriendRequests() {
       this.isAcceptationsPulse = true;
-
-      const response = await this.getService("friend-acceptations").find({
-        query: { seen: false },
-      });
-      const acceptations = response.data.filter(
-        (acc: any) => !acc.seen
-      ) as Notification[];
-      for (let acc of acceptations) {
-        acc.recipient = await useUsersStore().getUser(acc.recipient as string);
+      try {
+        const response = await this.getService("friend-acceptations").find({
+          query: { seen: false },
+        });
+        const acceptations = (response.data as Notification[]).filter(
+          (acc) => !acc.seen && acc.sender === useUsersStore().user._id
+        );
+        const populated = await Promise.all(acceptations.map(async (acc) => ({
+          ...acc,
+          recipient: typeof acc.recipient === "string" ? await useUsersStore().getUser(acc.recipient) : acc.recipient,
+        })));
+        this.setAcceptatons(populated);
+      } finally {
+        this.isAcceptationsPulse = false;
       }
-      this.setAcceptatons(acceptations);
-      this.isAcceptationsPulse = false;
     },
     async getFriendshipDate(userId: string): Promise<string> {
       const response = await this.getService("friend-acceptations").find({
@@ -106,21 +107,11 @@ export const useFriendsStore = defineStore("friendsStore", {
       });
       return response.data[response.data.length - 1].createdAt;
     },
-    async clearAcceptations() {
-      // for (const acc of this.acceptations) {
-      await this.getService("friend-acceptations").patch(
-        null,
-        {
-          seen: true,
-        },
-        {
-          query: {
-            sender: useUsersStore().user._id,
-          },
-        }
-      );
-      // }
-      this.setAcceptatons([]);
+    async clearAcceptations(ids: string[]) {
+      for (const id of ids) {
+        await this.getService("friend-acceptations").patch(id, { seen: true });
+        this.setAcceptatons(this.acceptations.filter((acc) => acc._id !== id));
+      }
     },
 
     async isMyFriend(id: string): Promise<boolean> {
@@ -225,6 +216,7 @@ export const useFriendsStore = defineStore("friendsStore", {
 
       // Listen for the custom event
       service.on("created", async (friendReq: Notification) => {
+        if (friendReq.recipient !== useUsersStore().user._id) return;
         this.setFriendRequests(
           this.friendRequests.filter((fr: Notification) => {
             return fr._id != friendReq._id;
@@ -264,14 +256,7 @@ export const useFriendsStore = defineStore("friendsStore", {
         this.addFriend(newFriend);
         //acceptation handling
         if (acceptation.sender == useUsersStore().user._id) {
-          const acceptationExist =
-            this.acceptations.filter((acc: Notification) => {
-              return acc._id === acceptation._id;
-            }).length > 0;
-          if (!acceptationExist) {
-            acceptation.recipient = newFriend;
-            this.setAcceptatons([acceptation, ...this.acceptations]);
-          }
+          await this.getAcceptedFriendRequests();
         }
         eventBus.emit("notificationNumberChanged", acceptation);
       });
@@ -294,12 +279,13 @@ export const useFriendsStore = defineStore("friendsStore", {
       });
     },
     async setFriendRequestAsSeen(id: string) {
-      for (let fReq of this.friendRequests) {
-        fReq.seen = true;
-      }
-      return await this.getService("friend-requests").patch(id, {
+      const result = await this.getService("friend-requests").patch(id, {
         seen: true,
       });
+      this.friendRequests = this.friendRequests.map((request) =>
+        request._id === id ? { ...request, seen: true } : request
+      );
+      return result;
     },
   },
 });
