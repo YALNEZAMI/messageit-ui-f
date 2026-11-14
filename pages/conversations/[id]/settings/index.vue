@@ -76,11 +76,14 @@
         <h2 id="leave-title">Quitter la conversation</h2>
         <p>Vous ne recevrez plus les nouveaux messages de cette discussion.</p>
       </div>
-      <button type="button" class="settings-danger-button" :disabled="saving || leaving" @click="leave">
+      <button type="button" class="settings-danger-button" :disabled="saving || leaving" @click="confirmLeave = true">
         {{ leaving ? "Départ en cours…" : "Quitter la conversation" }}
       </button>
-      <p v-if="leaveError" class="settings-feedback settings-feedback-error" role="alert">{{ leaveError }}</p>
     </section>
+    <ConfirmDialog v-if="confirmLeave" title="Quitter cette conversation ?"
+      description="Vous ne recevrez plus les nouveaux messages de cette discussion."
+      confirm-label="Quitter la conversation" :busy="leaving" :error="leaveError"
+      @cancel="confirmLeave = false; leaveError = ''" @confirm="leave" />
   </main>
 </template>
 
@@ -101,6 +104,7 @@ const leaving = ref(false);
 const success = ref(false);
 const errorMessage = ref("");
 const leaveError = ref("");
+const confirmLeave = ref(false);
 
 const fallbackImage = computed(() => conversationsStore.getDefaultImage(conversation.value.type));
 const conversationImage = computed(() => {
@@ -134,6 +138,7 @@ watch(() => conversation.value._id, () => {
   success.value = false;
   errorMessage.value = "";
   leaveError.value = "";
+  confirmLeave.value = false;
 }, { immediate: true });
 
 const selectConversationPhoto = (event: Event) => {

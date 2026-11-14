@@ -137,14 +137,14 @@
       >
         <button
           class="selectionButtons half bg-orange-500 hover:bg-orange-600"
-          @click="deleteForMe"
+          @click="requestDelete('me')"
         >
           Supprimer pour moi
         </button>
         <button
           v-if="allSeletedMessagesAreMine()"
           class="selectionButtons half bg-red-500 hover:bg-red-600"
-          @click="deleteForAll"
+          @click="requestDelete('all')"
         >
           Supprimer pour tous
         </button>
@@ -210,16 +210,17 @@
                 {{ emoji }}
               </button>
             </div>
+            <p v-if="reactionError" class="search-error" role="alert">{{ reactionError }}</p>
             <div class="message-options-actions">
               <button
-                @click="deleteForMe"
+                @click="requestDelete('me')"
                 class="message-action message-action-danger"
               >
                 Supprimer pour moi
               </button>
               <button
                 v-if="getSender()._id == useUsersStore().user._id"
-                @click="deleteForAll"
+                @click="requestDelete('all')"
                 class="message-action message-action-danger"
               >
                 Supprimer pour tous
@@ -264,15 +265,19 @@
     <!--transfer component-->
     <div
       v-if="transfering"
-      class="flex justify-center items-center fixed z-0 w-full h-full top-0 left-0 bg-black bg-opacity-50"
+      class="flex justify-center items-center fixed z-50 w-full h-full top-0 left-0 bg-black bg-opacity-50 p-4"
+      role="dialog" aria-modal="true" aria-label="Transférer les messages"
+      @click.self="cancelTransfering" @keydown.esc.stop="cancelTransfering"
     >
       <Transfer
-        @send="sendFromTransfer($event)"
         @finish="cancelTransfering"
         :messagesToSend="selectedMessages"
         class="relative z-10"
       ></Transfer>
     </div>
+    <ConfirmDialog v-if="deleteMode" :title="deleteMode === 'all' ? 'Supprimer pour tous ?' : 'Supprimer pour vous ?'"
+      :description="deleteDescription" :confirm-label="deleteMode === 'all' ? 'Supprimer pour tous' : 'Supprimer pour moi'"
+      :busy="deletingMessages" :error="deleteError" @cancel="cancelDelete" @confirm="confirmDeleteMessages" />
   </main>
 </template>
 <style lang="postcss" scoped>
@@ -323,27 +328,6 @@ const allSeletedMessagesAreMine = (): boolean => {
     return (msg.sender as User)._id == useUsersStore().user._id;
   });
 };
-const sendFromTransfer = async (conv: Conversation) => {
-  // for (const msg of selectedMessages.value) {
-  //   const sending = await useMessagesStore().transfer(
-  //     {
-  //       text: msg.text,
-  //       files: msg.files,
-  //       sender: "",
-  //       conversation: "",
-  //       referedMessage: "",
-  //       type: "message",
-  //       transfered: true,
-  //       createdAt: new Date().toISOString(),
-  //     },
-  //     conv._id as string
-  //   );
-
-  //   sentToConversations.value.push(conv._id as string);
-  // }
-  selectedMessages.value = [];
-  selectingMode.value = false;
-};
 const cancelTransfering = () => {
   transfering.value = false;
   cancelSelection();
@@ -388,32 +372,49 @@ const getReferedMessageId = (msg: Message): string => {
   const message = msg.referedMessage as Message;
   return message._id as string;
 };
-const deleteForMe = async () => {
-  if (selectingMode.value) {
-    for (const msg of selectedMessages.value) {
-      await useMessagesStore().deleteForMe(msg._id as string);
-    }
-    selectingMode.value = false;
-
-    return;
-  }
-  await useMessagesStore().deleteForMe(message._id as string);
-  useAudioStore().runWipeDelete();
-
+const deleteMode = ref<"me" | "all" | null>(null);
+const deleteIds = ref<string[]>([]);
+const deletingMessages = ref(false);
+const deleteError = ref("");
+const deleteDescription = computed(() => {
+  const count = deleteIds.value.length;
+  const subject = count > 1 ? `Ces ${count} messages seront supprimés` : "Ce message sera supprimé";
+  return deleteMode.value === "all"
+    ? `${subject} pour tous les participants. Cette action est irréversible.`
+    : `${subject} de votre vue. Les autres participants pourront toujours le voir.`;
+});
+const requestDelete = (mode: "me" | "all") => {
+  const targets = selectingMode.value ? selectedMessages.value : [message];
+  deleteIds.value = targets.flatMap((item) => item?._id ? [item._id] : []);
+  if (!deleteIds.value.length) return;
+  deleteError.value = "";
+  deleteMode.value = mode;
   setIsOptions(false);
 };
-const deleteForAll = async () => {
-  if (selectingMode.value) {
-    for (const msg of selectedMessages.value) {
-      await useMessagesStore().deleteForAll(msg._id as string);
+const cancelDelete = () => {
+  if (!deletingMessages.value) deleteMode.value = null;
+};
+const confirmDeleteMessages = async () => {
+  if (deletingMessages.value || !deleteMode.value) return;
+  deletingMessages.value = true;
+  deleteError.value = "";
+  try {
+    while (deleteIds.value.length) {
+      const id = deleteIds.value[0];
+      if (deleteMode.value === "all") await useMessagesStore().deleteForAll(id);
+      else await useMessagesStore().deleteForMe(id);
+      deleteIds.value.shift();
+      selectedMessages.value = selectedMessages.value.filter((item) => item._id !== id);
     }
     selectingMode.value = false;
-    return;
+    deleteMode.value = null;
+    useAudioStore().runWipeDelete();
+  } catch (error) {
+    console.error("Impossible de supprimer les messages :", error);
+    deleteError.value = "La suppression a échoué. Les messages restants peuvent être réessayés.";
+  } finally {
+    deletingMessages.value = false;
   }
-  await useMessagesStore().deleteForAll(message._id as string);
-  useAudioStore().runWipeDelete();
-
-  setIsOptions(false);
 };
 const copy = () => {
   copied.value = true;
@@ -428,19 +429,21 @@ const copy = () => {
   }, 2000);
 };
 const reaction = ref("");
+const reactionError = ref("");
+let optionsRequest = 0;
 const messageOptions = async (msg: Message) => {
-  //handle reaction state
-  const alreadyReacted = await useEmojisStore().alreadyReacted(
-    msg._id as string
-  );
-  if (alreadyReacted.length > 0) {
-    reaction.value = alreadyReacted[0].emoji;
-  } else {
-    reaction.value = "";
-  }
+  const request = ++optionsRequest;
   message = msg;
-  //display the options pannel
+  reaction.value = "";
+  reactionError.value = "";
   setIsOptions(true);
+  try {
+    const alreadyReacted = await useEmojisStore().alreadyReacted(msg._id as string);
+    if (request === optionsRequest) reaction.value = alreadyReacted[0]?.emoji || "";
+  } catch (error) {
+    console.error("Impossible de charger la réaction :", error);
+    if (request === optionsRequest) reactionError.value = "Impossible de charger votre réaction.";
+  }
 };
 const isMessagesPulse = () => {
   return useMessagesStore().isMessagesPulse;

@@ -22,7 +22,7 @@
         <div
           class="message-row-content flex items-center justify-between w-full"
           :class="{
-            'flex-row-reverse': !isMyMessage(),
+            'flex-row-reverse': isMyMessage(),
           }"
         >
           <div v-if="props.selectingMode">
@@ -33,7 +33,7 @@
               @change="select()"
             />
           </div>
-          <button v-else type="button" class="message-options" aria-label="Options du message" @click="options">
+          <button v-else type="button" class="message-options" aria-label="Options du message" title="Options du message" @click.stop="options">
             <svg
               v-if="isMyMessage()"
               xmlns="http://www.w3.org/2000/svg"
@@ -46,7 +46,7 @@
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25"
+                d="M5 12h.01M12 12h.01M19 12h.01"
               />
             </svg>
             <svg
@@ -61,7 +61,7 @@
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"
+                d="M5 12h.01M12 12h.01M19 12h.01"
               />
             </svg>
           </button>

@@ -71,14 +71,12 @@
         <h2 id="delete-title">Supprimer mon compte</h2>
         <p>Cette action est irréversible.</p>
       </div>
-      <button v-if="!confirmDelete" type="button" class="profile-danger-button" :disabled="saving || deleting" @click="confirmDelete = true">Supprimer mon compte</button>
-      <div v-else class="profile-delete-actions">
-        <p>Confirmer la suppression de votre compte ?</p>
-        <button type="button" class="profile-text-button" :disabled="deleting" @click="confirmDelete = false">Annuler</button>
-        <button type="button" class="profile-danger-button" :disabled="deleting" @click="deleteUser">{{ deleting ? "Suppression…" : "Confirmer la suppression" }}</button>
-      </div>
-      <p v-if="deleteError" class="profile-feedback profile-error" role="alert">{{ deleteError }}</p>
+      <button type="button" class="profile-danger-button" :disabled="saving || deleting" @click="confirmDelete = true">Supprimer mon compte</button>
     </section>
+    <ConfirmDialog v-if="confirmDelete" title="Supprimer votre compte ?"
+      description="Cette action est irréversible. Votre compte sera supprimé."
+      confirm-label="Supprimer mon compte" :busy="deleting" :error="deleteError"
+      @cancel="confirmDelete = false; deleteError = ''" @confirm="deleteUser" />
   </main>
 </template>
 

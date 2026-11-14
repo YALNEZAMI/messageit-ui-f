@@ -22,7 +22,7 @@
       <div v-if="isMyFriend" class="user-action-group">
         <button
           type="button"
-          @click="remove"
+          @click="confirmRemove = true"
           class="userButton bg-red-700 hover:bg-red-800"
         >
           <div>Supprimer</div>
@@ -166,6 +166,10 @@
         </button>
       </div>
     </div>
+    <ConfirmDialog v-if="confirmRemove" title="Supprimer cet ami ?"
+      :description="`${getUserName() || 'Cette personne'} sera retiré(e) de votre liste d’amis.`"
+      confirm-label="Supprimer cet ami" :busy="removing" :error="removeError"
+      @cancel="confirmRemove = false; removeError = ''" @confirm="remove" />
   </ContainersTheme>
 </template>
 <script setup>
@@ -182,6 +186,9 @@ const friendsStore = useFriendsStore();
 const isMyFriend = ref(false);
 const isISentFriendRequest = ref(false);
 const isHeSentFriendRequest = ref(false);
+const confirmRemove = ref(false);
+const removing = ref(false);
+const removeError = ref("");
 
 onMounted(async () => {
   await setUserFriendShipStatus();
@@ -208,8 +215,26 @@ const accept = async () => {
   await setUserFriendShipStatus();
 };
 const remove = async () => {
-  await friendsStore.remove(user._id);
-  await setUserFriendShipStatus();
+  if (removing.value) return;
+  removing.value = true;
+  removeError.value = "";
+  try {
+    await friendsStore.remove(user._id);
+  } catch (error) {
+    console.error("Impossible de supprimer cet ami :", error);
+    removeError.value = "Impossible de supprimer cet ami. Veuillez réessayer.";
+    removing.value = false;
+    return;
+  }
+  confirmRemove.value = false;
+  isMyFriend.value = false;
+  try {
+    await setUserFriendShipStatus();
+  } catch (error) {
+    console.error("Impossible d’actualiser le statut d’amitié :", error);
+  } finally {
+    removing.value = false;
+  }
 };
 const chatWithUser = async () => {
   await useConversationsStore().chatWithUser(user);

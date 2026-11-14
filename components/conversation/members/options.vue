@@ -21,14 +21,14 @@
       <button
         class="basicButton bg-red-500 hover:bg-red-400"
         v-if="IsRemoveMember()"
-        @click="removeMember()"
+        @click="confirmRemoval = true"
       >
         Retirer de la conversation
       </button>
       <button
         class="basicButton bg-black hover:bg-black"
         v-if="IsUpgradeChef()"
-        @click="upgradeToChef()"
+        @click="confirmChef = true"
       >
         Assigner status chef
       </button>
@@ -39,6 +39,14 @@
         Fermer
       </button>
     </div>
+    <ConfirmDialog v-if="confirmRemoval" title="Retirer ce membre ?"
+      :description="`${member.name || 'Ce membre'} ne recevra plus les nouveaux messages de cette conversation.`"
+      confirm-label="Retirer le membre" :busy="removing" :error="removeError"
+      @cancel="confirmRemoval = false; removeError = ''" @confirm="removeMember" />
+    <ConfirmDialog v-if="confirmChef" title="Transférer le rôle de chef ?"
+      :description="`${member.name || 'Ce membre'} deviendra chef du groupe. Seul le nouveau chef pourra transférer ce rôle à nouveau.`"
+      confirm-label="Transférer le rôle" :busy="transferringChef" :error="chefError"
+      @cancel="confirmChef = false; chefError = ''" @confirm="upgradeToChef" />
   </main>
 </template>
 <style scoped>
@@ -52,6 +60,12 @@ button {
 <script lang="ts" setup>
 import type { User } from "~/interfaces/user";
 const rights = useGroupRightsStore().rights;
+const confirmRemoval = ref(false);
+const removing = ref(false);
+const removeError = ref("");
+const confirmChef = ref(false);
+const transferringChef = ref(false);
+const chefError = ref("");
 const currentUser = useUsersStore().user;
 const isUpgradeAdmin = () => {
   return (
@@ -93,12 +107,32 @@ const toogleAdmin = async () => {
   emits("finish");
 };
 const upgradeToChef = async () => {
-  await useGroupRightsStore().upgradeToChef(member._id as string);
-  emits("finish");
+  if (transferringChef.value) return;
+  transferringChef.value = true;
+  chefError.value = "";
+  try {
+    await useGroupRightsStore().upgradeToChef(member._id as string);
+    emits("finish");
+  } catch (error) {
+    console.error("Impossible de transférer le rôle de chef :", error);
+    chefError.value = "Impossible de transférer le rôle. Veuillez réessayer.";
+  } finally {
+    transferringChef.value = false;
+  }
 };
 const removeMember = async () => {
-  await useConversationsStore().toogleMembership(member._id as string);
-  emits("finish");
+  if (removing.value) return;
+  removing.value = true;
+  removeError.value = "";
+  try {
+    await useConversationsStore().toogleMembership(member._id as string);
+    emits("finish");
+  } catch (error) {
+    console.error("Impossible de retirer le membre :", error);
+    removeError.value = "Impossible de retirer ce membre. Veuillez réessayer.";
+  } finally {
+    removing.value = false;
+  }
 };
 const props = defineProps({
   member: Object,
