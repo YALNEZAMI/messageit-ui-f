@@ -52,16 +52,19 @@
         id="messagesContainer"
         class="chat-messages relative w-full flex flex-col overflow-y-auto overflow-x-hidden px-1"
         style="scrollbar-width: thin"
+        @scroll="onHistoryScroll"
       >
-        <!--load spinner-->
-        <div class="flex justify-center" v-if="getIsAppendingMessages()">
-          <div
-            class="w-6 h-6 mb-10 border-4 border-solid border-white border-t-transparent rounded-full animate-spin"
-          ></div>
+        <div class="history-controls" v-if="useMessagesStore().hasOlderMessages || getIsAppendingMessages() || historyError">
+          <p v-if="findingMessage" role="status">Recherche du message dans l’historique…</p>
+          <p v-else-if="getIsAppendingMessages()" role="status">Chargement des messages précédents…</p>
+          <p v-if="historyError" role="alert">{{ historyError }}</p>
+          <button v-if="!findingMessage && !getIsAppendingMessages()" type="button" @click="retryHistory">
+            {{ historyError ? 'Réessayer' : 'Charger les messages précédents' }}
+          </button>
         </div>
         <!--welcome to conversation-->
         <ConversationWelcome
-          v-if="getMessages().length == 0"
+          v-if="getMessages().length == 0 && !isMessagesPulse()"
         ></ConversationWelcome>
         <!--messages-->
         <div v-for="message of getMessages()" :key="message._id">
@@ -85,6 +88,10 @@
             :message="message"
             :clickedId="clickedId"
           ></ConversationNotification>
+        </div>
+        <div v-if="navigationNotice" class="navigation-notice" role="status">
+          <span>{{ navigationNotice }}</span>
+          <button type="button" aria-label="Fermer" @click="navigationNotice = ''">×</button>
         </div>
         <!--typing component-->
         <Typing @goBottom="goBottom()"></Typing>
@@ -288,8 +295,15 @@
   @apply border-0  cursor-pointer p-2 rounded-md text-white m-1 max-w-40;
 }
 .searchedMessage {
-  @apply animate-pulse bg-red-300 bg-opacity-50 rounded;
+  border-radius: 1rem;
+  background: rgb(224 231 255 / 80%);
+  box-shadow: 0 0 0 3px #6366f1, 0 8px 24px rgb(49 46 129 / 25%);
+  transition: background .3s ease, box-shadow .3s ease;
 }
+.history-controls { align-self: center; display: grid; justify-items: center; gap: .4rem; margin: .75rem; padding: .6rem .9rem; border-radius: .9rem; background: #fff; color: #334155; box-shadow: 0 4px 16px rgb(15 23 42 / 12%); font-size: .85rem; text-align: center; }
+.history-controls button { border: 0; border-radius: .6rem; padding: .4rem .7rem; color: #fff; background: #4338ca; font-weight: 700; }
+.navigation-notice { position: absolute; z-index: 5; top: 4.5rem; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 1rem; width: max-content; max-width: calc(100% - 2rem); padding: .7rem 1rem; border-radius: .8rem; background: #fff; color: #1e293b; box-shadow: 0 8px 24px rgb(15 23 42 / 22%); font-size: .875rem; }
+.navigation-notice button { color: #475569; font-size: 1.2rem; }
 </style>
 <script lang="ts" setup>
 import { eventBus } from "@/utils/eventBus";
@@ -315,6 +329,14 @@ const isOptions = ref(false);
 const selectingMode = ref(false);
 let message = useMessagesStore().messages[0];
 let messagesContainer: HTMLDivElement;
+const historyError = ref("");
+const findingMessage = ref(false);
+const navigationNotice = ref("");
+let navigationRequest = 0;
+let pendingTarget = "";
+let highlightTimer: ReturnType<typeof setTimeout> | undefined;
+let historyLoading: Promise<boolean> | null = null;
+let historyLoadingConversation = "";
 const selectedMessages = ref([] as Message[]);
 const transfering = ref(false);
 const copied = ref(false);
@@ -462,39 +484,87 @@ const getMessages = () => {
   return useMessagesStore().messages;
 };
 const goBottom = () => {
-  if (messagesContainer == null) {
-    setTimeout(() => {
-      //set messages containrer
-      messagesContainer = document.getElementById(
-        "messagesContainer"
-      ) as HTMLDivElement;
-      messagesContainer!.scrollTop =
-        messagesContainer!.scrollHeight + messagesContainer.clientHeight + 1;
-    }, 4000);
-  } else {
-    messagesContainer!.scrollTop =
-      messagesContainer!.scrollHeight + messagesContainer.clientHeight + 1;
+  if (messagesContainer) messagesContainer.scrollTop = messagesContainer.scrollHeight;
+};
+const loadHistory = (preservePosition = true): Promise<boolean> => {
+  const conversation = useMessagesStore().historyConversationId;
+  if (historyLoading) {
+    if (historyLoadingConversation === conversation) return historyLoading;
+    return historyLoading.then(() => loadHistory(preservePosition));
   }
+  historyLoadingConversation = conversation;
+  historyLoading = (async () => {
+    const height = messagesContainer.scrollHeight;
+    const top = messagesContainer.scrollTop;
+    historyError.value = "";
+    try {
+      const loaded = await useMessagesStore().appendHistoryMessages(preservePosition);
+      await nextTick();
+      if (loaded && preservePosition) messagesContainer.scrollTop = top + messagesContainer.scrollHeight - height;
+      return loaded;
+    } catch (error) {
+      console.error("Impossible de charger l’historique :", error);
+      historyError.value = "Impossible de charger les messages précédents.";
+      return false;
+    } finally {
+      historyLoading = null;
+    }
+  })();
+  return historyLoading;
+};
+const retryHistory = () => {
+  if (pendingTarget) void goToMessage(pendingTarget, true);
+  else void loadHistory();
+};
+const onHistoryScroll = () => {
+  if (!messagesContainer) return;
+  useMessagesStore().setIsAtBottom(
+    messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 60
+  );
+  if (messagesContainer.scrollTop < 50 && !findingMessage.value && !historyError.value &&
+      useMessagesStore().hasOlderMessages && !getIsAppendingMessages()) void loadHistory();
 };
 const goToMessage = async (messageId: string, effect: boolean) => {
-  let messageElement = document.getElementById(messageId) as HTMLElement;
-
-  if (!messageElement) {
-    messagesContainer.scrollTop = 0; // Scroll to top to load older messages
-    await useMessagesStore().appendHistoryMessages(); // Load older messages
-    setTimeout(() => goToMessage(messageId, true), 500); // Retry after messages load
-    return;
-  }
-
-  // Ensure the message is centered
-  messageElement.scrollIntoView({ behavior: "smooth", block: "center" });
-
-  if (effect) {
-    // Highlight the message
-    messageElement.classList.add("searchedMessage");
-    setTimeout(() => {
-      messageElement.classList.remove("searchedMessage");
-    }, 4000);
+  const request = ++navigationRequest;
+  const conversation = useMessagesStore().historyConversationId;
+  pendingTarget = messageId;
+  findingMessage.value = true;
+  navigationNotice.value = "";
+  try {
+    await nextTick();
+    let element = document.getElementById(messageId);
+    while (!element && useMessagesStore().hasOlderMessages && request === navigationRequest &&
+      conversation === useMessagesStore().historyConversationId) {
+      if (!await loadHistory(false)) break;
+      element = document.getElementById(messageId);
+    }
+    if (request !== navigationRequest || conversation !== useMessagesStore().historyConversationId) return;
+    if (!element) {
+      if (!historyError.value) {
+        pendingTarget = "";
+        navigationNotice.value = "Ce message n’est plus disponible dans cette conversation.";
+      }
+      return;
+    }
+    pendingTarget = "";
+    element.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (effect) {
+      document.querySelectorAll(".searchedMessage").forEach((item) => item.classList.remove("searchedMessage"));
+      element.classList.add("searchedMessage");
+      clearTimeout(highlightTimer);
+      highlightTimer = setTimeout(() => element?.classList.remove("searchedMessage"), 4000);
+    }
+  } finally {
+    if (request === navigationRequest) {
+      findingMessage.value = false;
+      if (conversation === useMessagesStore().historyConversationId) {
+        try {
+          await useMessageStatusStore().setConversationMessagesAsSeen();
+        } catch (error) {
+          console.error("Impossible de confirmer la lecture des messages :", error);
+        }
+      }
+    }
   }
 };
 const isAtBottom = () => {
@@ -516,84 +586,68 @@ const isModifiable = (): boolean => {
 
   return res;
 };
-onMounted(async () => {
-  //set messages containrer
-  messagesContainer = document.getElementById(
-    "messagesContainer"
-  ) as HTMLDivElement;
-
-  //listen to conversation change event and scroll then
-  eventBus.on("conversationChanged", (conv: Conversation) => {
-    goBottom();
-  });
-
-  //listen to messages recieved event and scoll if the conversation is concerned
-  eventBus.on("messageReceived", (msg: Message) => {
-    const conv = msg.conversation as Conversation;
-    const msgConversationId = conv._id ? conv._id : msg.conversation;
-    if (
-      msgConversationId == useConversationsStore().currentConversation._id ||
-      isAtBottom()
-    ) {
-      goBottom();
-      setTimeout(() => {
-        goBottom();
-      }, 500);
-    }
-  });
-  //refresh message event
-
-  messagesContainer.addEventListener("scroll", async (e) => {
-    // update isAtBottom
-    useMessagesStore().setIsAtBottom(
-      messagesContainer.scrollHeight - messagesContainer.scrollTop <=
-        messagesContainer.clientHeight + 60
-    );
-    //check out message history if at top
-    if (messagesContainer.scrollTop < 1) {
-      await useMessagesStore().appendHistoryMessages();
-    }
-  });
-  //search message case
-  let messageId = useRoute().query.messageId;
-
-  if (messageId) {
-    await goToMessage(messageId as string, true);
+const onConversationChanged = () => {
+  if (!findingMessage.value) goBottom();
+};
+const onMessageReceived = (msg: Message) => {
+  const conv = msg.conversation as Conversation;
+  const msgConversationId = conv?._id || msg.conversation;
+  if (msgConversationId === useConversationsStore().currentConversation._id && isAtBottom() && !findingMessage.value) {
+    nextTick(goBottom);
   }
-  //not seen messages
-  let lastSeenMessageId = await useMessageStatusStore().getLastSeenMessageId(
-    useRoute().params.id as string
-  );
-  const msgs = useMessagesStore().messages;
-  if (
-    lastSeenMessageId == null ||
-    lastSeenMessageId == msgs[msgs.length - 1]?._id
-  ) {
-    //initial scrolling
-    goBottom();
+};
+const initializePosition = async () => {
+  const request = ++navigationRequest;
+  const conversation = useMessagesStore().historyConversationId;
+  const messageId = useRoute().query.messageId;
+  if (typeof messageId === "string" && messageId) {
+    await goToMessage(messageId, true);
   } else {
-    goToMessage(lastSeenMessageId, false);
-    const message = document.getElementById(lastSeenMessageId) as HTMLElement;
-    const elem = document.createElement("div");
-    elem.classList.add(
-      "bg-gray-300",
-      "border-2",
-      "border-double",
-      "border-indigo-400",
-      "rounded",
-      "px-5",
-      "py-1",
-      "bg-opacity-50",
-      "w-max",
-      "mx-auto",
-      "text-center"
+    const lastSeenMessageId = await useMessageStatusStore().getLastSeenMessageId(
+      useRoute().params.id as string
     );
-    elem.innerHTML = "______Nouveaux messages______";
-    message.appendChild(elem);
+    if (request !== navigationRequest || conversation !== useMessagesStore().historyConversationId) return;
+    const msgs = useMessagesStore().messages;
+    if (!lastSeenMessageId || lastSeenMessageId === msgs[msgs.length - 1]?._id) {
+      goBottom();
+    } else {
+      await goToMessage(lastSeenMessageId, false);
+    }
   }
-  //set messages as seen
-  //set conversation messages as seen
-  await useMessageStatusStore().setConversationMessagesAsSeen();
+  if (conversation === useMessagesStore().historyConversationId) {
+    try {
+      await useMessageStatusStore().setConversationMessagesAsSeen();
+    } catch (error) {
+      console.error("Impossible de confirmer la lecture des messages :", error);
+    }
+  }
+};
+onMounted(() => {
+  messagesContainer = document.getElementById("messagesContainer") as HTMLDivElement;
+  eventBus.on("conversationChanged", onConversationChanged);
+  eventBus.on("messageReceived", onMessageReceived);
+  void initializePosition().catch((error) => {
+    console.error("Impossible de positionner la conversation :", error);
+    navigationNotice.value = "Impossible de retrouver votre position dans la conversation.";
+  });
+});
+watch(() => useRoute().params.id, () => {
+  if (!messagesContainer) return;
+  historyError.value = "";
+  pendingTarget = "";
+  void initializePosition().catch((error) => {
+    console.error("Impossible de positionner la conversation :", error);
+    navigationNotice.value = "Impossible de retrouver votre position dans la conversation.";
+  });
+});
+watch(() => useRoute().query.messageId, (id) => {
+  if (typeof id === "string" && id && messagesContainer) void goToMessage(id, true);
+});
+onBeforeUnmount(() => {
+  navigationRequest++;
+  clearTimeout(highlightTimer);
+  eventBus.off("conversationChanged", onConversationChanged);
+  eventBus.off("messageReceived", onMessageReceived);
 });
 definePageMeta({
   layout: "conversations",

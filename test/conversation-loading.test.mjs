@@ -142,16 +142,19 @@ test("viewer lookups run in parallel for the current conversation", async () => 
   await loading;
 });
 
-test("initial messages use one query and preserve chronological pagination", async () => {
+test("cursor pagination keeps chronological order despite new and deleted messages", async () => {
   const calls = [];
-  const allMessages = Array.from({ length: 60 }, (_, i) => ({
-    _id: String(i + 1),
+  let allMessages = Array.from({ length: 60 }, (_, i) => ({
+    _id: String(i + 1).padStart(3, "0"),
+    createdAt: `2024-01-01T00:00:${String(i).padStart(2, "0")}.000Z`,
     type: "message",
   }));
   const service = {
     find: async (params) => {
       calls.push(params);
-      return { total: allMessages.length, data: allMessages.slice(-25).reverse() };
+      const { olderThanId, $limit } = params.query;
+      const older = olderThanId ? allMessages.filter((message) => message._id < olderThanId) : allMessages;
+      return { total: older.length, data: older.slice(-$limit).reverse() };
     },
   };
   const { useMessagesStore } = loadStore("../stores/messages.store.ts", {
@@ -164,30 +167,43 @@ test("initial messages use one query and preserve chronological pagination", asy
   assert.equal(calls.length, 1);
   assert.equal(calls[0].query.$sort.createdAt, -1);
   assert.equal(calls[0].query.conversation, "conversation-1");
-  assert.equal(store.skip, 35);
+  assert.equal(store.hasOlderMessages, true);
   assert.deepEqual(Array.from(store.messages, (message) => message._id),
     allMessages.slice(-25).map((message) => message._id));
   assert.equal(store.isMessagesPulse, false);
 
-  store.getThisService = () => ({
-    find: async (params) => {
-      calls.push(params);
-      return { data: allMessages.slice(params.query.$skip, params.query.$skip + params.query.$limit) };
-    },
-  });
+  allMessages = allMessages.filter((message) => message._id !== "050");
+  allMessages.push({ _id: "061", createdAt: "2024-01-01T00:01:00.000Z", type: "message" });
   await store.appendHistoryMessages();
-  assert.equal(calls[1].query.$skip, 10);
+  assert.equal(calls[1].query.olderThanId, "036");
   assert.equal(calls[1].query.$limit, 25);
-  assert.equal(calls[1].query.$sort._id, 1);
+  assert.equal(calls[1].query.$sort._id, -1);
   assert.deepEqual(Array.from(store.messages, (message) => message._id),
-    allMessages.slice(10).map((message) => message._id));
+    Array.from({ length: 50 }, (_, i) => String(i + 11).padStart(3, "0")));
   await store.appendHistoryMessages();
-  assert.equal(calls[2].query.$skip, 0);
-  assert.equal(calls[2].query.$limit, 10);
+  assert.equal(calls[2].query.olderThanId, "011");
+  assert.equal(store.hasOlderMessages, false);
   assert.deepEqual(Array.from(store.messages, (message) => message._id),
-    allMessages.map((message) => message._id));
+    Array.from({ length: 60 }, (_, i) => String(i + 1).padStart(3, "0")));
 
   store.getThisService = () => ({ find: async () => { throw new Error("offline"); } });
   await assert.rejects(store.getInitialMessages("conversation-1"), /offline/);
   assert.equal(store.isMessagesPulse, false);
+});
+
+test("stale history responses cannot replace a different conversation", async () => {
+  let resolveOld;
+  const { useMessagesStore } = loadStore("../stores/messages.store.ts");
+  const store = useMessagesStore();
+  store.getThisService = () => ({
+    find: ({ query }) => query.conversation === "old"
+      ? new Promise((resolve) => { resolveOld = resolve; })
+      : Promise.resolve({ data: [{ _id: "new", createdAt: "2024-01-01", type: "message" }] }),
+  });
+  const old = store.getInitialMessages("old");
+  await store.getInitialMessages("new");
+  resolveOld({ data: [{ _id: "old", createdAt: "2024-01-01", type: "message" }] });
+  await old;
+  assert.deepEqual(Array.from(store.messages, (message) => message._id), ["new"]);
+  assert.equal(store.historyConversationId, "new");
 });

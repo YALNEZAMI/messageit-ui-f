@@ -9,8 +9,11 @@ export const useMessagesStore = defineStore("messagesStore", {
   state: () => {
     return {
       paginationValue: 25,
-      skip: 0,
-      isAppendingMessages: false, //to prevent multiple calls
+      hasOlderMessages: false,
+      oldestCursor: null as { createdAt: string; id: string } | null,
+      historyConversationId: "",
+      historyGeneration: 0,
+      isAppendingMessages: false,
       messages: [] as Message[],
       isMessagesPulse: false,
       searchedMessages: [] as Message[],
@@ -26,9 +29,6 @@ export const useMessagesStore = defineStore("messagesStore", {
     },
     setIsAtBottom(nval: boolean) {
       this.isAtBottom = nval;
-    },
-    setSkip(newskip: number) {
-      this.skip = newskip;
     },
     getService(name: string) {
       return useNuxtApp().$feathers.service(name);
@@ -162,6 +162,12 @@ export const useMessagesStore = defineStore("messagesStore", {
       });
     },
     async getInitialMessages(idConv: string) {
+      const generation = ++this.historyGeneration;
+      this.historyConversationId = idConv;
+      this.oldestCursor = null;
+      this.hasOlderMessages = false;
+      this.isAppendingMessages = false;
+      this.messages = [];
       this.isMessagesPulse = true;
       try {
         const messages = await this.getThisService().find({
@@ -171,10 +177,16 @@ export const useMessagesStore = defineStore("messagesStore", {
             conversation: idConv,
           },
         });
-        this.setSkip(Math.max(0, messages.total - this.paginationValue));
-        this.messages = await this.populateMessages(messages.data.reverse());
+        const page = await this.populateMessages(messages.data.slice().reverse());
+        if (generation !== this.historyGeneration) return;
+        const oldest = page[0];
+        if (oldest && (!oldest._id || !oldest.createdAt)) throw new Error("Curseur de pagination manquant.");
+        this.oldestCursor = oldest ? { id: oldest._id!, createdAt: oldest.createdAt! } : null;
+        this.hasOlderMessages = messages.data.length === this.paginationValue;
+        const loadedIds = new Set(page.map((message) => message._id));
+        this.messages = [...page, ...this.messages.filter((message) => !loadedIds.has(message._id))];
       } finally {
-        this.isMessagesPulse = false;
+        if (generation === this.historyGeneration) this.isMessagesPulse = false;
       }
     },
     async populateMessages(messages: Message[]) {
@@ -199,31 +211,44 @@ export const useMessagesStore = defineStore("messagesStore", {
       }
       return res;
     },
-    async appendHistoryMessages() {
-      if (this.skip == 0 || this.isAppendingMessages) {
-        return;
-      }
+    async appendHistoryMessages(markSeen = true) {
+      if (!this.hasOlderMessages || this.isAppendingMessages || !this.oldestCursor) return false;
+      const generation = this.historyGeneration;
+      const cursor = this.oldestCursor;
+      const conversation = this.historyConversationId;
       this.isAppendingMessages = true;
-
-      const limit = Math.min(this.skip, this.paginationValue);
-      const nextSkip = Math.max(0, this.skip - this.paginationValue);
       try {
         const res = await this.getThisService().find({
           query: {
-            $limit: limit,
-            $skip: nextSkip,
-            $sort: { createdAt: 1, _id: 1 },
-            conversation: useRoute().params.id,
+            $limit: this.paginationValue,
+            $sort: { createdAt: -1, _id: -1 },
+            conversation,
+            olderThanCreatedAt: cursor.createdAt,
+            olderThanId: cursor.id,
           },
         });
-        const messages = await this.populateMessages(res.data);
-        this.setSkip(nextSkip);
-        this.messages = messages.concat(this.messages);
+        const messages = await this.populateMessages(res.data.slice().reverse());
+        if (generation !== this.historyGeneration) return false;
+        const oldest = messages[0];
+        if (oldest && (!oldest._id || !oldest.createdAt)) throw new Error("Curseur de pagination manquant.");
+        if (oldest && oldest._id === cursor.id && oldest.createdAt === cursor.createdAt) {
+          throw new Error("La pagination n'a pas progressé.");
+        }
+        if (oldest) this.oldestCursor = { id: oldest._id!, createdAt: oldest.createdAt! };
+        this.hasOlderMessages = res.data.length === this.paginationValue;
+        const existingIds = new Set(this.messages.map((message) => message._id));
+        this.messages = messages.filter((message) => !existingIds.has(message._id)).concat(this.messages);
+        if (markSeen) {
+          try {
+            await useMessageStatusStore().setConversationMessagesAsSeen();
+          } catch (error) {
+            console.error("Impossible de confirmer la lecture des messages :", error);
+          }
+        }
+        return messages.length > 0;
       } finally {
-        this.isAppendingMessages = false;
+        if (generation === this.historyGeneration) this.isAppendingMessages = false;
       }
-      //set new loaded messages as seen
-      await useMessageStatusStore().setConversationMessagesAsSeen();
     },
     async getMessages(idConv: string) {
       return await this.getThisService().find({

@@ -33,11 +33,10 @@
     <template v-else-if="searched">
       <p v-if="messages.length && mode === 'semantic'" class="search-status">Messages les plus proches de votre recherche (20 maximum).</p>
       <div v-if="messages.length" class="search-results">
-        <ContainersConversationTheme
-          v-for="msg in messages" :key="msg._id"
-          class="conversation-card cursor-pointer w-full min-h-16 p-2 flex items-center"
-          @click="$router.push(`/conversations/${$route.params.id}/messages?messageId=${msg._id}`)"
-        >
+        <NuxtLink v-for="msg in messages" :key="msg._id"
+          :to="{ path: `/conversations/${route.params.id}/messages`, query: { messageId: msg._id } }"
+          class="search-result-link" :aria-label="`Voir le message de ${getSender(msg)?.name || 'Utilisateur'} dans la conversation`">
+        <ContainersConversationTheme class="conversation-card w-full min-h-16 p-2 flex items-center">
           <ImagesFallback class="h-16 w-16 shrink-0 rounded-full object-cover"
             :src="getSender(msg)?.image"
             :fallback="useConversationsStore().getDefaultImage(getSender(msg)?.aiUser ? 'ai' : 'private')" alt="" />
@@ -48,7 +47,9 @@
               <div class="text-xs shrink-0">{{ useMessagesStore().getDate(msg.createdAt + "") }}</div>
             </div>
           </div>
+          <span class="search-result-action" aria-hidden="true">Voir <span>→</span></span>
         </ContainersConversationTheme>
+        </NuxtLink>
       </div>
       <NoResult v-else class="mt-3" :message="mode === 'semantic' ? 'Aucun message suffisamment proche. Essayez de reformuler votre recherche.' : 'Aucun message trouvé.'" />
     </template>
@@ -145,6 +146,10 @@ definePageMeta({ middleware: "conversations", layout: "conversations" });
 .search-form { display: flex; gap: .75rem; }
 .search-form .search-input { min-width: 0; padding-right: 1rem; }
 .search-results { display: grid; gap: .5rem; max-height: 65vh; overflow-y: auto; }
+.search-result-link { display: block; border-radius: .9rem; text-decoration: none; transition: transform .18s ease, box-shadow .18s ease; }
+.search-result-link:hover, .search-result-link:focus-visible { transform: translateY(-2px); box-shadow: 0 0 0 3px #6366f1, 0 8px 20px rgb(15 23 42 / 15%); outline: none; }
+.search-result-action { flex: none; padding: .45rem .7rem; border-radius: .6rem; background: #e0e7ff; color: #3730a3; font-size: .8rem; font-weight: 700; }
+@media (max-width: 480px) { .search-result-action { font-size: 0; } .search-result-action span { font-size: 1.1rem; } }
 .search-status { margin: .75rem 0; color: inherit; }
 .search-error { padding: .8rem; border-radius: .7rem; color: #991b1b; background: #fee2e2; }
 @media (max-width: 480px) { .search-form { flex-direction: column; } .search-form button { width: 100%; } }

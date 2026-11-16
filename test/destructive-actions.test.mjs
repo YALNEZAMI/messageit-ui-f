@@ -18,7 +18,7 @@ function loadComponent(file, globals = {}, modules = {}, props = {}) {
       if (name in modules) return modules[name];
       throw new Error(`Unexpected import: ${name}`);
     },
-    onMounted() {}, onBeforeUnmount() {}, definePageMeta() {}, ...globals,
+    onMounted() {}, onBeforeUnmount() {}, watch() {}, definePageMeta() {}, ...globals,
   });
   return { component: exports.default.setup(props, { expose() {}, emit() {} }), template: descriptor.template.content };
 }
